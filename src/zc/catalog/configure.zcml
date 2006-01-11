@@ -1,0 +1,37 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    i18n_domain="zope"
+    >
+
+  <localUtility class=".extentcatalog.Catalog">
+    <factory
+        id="zc.catalog.extentcatalog"
+        />
+    <require
+        interface="zope.app.catalog.interfaces.ICatalogQuery"
+        permission="zope.Public"
+        />
+    <require
+        interface="zope.app.catalog.interfaces.ICatalogEdit"
+        permission="zope.ManageServices"
+        />
+    <require
+        interface="zope.app.container.interfaces.IContainer"
+        permission="zope.ManageServices"
+        />
+  </localUtility>
+
+  <content class=".extentcatalog.FilterExtent">
+    <require
+        attributes="addable __iter__ __or__ __ror__ union __and__ __rand__
+                    intersection __sub__ difference __rsub__ rdifference
+                    __nonzero__ __contains__"
+        permission="zope.View"/>
+    <require
+        attributes="add remove discard clear"
+        permission="zope.ManageServices"
+        />
+  </content>
+
+</configure>
