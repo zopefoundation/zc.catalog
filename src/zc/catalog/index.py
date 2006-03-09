@@ -140,9 +140,9 @@ class ValueIndex(AbstractIndex):
         if query_type is None:
             res = None
         elif query_type == 'any_of':
-            res = IFBTree.IFBucket()
-            for v in query:
-                res = IFBTree.union(res, values_to_documents.get(v))
+            res = IFBTree.multiunion(
+                [s for s in (values_to_documents.get(v) for v in query)
+                 if s is not None])
         elif query_type == 'any':
             if query is None:
                 res = IFBTree.IFSet(self.ids())
@@ -150,9 +150,10 @@ class ValueIndex(AbstractIndex):
                 assert zc.catalog.interfaces.IExtent.providedBy(query)
                 res = query & IFBTree.IFSet(self.ids())
         elif query_type == 'between':
-            res = IFBTree.IFBucket()
-            for v in values_to_documents.keys(*query):
-                res = IFBTree.union(res, values_to_documents.get(v))
+            res = IFBTree.multiunion(
+                [s for s in (values_to_documents.get(v) for v in
+                             values_to_documents.keys(*query))
+                 if s is not None])
         elif query_type == 'none':
             assert zc.catalog.interfaces.IExtent.providedBy(query)
             res = query - IFBTree.IFSet(self.ids())
