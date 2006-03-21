@@ -279,6 +279,12 @@ class NormalizationWrapper(persistent.Persistent):
     index = normalizer = None
     collection_index = False
 
+    def documentCount(self):
+        return self.index.documentCount()
+
+    def wordCount(self):
+        return self.index.wordCount()
+
     def __init__(self, index, normalizer, collection_index=False):
         self.index = index
         self.normalizer = normalizer
