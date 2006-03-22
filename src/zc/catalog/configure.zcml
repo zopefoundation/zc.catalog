@@ -22,7 +22,7 @@
         />
   </localUtility>
 
-  <content class=".extentcatalog.FilterExtent">
+  <class class=".extentcatalog.FilterExtent">
     <require
         attributes="addable __iter__ __or__ __ror__ union __and__ __rand__
                     intersection __sub__ difference __rsub__ rdifference
@@ -32,39 +32,39 @@
         attributes="add remove discard clear"
         permission="zope.ManageServices"
         />
-  </content>
+  </class>
 
- <content class=".catalogindex.ValueIndex">
+ <class class=".catalogindex.ValueIndex">
      <require
          permission="zope.ManageServices"
          interface="zope.app.catalog.interfaces.IAttributeIndex
                     zope.index.interfaces.IStatistics"
          set_schema="zope.app.catalog.interfaces.IAttributeIndex"
          />
-   </content>
+   </class>
 
-   <content class=".catalogindex.SetIndex">
+   <class class=".catalogindex.SetIndex">
      <require
          permission="zope.ManageServices"
          interface="zope.app.catalog.interfaces.IAttributeIndex
                     zope.index.interfaces.IStatistics"
          set_schema="zope.app.catalog.interfaces.IAttributeIndex"
          />
-   </content>
+   </class>
 
-   <content class=".catalogindex.NormalizationWrapper">
+   <class class=".catalogindex.NormalizationWrapper">
      <require
          permission="zope.ManageServices"
          interface="zope.app.catalog.interfaces.IAttributeIndex
                     zope.index.interfaces.IStatistics"
          set_schema="zope.app.catalog.interfaces.IAttributeIndex"
          />
-   </content>
+   </class>
 
-    <content class="BTrees.Length.Length">
+    <class class="BTrees.Length.Length">
       <require
         permission="zope.ManageServices"
         attributes="__call__" />
-    </content>
+    </class>
 
 </configure>
