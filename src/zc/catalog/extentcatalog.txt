@@ -6,10 +6,9 @@ To show the extent catalog at work, we need an intid utility, an index,
 some items to index, and a filter that determines what the extent accepts.
 
     >>> from zc.catalog import interfaces, extentcatalog
-    >>> from zope import interface
+    >>> from zope import interface, component
     >>> from zope.interface import verify
     >>> import zope.app.intid.interfaces
-    >>> from zope.app.tests import ztapi
     >>> class DummyIntId(object):
     ...     interface.implements(zope.app.intid.interfaces.IIntIds)
     ...     MARKER = '__dummy_int_id__'
@@ -30,8 +29,8 @@ some items to index, and a filter that determines what the extent accepts.
     ...         return iter(self.data)
     ...
     >>> intid = DummyIntId()
-    >>> ztapi.provideUtility(
-    ...     zope.app.intid.interfaces.IIntIds, intid)
+    >>> component.provideUtility(
+    ...     intid, zope.app.intid.interfaces.IIntIds)
     >>> import sets
     >>> from zope.app.container.interfaces import IContained
     >>> class DummyIndex(object):
@@ -206,5 +205,5 @@ intersections are weighted.
     True
     >>> list(sorted(catalog.extent.difference(alt_set))) == matches
     True
-
+    >>> from zope.app.testing import ztapi
     >>> ztapi.unprovideUtility(zope.app.intid.interfaces.IIntIds)
