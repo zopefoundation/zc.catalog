@@ -1,0 +1,3 @@
+<!-- install this into your Zope 3 instance's etc/package-includes 
+     directory -->
+<include package="zc.catalog"/>
