@@ -1,11 +1,10 @@
-##############################################################################
+#############################################################################
 #
-# Copyright (c) 2004 Zope Corporation. All Rights Reserved.
+# Copyright (c) 2006 Zope Corporation and Contributors.
+# All Rights Reserved.
 #
-# This software is subject to the provisions of the Zope Visible Source
-# License, Version 1.0 (ZVSL).  A copy of the ZVSL should accompany this
-# distribution.
-#
+# This software is subject to the provisions of the Zope Public License,
+# Version 2.1 (ZPL).  A copy of the ZPL should accompany this distribution.
 # THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
 # WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
@@ -35,7 +34,7 @@ class IExtent(interface.Interface):
 
     def add(uid, obj):
         """add uid to extent; raise ValueError if it is not addable.
-        
+
         If uid is already a member of the extent, calling add is a no-op,
         except that if the uid and obj are no longer addable to the extent then
         ValueError is still raised (but without removing the uid)"""
@@ -97,7 +96,7 @@ class IFilterExtent(IExtent):
 
 class IExtentCatalog(interface.Interface):
     """A catalog of only items within an extent.
-    
+
     Interface intended to be used with zope.app.catalog.interfaces.ICatalog"""
 
     extent = interface.Attribute(
@@ -105,30 +104,30 @@ class IExtentCatalog(interface.Interface):
 
 class IIndexValues(interface.Interface):
     """An index that allows introspection of the indexed values"""
-    
+
     def minValue(min=None):
         """return the minimum value in the index.
-        
+
         if min is provided, return the minimum value equal to or greater than
         min.
-        
+
         Raises ValueError if no min.
         """
 
     def maxValue(max=None):
         """return the maximum value in the index.
-        
+
         If max is provided, return the maximum value equal to or less than max.
-        
+
         Raises ValueError if no max.
         """
 
     def values(min=None, max=None, excludemin=False, excludemax=False,
                doc_id=None):
         """return an iterables of the values in the index.
-        
+
         if doc_id is provided, returns the values only for that document id.
-        
+
         If a min is specified, then output is constrained to values greater
         than or equal to the given min, and, if excludemin is specified and
         true, is further constrained to values strictly greater than min.  A
@@ -148,7 +147,7 @@ class IIndexValues(interface.Interface):
     def ids():
         """return a BTrees.IFBTree data structure of the document ids in the
         index--the ones that have values to be indexed.  All document ids
-        should produce at least one value given a call of 
+        should produce at least one value given a call of
         IIndexValues.values(doc_id=id).
         """
 
@@ -156,15 +155,15 @@ class ISetIndex(interface.Interface):
 
     def apply(query):
         """Return None or an IFBTree Set of the doc ids that match the query.
-        
+
         query is a dict with one of the following keys: any_of, any,
         all_of, between, and none.
-        
+
         Any one of the keys may be used; using more than one is not allowed.
 
         The any_of key should have a value of an iterable of values: the
         result will be the docids whose values contain any of the given values.
-        
+
         The all_of key should have a value of an iterable of values: the
         result will be the docids whose values contain all of the given values.
 
@@ -229,14 +228,14 @@ class INormalizationWrapper(zope.index.interfaces.IInjection,
     and querying."""
 
     index = interface.Attribute(
-        """an index implementing IInjection, IIndexSearch, IStatistics, and 
+        """an index implementing IInjection, IIndexSearch, IStatistics, and
         IIndexValues""")
 
     normalizer = interface.Attribute("a normalizer, implementing INormalizer")
 
     collection_index = interface.Attribute(
         """boolean: whether indexed values should be treated as collections
-        (each composite value normalized) or not (original value is 
+        (each composite value normalized) or not (original value is
         normalized)""")
 
 class INormalizer(interface.Interface):
