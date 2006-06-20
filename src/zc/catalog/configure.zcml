@@ -4,7 +4,7 @@
     i18n_domain="zope"
     >
 
-  <localUtility class=".extentcatalog.Catalog">
+  <class class=".extentcatalog.Catalog">
     <factory
         id="zc.catalog.extentcatalog"
         />
@@ -20,7 +20,7 @@
         interface="zope.app.container.interfaces.IContainer"
         permission="zope.ManageServices"
         />
-  </localUtility>
+  </class>
 
   <class class=".extentcatalog.FilterExtent">
     <require
@@ -34,37 +34,38 @@
         />
   </class>
 
- <class class=".catalogindex.ValueIndex">
-     <require
-         permission="zope.ManageServices"
-         interface="zope.app.catalog.interfaces.IAttributeIndex
-                    zope.index.interfaces.IStatistics"
-         set_schema="zope.app.catalog.interfaces.IAttributeIndex"
-         />
-   </class>
-
-   <class class=".catalogindex.SetIndex">
-     <require
-         permission="zope.ManageServices"
-         interface="zope.app.catalog.interfaces.IAttributeIndex
-                    zope.index.interfaces.IStatistics"
-         set_schema="zope.app.catalog.interfaces.IAttributeIndex"
-         />
-   </class>
-
-   <class class=".catalogindex.NormalizationWrapper">
-     <require
-         permission="zope.ManageServices"
-         interface="zope.app.catalog.interfaces.IAttributeIndex
-                    zope.index.interfaces.IStatistics"
-         set_schema="zope.app.catalog.interfaces.IAttributeIndex"
-         />
-   </class>
-
-    <class class="BTrees.Length.Length">
-      <require
+  <class class=".catalogindex.ValueIndex">
+    <require
         permission="zope.ManageServices"
-        attributes="__call__" />
-    </class>
+        interface="zope.app.catalog.interfaces.IAttributeIndex
+                   zope.index.interfaces.IStatistics"
+        set_schema="zope.app.catalog.interfaces.IAttributeIndex"
+        />
+  </class>
+
+  <class class=".catalogindex.SetIndex">
+    <require
+        permission="zope.ManageServices"
+        interface="zope.app.catalog.interfaces.IAttributeIndex
+                   zope.index.interfaces.IStatistics"
+        set_schema="zope.app.catalog.interfaces.IAttributeIndex"
+        />
+  </class>
+
+  <class class=".catalogindex.NormalizationWrapper">
+    <require
+        permission="zope.ManageServices"
+        interface="zope.app.catalog.interfaces.IAttributeIndex
+                   zope.index.interfaces.IStatistics"
+        set_schema="zope.app.catalog.interfaces.IAttributeIndex"
+        />
+  </class>
+
+  <class class="BTrees.Length.Length">
+    <require
+        permission="zope.ManageServices"
+        attributes="__call__"
+        />
+  </class>
 
 </configure>
