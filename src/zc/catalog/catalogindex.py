@@ -62,6 +62,6 @@ def DateTimeSetIndex(
     resolution=2): # hour; good for per-day searches
     ix = NormalizationWrapper(
         field_name, interface, field_callable, zc.catalog.index.SetIndex(),
-        zc.catalog.index.DateTimeNormalizer(resolution), False)
+        zc.catalog.index.DateTimeNormalizer(resolution), True)
     zope.interface.directlyProvides(ix, zc.catalog.interfaces.ISetIndex)
     return ix

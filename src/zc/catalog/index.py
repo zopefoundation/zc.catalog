@@ -442,5 +442,5 @@ def DateTimeValueIndex(resolution=2): # hour; good for per-day searches
     zc.catalog.interfaces.ISetIndex)
 def DateTimeSetIndex(resolution=2): # hour; good for per-day searches
     ix = NormalizationWrapper(SetIndex(), DateTimeNormalizer(resolution), True)
-    interface.directlyProvides(ix, zc.catalog.interfaces.IValueIndex)    
+    interface.directlyProvides(ix, zc.catalog.interfaces.ISetIndex)    
     return ix
