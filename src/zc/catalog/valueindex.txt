@@ -76,7 +76,7 @@ contain any of the values.  The results are not weighted.
     >>> list(index.apply({'any_of':(42,)}))
     []
 
-Another query is 'qny', If the key is None, all indexed document ids with any
+Another query is 'any', If the key is None, all indexed document ids with any
 values are returned.  If the key is an extent, the intersection of the extent
 and all document ids with any values is returned.
 
