@@ -284,6 +284,10 @@ class NormalizationWrapper(persistent.Persistent):
     def wordCount(self):
         return self.index.wordCount()
 
+    def clear(self):
+        """see zope.index.interfaces.IInjection.clear"""
+        return self.index.clear()
+
     def __init__(self, index, normalizer, collection_index=False):
         self.index = index
         self.normalizer = normalizer
