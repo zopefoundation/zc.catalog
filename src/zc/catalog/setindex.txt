@@ -49,7 +49,7 @@ and integers will sort consistently; this may not be a reasonable hope.
     ...     index.index_doc(k, v)
     ...
 
-After indexing, the statistics and values match the newly entered content. 
+After indexing, the statistics and values match the newly entered content.
 
     >>> list(index.values())
     [1, 2, 3, 4, 5, 6, 7, 'a', 'b', 'c']
@@ -107,8 +107,8 @@ weighted.
     >>> list(index.apply({'all_of': (3, 4)}))
     [2, 9]
 
-The 'between' argument takes from 1 to four values.  The first is the 
-minimum, and defaults to None, indicating no minimum; the second is the 
+The 'between' argument takes from 1 to four values.  The first is the
+minimum, and defaults to None, indicating no minimum; the second is the
 maximum, and defaults to None, indicating no maximum; the next is a boolean for
 whether the minimum value should be excluded, and defaults to False; and the
 last is a boolean for whether the maximum value should be excluded, and also
@@ -166,7 +166,7 @@ When you unindex a document, the searches and statistics should be updated.
     >>> list(index.ids())
     [1, 2, 3, 4, 5, 7, 8, 9]
 
-Reindexing a document that has new additional values also is reflected in 
+Reindexing a document that has new additional values also is reflected in
 subsequent searches and statistic checks.
 
     >>> data[8].extend([5, 'c'])
@@ -215,7 +215,7 @@ This affects both ways of determining the ids that are and are not in the index
     >>> list(index.apply({'none': extent}))
     [0, 2, 6, 10, 11, 12, 13, 14]
 
-The values method can be used to examine the indexed values for a given 
+The values method can be used to examine the indexed values for a given
 document id.
 
     >>> set(index.values(doc_id=8)) == set([1, 5, 6, 'c'])
@@ -228,4 +228,4 @@ values.
     True
     >>> index.containsValue(20)
     False
-    
+

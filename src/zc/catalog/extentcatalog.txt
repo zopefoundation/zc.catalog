@@ -2,7 +2,7 @@ An extent catalog is very similar to a normal catalog except that it only
 indexes items addable to its extent.  The extent is both a filter and a
 set that may be merged with other result sets.
 
-To show the extent catalog at work, we need an intid utility, an index, 
+To show the extent catalog at work, we need an intid utility, an index,
 some items to index, and a filter that determines what the extent accepts.
 
     >>> from zc.catalog import interfaces, extentcatalog
@@ -68,7 +68,7 @@ some items to index, and a filter that determines what the extent accepts.
     >>> index = DummyIndex()
     >>> catalog['index'] = index
 
-Now we have a catalog set up with an index and an extent, and some content to 
+Now we have a catalog set up with an index and an extent, and some content to
 index.  If we ask the catalog to index all of the content, only the ones that
 match the filter will be in the extent and in the index.
 
@@ -80,7 +80,7 @@ match the filter will be in the extent and in the index.
     >>> list(sorted(extent)) == list(sorted(index.uids)) == matches
     True
 
-If a content object is indexed that used to match the filter but no longer 
+If a content object is indexed that used to match the filter but no longer
 does, it should be removed from the extent and indexes.
 
     >>> 5 in catalog.extent
@@ -109,7 +109,7 @@ catalog and index as usual.
     >>> list(sorted(extent)) == list(sorted(index.uids)) == matches
     True
 
-And similarly, unindexing an object that is not in the catalog should be a 
+And similarly, unindexing an object that is not in the catalog should be a
 no-op.
 
     >>> 0 in catalog.extent
@@ -166,12 +166,12 @@ it is removed from all indexes.
     True
 
 The extent itself provides a number of merging features to allow its values to
-be merged with other BTrees.IFBTree data structures.  These include 
-intersection, union, difference, and reverse difference.  Given an extent 
+be merged with other BTrees.IFBTree data structures.  These include
+intersection, union, difference, and reverse difference.  Given an extent
 named 'extent' and another IFBTree data structure named 'data', intersections
-can be spelled "extent & data" or "data & extent"; unions can be spelled 
+can be spelled "extent & data" or "data & extent"; unions can be spelled
 "extent | data" or "data | extent"; differences can be spelled "extent - data";
-and reverse differences can be spelled "data - extent".  Unions and 
+and reverse differences can be spelled "data - extent".  Unions and
 intersections are weighted.
 
     >>> from BTrees import IFBTree

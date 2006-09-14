@@ -7,7 +7,7 @@ zope.index.interfaces.IStatistics, and zc.catalog.interfaces.IIndexValues--
 and delegates all of the behavior to the wrapped index, normalizing values
 using the normalizer before the index sees them.
 
-The normalizing wrapper currently only supports queries offered by 
+The normalizing wrapper currently only supports queries offered by
 zc.catalog.interfaces.ISetIndex and zc.catalog.interfaces.IValueIndex.
 
 The normalizer interface requires the following methods, as defined in the
@@ -39,7 +39,7 @@ interaction and adapt it to zope.interface.common.idatetime.ITZInfo; failing
 that (no request or no adapter) it uses the system local timezone.
 
 - input values must be datetimes with a timezone.  They are normalized to the
-  resolution specified when the normalizer is created: a resolution of 0 
+  resolution specified when the normalizer is created: a resolution of 0
   normalizes values to days; a resolution of 1 to hours; 2 to minutes; 3 to
   seconds; and 4 to microseconds.
 
@@ -48,7 +48,7 @@ that (no request or no adapter) it uses the system local timezone.
   given date in the found timezone, as described above.  timezone-naive
   datetimes get the found timezone.
 
-- 'all' values may be timezone-aware datetimes or timezone-naive datetimes. 
+- 'all' values may be timezone-aware datetimes or timezone-naive datetimes.
   timezone-naive datetimes get the found timezone.
 
 - 'minimum' values may be timezone-aware datetimes, timezone-naive datetimes,
@@ -94,7 +94,7 @@ If we specify a different resolution, the results are different.
 Note that changing the resolution of an indexed value may create surprising
 results, because queries do not change their resolution.  Therefore, if you
 index something with a datetime with a finer resolution that the normalizer's,
-then searching for that datetime will not find the doc_id.  
+then searching for that datetime will not find the doc_id.
 
 Values in an 'any_of' query are parsed with 'any'.  'any' should return a
 sequence of values.  It requires an index, which we will mock up here.

@@ -48,7 +48,7 @@ sort consistently across Python versions.
     ...     index.index_doc(k, v)
     ...
 
-After indexing, the statistics and values match the newly entered content. 
+After indexing, the statistics and values match the newly entered content.
 
     >>> list(index.values())
     ['a', 'b', 'c', 'd']
@@ -97,8 +97,8 @@ and all document ids with any values is returned.
     >>> list(index.apply({'any': limited_extent}))
     [1, 2, 3, 4]
 
-The 'between' argument takes from 1 to four values.  The first is the 
-minimum, and defaults to None, indicating no minimum; the second is the 
+The 'between' argument takes from 1 to four values.  The first is the
+minimum, and defaults to None, indicating no minimum; the second is the
 maximum, and defaults to None, indicating no maximum; the next is a boolean for
 whether the minimum value should be excluded, and defaults to False; and the
 last is a boolean for whether the maximum value should be excluded, and also
@@ -154,7 +154,7 @@ When you unindex a document, the searches and statistics should be updated.
     >>> list(index.ids())
     [1, 2, 3, 4, 6, 7, 8, 9]
 
-Reindexing a document that has a changed value also is reflected in 
+Reindexing a document that has a changed value also is reflected in
 subsequent searches and statistic checks.
 
     >>> list(index.apply({'any_of': ('b',)}))
@@ -202,7 +202,7 @@ This affects both ways of determining the ids that are and are not in the index
     >>> list(index.apply({'none': extent}))
     [0, 3, 5, 10, 11, 12, 13, 14]
 
-The values method can be used to examine the indexed values for a given 
+The values method can be used to examine the indexed values for a given
 document id.  For a valueindex, the "values" for a given doc_id will always
 have a length of 0 or 1.
 
@@ -216,4 +216,4 @@ values.
     True
     >>> index.containsValue('q')
     False
-    
+
