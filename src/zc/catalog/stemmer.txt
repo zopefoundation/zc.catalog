@@ -2,7 +2,7 @@ The stemmer uses Andreas Jung's stemmer code, which is a Python wrapper of
 M. F. Porter's Snowball project (http://snowball.tartarus.org/index.php).
 It is designed to be used as part of a pipeline in a zope/index/text/
 lexicon, after a splitter.  This enables getting the relevance ranking
-of the zope/index/text code with the splitting functonality of TextIndexNG 3.x.
+of the zope/index/text code with the splitting functionality of TextIndexNG 3.x.
 
 It requires that the TextIndexNG extensions--specifically txngstemmer--have
 been compiled and installed in your Python installation.  Inclusion of the
