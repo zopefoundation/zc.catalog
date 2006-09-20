@@ -11,7 +11,7 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""Functional tests for xmlrpc
+"""Functional tests for `zc.catalog.browser`.
 
 $Id$
 """
