@@ -1,0 +1,65 @@
+<zope:configure
+   xmlns:zope="http://namespaces.zope.org/zope"
+   xmlns="http://namespaces.zope.org/browser"
+   i18n_domain="zope"
+   >
+
+<!-- UI for SetIndex -->
+
+<addform
+    name="AddSetIndex"
+    label="Add a set index"
+    schema="zope.app.catalog.interfaces.IAttributeIndex"
+    permission="zope.ManageServices"
+    content_factory="..catalogindex.SetIndex"
+    arguments="field_name"
+    keyword_arguments="interface field_callable"
+    />
+
+<addMenuItem
+    title="Set Index"
+    description="Index items based on a set of values"
+    class="..catalogindex.SetIndex"
+    permission="zope.ManageServices"
+    view="AddSetIndex"
+   />
+
+<schemadisplay
+    name="index.html"
+    schema="..interfaces.ICatalogSetIndex"
+    label="Set Index"
+    fields="interface field_name field_callable"
+    permission="zope.ManageServices"
+    menu="zmi_views" title="Configuration"
+    />
+
+<!-- UI for ValueIndex -->
+
+<addform
+    name="AddValueIndex"
+    label="Add a set index"
+    schema="zope.app.catalog.interfaces.IAttributeIndex"
+    permission="zope.ManageServices"
+    content_factory="..catalogindex.ValueIndex"
+    arguments="field_name"
+    keyword_arguments="interface field_callable"
+    />
+
+<addMenuItem
+    title="Value Index"
+    description="Index items based on a set of values"
+    class="..catalogindex.ValueIndex"
+    permission="zope.ManageServices"
+    view="AddValueIndex"
+   />
+
+<schemadisplay
+    name="index.html"
+    schema="..interfaces.ICatalogValueIndex"
+    label="Value Index"
+    fields="interface field_name field_callable"
+    permission="zope.ManageServices"
+    menu="zmi_views" title="Configuration"
+    />
+
+</zope:configure>

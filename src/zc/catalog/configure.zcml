@@ -68,4 +68,6 @@
         />
   </class>
 
+  <include package=".browser" />
+
 </configure>
