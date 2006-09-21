@@ -1,0 +1,53 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    i18n_domain="zc.catalog"
+    >
+
+  <include package="zope.app" />
+  <include package="zope.app.authentication" />
+  <include package="zope.app.server" />
+  <include package="zope.app.keyreference" />
+  <include package="zope.app.intid" />
+  <include package="zope.app.catalog" />
+  <include package="zc.catalog" />
+
+  <subscriber handler="zc.catalog.browser.ftests.initializeIntIds" />
+
+  <!-- Security -->
+
+  <include package="zope.app.securitypolicy" file="meta.zcml" />
+  <include package="zope.app.securitypolicy" />
+
+  <securityPolicy
+      component="zope.app.securitypolicy.zopepolicy.ZopeSecurityPolicy"
+      />
+
+  <role
+      id="zope.Anonymous"
+      title="Everybody"
+      description="All users have this role implicitly"
+      />
+  <role id="zope.Manager" title="Site Manager" />
+  <role id="zope.Member" title="Site Member" />
+
+  <!-- Replace the following directive if you don't want public access -->
+  <grant
+      permission="zope.View"
+      role="zope.Member"
+      />
+  <grant
+      permission="zope.app.dublincore.view"
+      role="zope.Member"
+      />
+
+  <grantAll role="zope.Manager" />
+
+
+  <unauthenticatedPrincipal id="zope.anybody" title="Unauthenticated User" />
+
+  <principal id="zope.mgr" title="Manager" login="mgr" password="mgrpw" />
+
+  <grant role="zope.Manager" principal="zope.mgr" />
+
+</configure>
