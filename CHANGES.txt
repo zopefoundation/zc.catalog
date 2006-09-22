@@ -1,0 +1,11 @@
+==================
+zc.catalog changes
+==================
+
+0.2 (2006-11-22)
+================
+
+Features added
+--------------
+
+* First release on Cheeseshop.

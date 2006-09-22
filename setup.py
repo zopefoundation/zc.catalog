@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="zc.catalog",
-    version="0.1.1",
+    version="0.2",
     packages=find_packages('src', exclude=["*.tests", "*.ftests"]),
     
     package_dir= {'':'src'},
@@ -21,5 +21,6 @@ such as some new indexes, improved globbing and stemming support,
 and an alternative catalog implementation.
 """,
     license='ZPL',
-    keywords="zope zope3",
+    keywords="zope zope3 indexing",
+    classifiers = ['Framework :: Zope 3'],
     )
