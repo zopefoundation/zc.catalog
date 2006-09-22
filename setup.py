@@ -12,20 +12,16 @@ setup(
     package_data = {
     '': ['*.txt', '*.zcml'],
     },
-
+    url='http://svn.zope.org/zc.catalog',
     zip_safe=False,
     author='Zope Project',
     author_email='zope3-dev@zope.org',
-    description="""\
-zc.catalog contains a number of extensions to the Zope 3 catalog,
-such as some new indexes, improved globbing and stemming support,
-and an alternative catalog implementation.
-""",
+    description="zc.catalog contains a number of extensions to the Zope 3 catalog",
     long_description=(
     open('README.txt').read()
     + '\n' +
     open('CHANGES.txt').read()),
     license='ZPL',
     keywords="zope zope3 indexing",
-    classifiers = ['Framework :: Zope 3'],
+    classifiers = ['Framework :: Zope3'],
     )
