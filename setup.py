@@ -24,4 +24,5 @@ setup(
     license='ZPL',
     keywords="zope zope3 indexing",
     classifiers = ['Framework :: Zope3'],
+    install_requires=['setuptools'],
     )
