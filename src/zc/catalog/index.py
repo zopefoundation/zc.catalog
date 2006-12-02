@@ -341,7 +341,8 @@ class NormalizationWrapper(persistent.Persistent):
             min = self.normalizer.minimum(min, self.index)
         if max is not None:
             max = self.normalizer.maximum(max, self.index)
-        return self.index.values(min, max, excludemin, excludemax)
+        return self.index.values(min, max, excludemin, excludemax,
+                doc_id=doc_id)
 
     def containsValue(self, value):
         return self.index.containsValue(value)
