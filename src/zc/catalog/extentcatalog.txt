@@ -75,9 +75,9 @@ match the filter will be in the extent and in the index.
     >>> for c in content.values():
     ...     catalog.index_doc(intid.register(c), c)
     ...
-    >>> matches = list(sorted(
-    ...     [id for id, ob in content.items() if filter(extent, id, ob)]))
-    >>> list(sorted(extent)) == list(sorted(index.uids)) == matches
+    >>> matches = sorted(
+    ...     [id for id, ob in content.items() if filter(extent, id, ob)])
+    >>> sorted(extent) == sorted(index.uids) == matches
     True
 
 If a content object is indexed that used to match the filter but no longer
@@ -90,7 +90,7 @@ does, it should be removed from the extent and indexes.
     >>> 5 in catalog.extent
     False
     >>> matches.remove(5)
-    >>> list(sorted(extent)) == list(sorted(index.uids)) == matches
+    >>> sorted(extent) == sorted(index.uids) == matches
     True
 
 Unindexing an object that is in the catalog should simply remove it from the
@@ -106,7 +106,7 @@ catalog and index as usual.
     >>> 99 in catalog['index'].uids
     False
     >>> matches.remove(99)
-    >>> list(sorted(extent)) == list(sorted(index.uids)) == matches
+    >>> sorted(extent) == sorted(index.uids) == matches
     True
 
 And similarly, unindexing an object that is not in the catalog should be a
@@ -117,7 +117,7 @@ no-op.
     >>> catalog.unindex_doc(0)
     >>> 0 in catalog.extent
     False
-    >>> list(sorted(extent)) == list(sorted(index.uids)) == matches
+    >>> sorted(extent) == sorted(index.uids) == matches
     True
 
 Clearing the catalog clears both the extent and the contained indexes.
@@ -130,13 +130,13 @@ Updating all indexes and an individual index both also update the extent.
 
     >>> catalog.updateIndexes()
     >>> matches.append(99)
-    >>> list(sorted(extent)) == list(sorted(index.uids)) == matches
+    >>> sorted(extent) == sorted(index.uids) == matches
     True
     >>> index2 = DummyIndex()
     >>> catalog['index2'] = index2
     >>> index.uids.remove(1) # to confirm that only index 2 is touched
     >>> catalog.updateIndex(index2)
-    >>> list(sorted(extent)) == list(sorted(index2.uids)) == matches
+    >>> sorted(extent) == sorted(index2.uids) == matches
     True
     >>> 1 in index.uids
     False
@@ -162,7 +162,7 @@ it is removed from all indexes.
     >>> 1 in index2.uids
     False
     >>> matches.remove(1)
-    >>> matches == list(sorted(catalog.extent))
+    >>> matches == sorted(catalog.extent)
     True
 
 The extent itself provides a number of merging features to allow its values to
@@ -178,32 +178,152 @@ intersections are weighted.
     >>> alt_set = IFBTree.IFTreeSet()
     >>> alt_set.update(range(0, 166, 33)) # return value is unimportant here
     6
-    >>> list(sorted(alt_set))
+    >>> sorted(alt_set)
     [0, 33, 66, 99, 132, 165]
-    >>> list(sorted(catalog.extent & alt_set))
+    >>> sorted(catalog.extent & alt_set)
     [33, 99]
-    >>> list(sorted(alt_set & catalog.extent))
+    >>> sorted(alt_set & catalog.extent)
     [33, 99]
-    >>> list(sorted(catalog.extent.intersection(alt_set)))
+    >>> sorted(catalog.extent.intersection(alt_set))
     [33, 99]
     >>> union_matches = sets.Set(matches)
     >>> union_matches.union_update(alt_set)
-    >>> union_matches = list(sorted(union_matches))
-    >>> list(sorted(alt_set | catalog.extent)) == union_matches
+    >>> union_matches = sorted(union_matches)
+    >>> sorted(alt_set | catalog.extent) == union_matches
     True
-    >>> list(sorted(catalog.extent | alt_set)) == union_matches
+    >>> sorted(catalog.extent | alt_set) == union_matches
     True
-    >>> list(sorted(catalog.extent.union(alt_set))) == union_matches
+    >>> sorted(catalog.extent.union(alt_set)) == union_matches
     True
-    >>> list(sorted(alt_set - catalog.extent))
+    >>> sorted(alt_set - catalog.extent)
     [0, 66, 132, 165]
-    >>> list(sorted(catalog.extent.rdifference(alt_set)))
+    >>> sorted(catalog.extent.rdifference(alt_set))
     [0, 66, 132, 165]
     >>> matches.remove(33)
     >>> matches.remove(99)
-    >>> list(sorted(catalog.extent - alt_set)) == matches
+    >>> sorted(catalog.extent - alt_set) == matches
     True
-    >>> list(sorted(catalog.extent.difference(alt_set))) == matches
+    >>> sorted(catalog.extent.difference(alt_set)) == matches
     True
+
+
+Self-populating extents
+-----------------------
+
+An extent use the initialize an extent catalog may know how to
+populate itself; this is especially useful if the catalog can be
+initialized with fewer items than those available in the IIntIds
+utility that are also within the nearest Zope 3 site (the policy coded
+in the basic Zope 3 catalog).
+
+The such an extent must implement the `ISelfPopulatingExtent`
+interface, which requires two attributes.  Let's use the
+`FilterExtent` class as a base for implementing such an extent, with a
+method that selects object 42 (created and registered above)::
+
+    >>> class PopulatingExtent(extentcatalog.FilterExtent):
+    ...
+    ...     interface.implements(interfaces.ISelfPopulatingExtent)
+    ...
+    ...     populated = False
+    ...
+    ...     def populate(self):
+    ...         if self.populated:
+    ...             return
+    ...         self.add(42, content[42])
+    ...         self.populated = True
+
+Creating a catalog based on this extent ignores objects in the
+database already::
+
+    >>> def accept_any(extent, uid, ob):
+    ...     return True
+
+    >>> extent = PopulatingExtent(accept_any)
+    >>> catalog = extentcatalog.Catalog(extent)
+    >>> index = DummyIndex()
+    >>> catalog['index'] = index
+
+At this point, our extent remains unpopulated::
+
+    >>> extent.populated
+    False
+
+Iterating over the extent does not cause it to be automatically
+populated::
+
+    >>> list(extent)
+    []
+
+Causing our new index to be filled will cause the `populate()` method
+to be called, setting the `populate` flag as a side-effect::
+
+    >>> catalog.updateIndex(index)
+    >>> extent.populated
+    True
+
+    >>> list(extent)
+    [42]
+
+The index has been updated with the documents identified by the
+extent::
+
+    >>> index.uids
+    Set([42])
+
+Updating the same index repeatedly will continue to use the extent as
+the source of documents to include::
+
+    >>> catalog.updateIndex(index)
+
+    >>> list(extent)
+    [42]
+    >>> index.uids
+    Set([42])
+
+The `updateIndexes()` method has a similar behavior.  If we add an
+additional index to the catalog, we see that it indexes only those
+objects from the extent::
+
+    >>> index2 = DummyIndex()
+    >>> catalog['index2'] = index2
+
+    >>> catalog.updateIndexes()
+
+    >>> list(extent)
+    [42]
+    >>> index.uids
+    Set([42])
+    >>> index2.uids
+    Set([42])
+
+When we have fresh catalog and extent (not yet populated), we see that
+`updateIndexes()` will cause the extent to be populated::
+
+    >>> extent = PopulatingExtent(accept_any)
+    >>> catalog = extentcatalog.Catalog(extent)
+    >>> index1 = DummyIndex()
+    >>> index2 = DummyIndex()
+    >>> catalog['index1'] = index1
+    >>> catalog['index2'] = index2
+
+    >>> extent.populated
+    False
+
+    >>> catalog.updateIndexes()
+
+    >>> extent.populated
+    True
+
+    >>> list(extent)
+    [42]
+    >>> index.uids
+    Set([42])
+    >>> index2.uids
+    Set([42])
+
+
+Let's clean up behind ourselves::
+
     >>> from zope.app.testing import ztapi
     >>> ztapi.unprovideUtility(zope.app.intid.interfaces.IIntIds)

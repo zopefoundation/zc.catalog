@@ -94,6 +94,29 @@ class IFilterExtent(IExtent):
         associated obj and should return a boolean True (is member of extent)
         or False (is not member of extent).""")
 
+
+class ISelfPopulatingExtent(IExtent):
+    """An extent that knows how to create it's own initial population."""
+
+    populated = schema.Bool(
+        title=_("Populated"),
+        description=_(
+            "Flag indicating whether self-population has been performed."),
+        readonly=True,
+        )
+
+    def populate():
+        """Populate the extent based on the current content of the database.
+
+        After a successful call, `populated` will be True.  Unsuccessful calls
+        must raise exceptions.
+
+        If `populated` is true when called, this is a no-op.  After the
+        initial population, updates should be maintained via other mechanisms.
+
+        """
+
+
 class IExtentCatalog(interface.Interface):
     """A catalog of only items within an extent.
 

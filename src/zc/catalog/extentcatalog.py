@@ -188,16 +188,45 @@ class Catalog(catalog.Catalog):
             super(Catalog, self).updateIndex(index)
         else:
             uidutil = zapi.getUtility(IIntIds)
-            for uid in uidutil:
-                obj = uidutil.getObject(uid)
-                try:
-                    self.extent.add(uid, obj)
-                except ValueError:
-                    self.unindex_doc(uid)
-                else:
+
+            if interfaces.ISelfPopulatingExtent.providedBy(self.extent):
+                if not self.extent.populated:
+                    self.extent.populate()
+                    assert self.extent.populated
+
+                for uid in self.extent:
+                    obj = uidutil.getObject(uid)
                     index.index_doc(uid, obj)
+
+            else:
+                for uid in uidutil:
+                    obj = uidutil.getObject(uid)
+                    try:
+                        self.extent.add(uid, obj)
+                    except ValueError:
+                        self.unindex_doc(uid)
+                    else:
+                        index.index_doc(uid, obj)
 
     def updateIndexes(self):
         uidutil = zapi.getUtility(IIntIds)
-        for uid in uidutil:
-            self.index_doc(uid, uidutil.getObject(uid))
+
+        if interfaces.ISelfPopulatingExtent.providedBy(self.extent):
+            if not self.extent.populated:
+                self.extent.populate()
+                assert self.extent.populated
+
+            site = zope.app.component.hooks.getSite()
+            registered = True
+            if not self.queue:
+                registered = self._register()
+
+            for uid in self.extent:
+                self.queue[uid] = (uidutil.getObject(uid), site)
+
+            if not registered:
+                self._process()
+
+        else:
+            for uid in uidutil:
+                self.index_doc(uid, uidutil.getObject(uid))
