@@ -437,7 +437,8 @@ class DateTimeNormalizer(persistent.Persistent):
 @interface.implementer(
     zope.interface.implementedBy(NormalizationWrapper),
     zc.catalog.interfaces.IValueIndex)
-def DateTimeValueIndex(resolution=2): # hour; good for per-day searches
+def DateTimeValueIndex(resolution=2): # 2 == minute; note that hour is good
+    # for timezone-aware per-day searches
     ix = NormalizationWrapper(ValueIndex(), DateTimeNormalizer(resolution))
     interface.directlyProvides(ix, zc.catalog.interfaces.IValueIndex)
     return ix
@@ -445,7 +446,8 @@ def DateTimeValueIndex(resolution=2): # hour; good for per-day searches
 @interface.implementer(
     zope.interface.implementedBy(NormalizationWrapper),
     zc.catalog.interfaces.ISetIndex)
-def DateTimeSetIndex(resolution=2): # hour; good for per-day searches
+def DateTimeSetIndex(resolution=2): # 2 == minute; note that hour is good
+    # for timezone-aware per-day searches
     ix = NormalizationWrapper(SetIndex(), DateTimeNormalizer(resolution), True)
     interface.directlyProvides(ix, zc.catalog.interfaces.ISetIndex)    
     return ix
