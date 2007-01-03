@@ -16,15 +16,18 @@
 $Id: stemmer.py 2918 2005-07-19 22:12:38Z jim $
 """
 import re
-
+broken = None
 try:
-    import txngstemmer
+    from zopyx.txng3 import stemmer
 except ImportError:
-    txngstemmer = None
-    class Broken:
-        def stem(self, l):
-            return l
-    broken = Broken()
+    try:
+        import txngstemmer as stemmer
+    except ImportError:
+        stemmer = None
+        class Broken:
+            def stem(self, l):
+                return l
+        broken = Broken()
 
 # as of this writing, trying to persist a txngstemmer.Stemmer makes the python
 # process end, only printing a "Bus error" message before quitting.  Don't do
@@ -37,9 +40,9 @@ class Stemmer(object):
 
     @property
     def stemmer(self):
-        if txngstemmer is None:
+        if stemmer is None:
             return broken
-        return txngstemmer.Stemmer(self.language)
+        return stemmer.Stemmer(self.language)
 
     rxGlob = re.compile(r"[*?]") # See globToWordIds() in
     # zope/index/text/lexicon.py

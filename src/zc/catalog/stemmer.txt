@@ -8,6 +8,16 @@ It requires that the TextIndexNG extensions--specifically txngstemmer--have
 been compiled and installed in your Python installation.  Inclusion of the
 textindexng package is not necessary.
 
+As of this writing (Jan 3, 2007), installing the necessary extensions can be
+done with the following steps:
+
+- `svn co https://svn.sourceforge.net/svnroot/textindexng/extension_modules/trunk ext_mod`
+- `cd ext_mod`
+- (using the python you use for Zope) `python setup.py install`
+
+Another approach is to simply install TextIndexNG (see
+http://opensource.zopyx.com/software/textindexng3)
+
 The stemmer must be instantiated with the language for which stemming is
 desired.  It defaults to 'english'.  For what it is worth, other languages
 supported as of this writing, using the strings that the stemmer expects,

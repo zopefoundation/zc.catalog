@@ -20,14 +20,17 @@ import unittest
 from zope.testing import doctest
 
 def test_suite():
-    return unittest.TestSuite((
+    tests = unittest.TestSuite((
         doctest.DocFileSuite('extentcatalog.txt'),
         doctest.DocFileSuite('setindex.txt'),
         doctest.DocFileSuite('valueindex.txt'),
         doctest.DocFileSuite('normalizedindex.txt'),
         doctest.DocFileSuite('globber.txt'),
-        doctest.DocFileSuite('stemmer.txt'),
         ))
+    import zc.catalog.stemmer
+    if not zc.catalog.stemmer.broken:
+        tests.addTest(doctest.DocFileSuite('stemmer.txt'))
+    return tests
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
