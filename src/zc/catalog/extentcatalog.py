@@ -22,7 +22,7 @@ import persistent.dict
 from zope import interface, component
 from zope.app.catalog import catalog
 from zope.app.intid.interfaces import IIntIds
-from zope.app import zapi
+import zope.component
 import zope.app.component.hooks
 
 from zc.catalog import interfaces
@@ -145,7 +145,8 @@ class Catalog(catalog.Catalog):
                 elif docid in self.extent:
                     super(Catalog, self).unindex_doc(docid)
                     self.extent.remove(docid)
-            self.queue.clear()
+            self.queue._p_invalidate() # avoid conflict errors
+            assert not self.queue
         finally:
             zope.app.component.hooks.setSite(old_site)
 
@@ -187,7 +188,7 @@ class Catalog(catalog.Catalog):
             # not an index in us.  Let the superclass handle it.
             super(Catalog, self).updateIndex(index)
         else:
-            uidutil = zapi.getUtility(IIntIds)
+            uidutil = zope.component.getUtility(IIntIds)
 
             if interfaces.ISelfPopulatingExtent.providedBy(self.extent):
                 if not self.extent.populated:
@@ -209,7 +210,7 @@ class Catalog(catalog.Catalog):
                         index.index_doc(uid, obj)
 
     def updateIndexes(self):
-        uidutil = zapi.getUtility(IIntIds)
+        uidutil = zope.component.getUtility(IIntIds)
 
         if interfaces.ISelfPopulatingExtent.providedBy(self.extent):
             if not self.extent.populated:

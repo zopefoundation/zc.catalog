@@ -2,167 +2,229 @@ An extent catalog is very similar to a normal catalog except that it only
 indexes items addable to its extent.  The extent is both a filter and a
 set that may be merged with other result sets.
 
+In addition, the catalog has a queueing feature that postpones catalog work
+until the end of a transaction.  This can save a lot of work under certain
+circumstances, such as when an object is added (one event) and modified (one
+event) in the same transaction; or when an object is modified and deleted in
+the same transaction; or any time when multiple events that cause reindexing
+are fired for the same object within a single transaction.
+
 To show the extent catalog at work, we need an intid utility, an index,
 some items to index, and a filter that determines what the extent accepts.
+Because we want to show the behavior of the queueing as well, we'll do this
+within a real ZODB, with transactions, and a real intid utility [#setup]_.
 
     >>> from zc.catalog import interfaces, extentcatalog
     >>> from zope import interface, component
     >>> from zope.interface import verify
-    >>> import zope.app.intid.interfaces
-    >>> class DummyIntId(object):
-    ...     interface.implements(zope.app.intid.interfaces.IIntIds)
-    ...     MARKER = '__dummy_int_id__'
-    ...     def __init__(self):
-    ...         self.counter = 0
-    ...         self.data = {}
-    ...     def register(self, obj):
-    ...         intid = getattr(obj, self.MARKER, None)
-    ...         if intid is None:
-    ...             setattr(obj, self.MARKER, self.counter)
-    ...             self.data[self.counter] = obj
-    ...             intid = self.counter
-    ...             self.counter += 1
-    ...         return intid
-    ...     def getObject(self, intid):
-    ...         return self.data[intid]
-    ...     def __iter__(self):
-    ...         return iter(self.data)
-    ...
-    >>> intid = DummyIntId()
-    >>> component.provideUtility(
-    ...     intid, zope.app.intid.interfaces.IIntIds)
-    >>> import sets
+    >>> import persistent
+    >>> import BTrees.IFBTree
+
+    >>> root = makeRoot()
+    >>> intid = zope.component.getUtility(
+    ...     zope.app.intid.interfaces.IIntIds, context=root)
+
     >>> from zope.app.container.interfaces import IContained
-    >>> class DummyIndex(object):
+    >>> class DummyIndex(persistent.Persistent):
     ...     interface.implements(IContained)
     ...     __parent__ = __name__ = None
     ...     def __init__(self):
-    ...         self.uids = sets.Set()
+    ...         self.uids = BTrees.IFBTree.IFTreeSet()
     ...     def unindex_doc(self, uid):
-    ...         self.uids.discard(uid)
+    ...         self.uids.remove(uid)
     ...     def index_doc(self, uid, obj):
-    ...         self.uids.add(uid)
+    ...         self.uids.insert(uid)
     ...     def clear(self):
     ...         self.uids.clear()
     ...
-    >>> class DummyContent(object):
-    ...     pass
-    ...
-    >>> content = {}
-    >>> for i in range(100):
-    ...     c = DummyContent()
-    ...     content[intid.register(c)] = c
+    >>> class DummyContent(persistent.Persistent):
+    ...     def __init__(self, name, parent):
+    ...         self.id = name
+    ...         self.__parent__ = parent
     ...
     >>> def filter(extent, uid, ob):
     ...     assert interfaces.IExtent.providedBy(extent)
-    ...     assert getattr(ob, DummyIntId.MARKER) == uid
     ...     # This is an extent of objects with odd-numbered uids without a
     ...     # True ignore attribute
     ...     return uid % 2 and not getattr(ob, 'ignore', False)
+    ...
     >>> extent = extentcatalog.FilterExtent(filter)
     >>> verify.verifyObject(interfaces.IFilterExtent, extent)
     True
-    >>> catalog = extentcatalog.Catalog(extent)
+    >>> root['catalog'] = catalog = extentcatalog.Catalog(extent)
     >>> verify.verifyObject(interfaces.IExtentCatalog, catalog)
     True
     >>> index = DummyIndex()
     >>> catalog['index'] = index
+    >>> transaction.commit()
 
-Now we have a catalog set up with an index and an extent, and some content to
-index.  If we ask the catalog to index all of the content, only the ones that
-match the filter will be in the extent and in the index.
+Now we have a catalog set up with an index and an extent.  If we create
+some content and ask the catalog to index it, only the ones that match
+the filter will be in the extent and in the index.
 
-    >>> for c in content.values():
-    ...     catalog.index_doc(intid.register(c), c)
+    >>> matches = []
+    >>> fails = []
+    >>> i = 0
+    >>> while True:
+    ...     c = DummyContent(i, root)
+    ...     root[i] = c
+    ...     doc_id = intid.register(c)
+    ...     catalog.index_doc(doc_id, c)
+    ...     if filter(extent, doc_id, c):
+    ...         matches.append(doc_id)
+    ...     else:
+    ...         fails.append(doc_id)
+    ...     i += 1
+    ...     if i > 99 and len(matches) > 4:
+    ...         break
     ...
-    >>> matches = sorted(
-    ...     [id for id, ob in content.items() if filter(extent, id, ob)])
+    >>> matches.sort()
+    >>> sorted(extent) == sorted(index.uids) == matches
+    False
+
+Wait a second!  That was supposed to be True, to show that the extent was
+constrained by the filter!  Why did that not work?
+
+    >>> list(index.uids)
+    []
+    >>> sorted(extent) == sorted(matches)
+    True
+
+Oh...this is a result of the queued behavior discussed at the start of this
+document--we need to commit the transaction for the index to be affected.
+
+    >>> transaction.commit()
     >>> sorted(extent) == sorted(index.uids) == matches
     True
+
+Ah, there we go!  As we were trying to demonstrate, if we create some
+content and ask the catalog to index it, only the ones that match the
+filter will be in the extent and in the index.
+
+Also, this shows that we will need to commit the transaction every time we
+want to see the effect of the index requests during the course of these
+examples.
 
 If a content object is indexed that used to match the filter but no longer
 does, it should be removed from the extent and indexes.
 
-    >>> 5 in catalog.extent
+    >>> matches[0] in catalog.extent
     True
-    >>> content[5].ignore = True
-    >>> catalog.index_doc(5, content[5])
-    >>> 5 in catalog.extent
+    >>> obj = intid.getObject(matches[0])
+    >>> obj.ignore = True
+    >>> filter(extent, matches[0], obj)
     False
-    >>> matches.remove(5)
+    >>> catalog.index_doc(matches[0], obj)
+    >>> doc_id = matches.pop(0)
+    >>> doc_id in catalog.extent # postponed till transaction
+    True
+    >>> sorted(extent) == sorted(index.uids) == matches # postponed
+    False
+    >>> transaction.commit()
+    >>> doc_id in catalog.extent
+    False
     >>> sorted(extent) == sorted(index.uids) == matches
     True
 
 Unindexing an object that is in the catalog should simply remove it from the
 catalog and index as usual.
 
-    >>> 99 in catalog.extent
+    >>> matches[0] in catalog.extent
     True
-    >>> 99 in catalog['index'].uids
+    >>> matches[0] in catalog['index'].uids
     True
-    >>> catalog.unindex_doc(99)
-    >>> 99 in catalog.extent
+    >>> catalog.unindex_doc(matches[0])
+    >>> matches[0] in catalog.extent # postponed till transaction
+    True
+    >>> matches[0] in catalog['index'].uids # postponed till transaction
+    True
+    >>> transaction.commit()
+    >>> matches[0] in catalog.extent
     False
-    >>> 99 in catalog['index'].uids
+    >>> matches[0] in catalog['index'].uids
     False
-    >>> matches.remove(99)
+    >>> doc_id = matches.pop(0)
     >>> sorted(extent) == sorted(index.uids) == matches
     True
 
 And similarly, unindexing an object that is not in the catalog should be a
 no-op.
 
-    >>> 0 in catalog.extent
+    >>> fails[0] in catalog.extent
     False
-    >>> catalog.unindex_doc(0)
-    >>> 0 in catalog.extent
+    >>> catalog.unindex_doc(fails[0])
+    >>> fails[0] in catalog.extent
     False
     >>> sorted(extent) == sorted(index.uids) == matches
     True
+    >>> transaction.commit()
+    >>> sorted(extent) == sorted(index.uids) == matches
+    True
 
-Clearing the catalog clears both the extent and the contained indexes.
+Clearing the catalog clears both the extent and the contained indexes.  Note
+that this does /not/ wait for transaction boundaries to take effect.
 
     >>> catalog.clear()
     >>> list(catalog.extent) == list(catalog['index'].uids) == []
     True
 
 Updating all indexes and an individual index both also update the extent.
+updateIndexes waits for transaction boundaries for much of its work.
 
     >>> catalog.updateIndexes()
-    >>> matches.append(99)
-    >>> sorted(extent) == sorted(index.uids) == matches
+    >>> matches.insert(0, doc_id)
+    >>> sorted(extent) == sorted(index.uids) == matches # postponed
+    False
+    >>> transaction.commit()
+    >>> sorted(extent) == sorted(index.uids) == matches # postponed
     True
+
+updateIndex does its work immediately.  
+
     >>> index2 = DummyIndex()
     >>> catalog['index2'] = index2
-    >>> index.uids.remove(1) # to confirm that only index 2 is touched
+    >>> index2.__parent__ == catalog
+    True
+    >>> index.uids.remove(matches[0]) # to confirm that only index 2 is touched
     >>> catalog.updateIndex(index2)
     >>> sorted(extent) == sorted(index2.uids) == matches
     True
-    >>> 1 in index.uids
+
+    >>> transaction.commit()
+    >>> matches[0] in index.uids
     False
-    >>> 1 in index2.uids
+    >>> matches[0] in index2.uids
     True
-    >>> index.uids.add(1) # normalize things again.
+    >>> res = index.uids.insert(matches[0]) # normalize things again.
 
 If you update a single index and an object is no longer a member of the extent,
 it is removed from all indexes.
 
-    >>> 1 in catalog.extent
+    >>> matches[0] in catalog.extent
     True
-    >>> 1 in index.uids
+    >>> matches[0] in index.uids
     True
-    >>> 1 in index2.uids
+    >>> matches[0] in index2.uids
     True
-    >>> content[1].ignore = True
+    >>> obj = intid.getObject(matches[0])
+    >>> obj.ignore = True
     >>> catalog.updateIndex(index2)
-    >>> 1 in catalog.extent
+    >>> matches[0] in catalog.extent # postponed
+    True
+    >>> matches[0] in index.uids # postponed
+    True
+    >>> matches[0] in index2.uids # postponed
+    True
+    >>> transaction.commit()
+    >>> matches[0] in catalog.extent
     False
-    >>> 1 in index.uids
+    >>> matches[0] in index.uids
     False
-    >>> 1 in index2.uids
+    >>> matches[0] in index2.uids
     False
-    >>> matches.remove(1)
-    >>> matches == sorted(catalog.extent)
+    >>> doc_id = matches.pop(0)
+    >>> (matches == sorted(catalog.extent) == sorted(index.uids)
+    ...  == sorted(index2.uids))
     True
 
 The extent itself provides a number of merging features to allow its values to
@@ -174,52 +236,56 @@ can be spelled "extent & data" or "data & extent"; unions can be spelled
 and reverse differences can be spelled "data - extent".  Unions and
 intersections are weighted.
 
+    >>> extent = extentcatalog.FilterExtent(filter)
+    >>> for i in range(1, 100, 2):
+    ...     extent.add(i, None)
+    ...
     >>> from BTrees import IFBTree
     >>> alt_set = IFBTree.IFTreeSet()
     >>> alt_set.update(range(0, 166, 33)) # return value is unimportant here
     6
     >>> sorted(alt_set)
     [0, 33, 66, 99, 132, 165]
-    >>> sorted(catalog.extent & alt_set)
+    >>> sorted(extent & alt_set)
     [33, 99]
-    >>> sorted(alt_set & catalog.extent)
+    >>> sorted(alt_set & extent)
     [33, 99]
-    >>> sorted(catalog.extent.intersection(alt_set))
+    >>> sorted(extent.intersection(alt_set))
     [33, 99]
-    >>> union_matches = sets.Set(matches)
-    >>> union_matches.union_update(alt_set)
+    >>> original = set(extent)
+    >>> union_matches = original.copy()
+    >>> union_matches.update(alt_set)
     >>> union_matches = sorted(union_matches)
-    >>> sorted(alt_set | catalog.extent) == union_matches
+    >>> sorted(alt_set | extent) == union_matches
     True
-    >>> sorted(catalog.extent | alt_set) == union_matches
+    >>> sorted(extent | alt_set) == union_matches
     True
-    >>> sorted(catalog.extent.union(alt_set)) == union_matches
+    >>> sorted(extent.union(alt_set)) == union_matches
     True
-    >>> sorted(alt_set - catalog.extent)
+    >>> sorted(alt_set - extent)
     [0, 66, 132, 165]
-    >>> sorted(catalog.extent.rdifference(alt_set))
+    >>> sorted(extent.rdifference(alt_set))
     [0, 66, 132, 165]
-    >>> matches.remove(33)
-    >>> matches.remove(99)
-    >>> sorted(catalog.extent - alt_set) == matches
+    >>> original.remove(33)
+    >>> original.remove(99)
+    >>> set(extent - alt_set) == original
     True
-    >>> sorted(catalog.extent.difference(alt_set)) == matches
+    >>> set(extent.difference(alt_set)) == original
     True
 
 
 Self-populating extents
 -----------------------
 
-An extent use the initialize an extent catalog may know how to
-populate itself; this is especially useful if the catalog can be
-initialized with fewer items than those available in the IIntIds
-utility that are also within the nearest Zope 3 site (the policy coded
-in the basic Zope 3 catalog).
+An extent may know how to populate itself; this is especially useful if
+the catalog can be initialized with fewer items than those available in
+the IIntIds utility that are also within the nearest Zope 3 site (the
+policy coded in the basic Zope 3 catalog).
 
-The such an extent must implement the `ISelfPopulatingExtent`
-interface, which requires two attributes.  Let's use the
-`FilterExtent` class as a base for implementing such an extent, with a
-method that selects object 42 (created and registered above)::
+Such an extent must implement the `ISelfPopulatingExtent` interface,
+which requires two attributes.  Let's use the `FilterExtent` class as a
+base for implementing such an extent, with a method that selects content item
+0 (created and registered above)::
 
     >>> class PopulatingExtent(extentcatalog.FilterExtent):
     ...
@@ -230,7 +296,7 @@ method that selects object 42 (created and registered above)::
     ...     def populate(self):
     ...         if self.populated:
     ...             return
-    ...         self.add(42, content[42])
+    ...         self.add(intid.getId(root[0]), root[0])
     ...         self.populated = True
 
 Creating a catalog based on this extent ignores objects in the
@@ -243,6 +309,8 @@ database already::
     >>> catalog = extentcatalog.Catalog(extent)
     >>> index = DummyIndex()
     >>> catalog['index'] = index
+    >>> root['catalog2'] = catalog
+    >>> transaction.commit()
 
 At this point, our extent remains unpopulated::
 
@@ -262,50 +330,54 @@ to be called, setting the `populate` flag as a side-effect::
     >>> extent.populated
     True
 
-    >>> list(extent)
-    [42]
+    >>> list(extent) == [intid.getId(root[0])]
+    True
 
 The index has been updated with the documents identified by the
 extent::
 
-    >>> index.uids
-    Set([42])
+    >>> list(index.uids) == [intid.getId(root[0])]
+    True
 
 Updating the same index repeatedly will continue to use the extent as
 the source of documents to include::
 
     >>> catalog.updateIndex(index)
 
-    >>> list(extent)
-    [42]
-    >>> index.uids
-    Set([42])
+    >>> list(extent) == [intid.getId(root[0])]
+    True
+    >>> list(index.uids) == [intid.getId(root[0])]
+    True
 
 The `updateIndexes()` method has a similar behavior.  If we add an
 additional index to the catalog, we see that it indexes only those
-objects from the extent::
+objects from the extent (after the transaction.commit())::
 
     >>> index2 = DummyIndex()
     >>> catalog['index2'] = index2
 
     >>> catalog.updateIndexes()
 
-    >>> list(extent)
-    [42]
-    >>> index.uids
-    Set([42])
-    >>> index2.uids
-    Set([42])
+    >>> list(extent) == [intid.getId(root[0])]
+    True
+    >>> list(index.uids) == [intid.getId(root[0])]
+    True
+    >>> list(index2.uids) == [intid.getId(root[0])]
+    False
+    >>> transaction.commit()
+    >>> list(index2.uids) == [intid.getId(root[0])]
+    True
 
 When we have fresh catalog and extent (not yet populated), we see that
 `updateIndexes()` will cause the extent to be populated::
 
     >>> extent = PopulatingExtent(accept_any)
-    >>> catalog = extentcatalog.Catalog(extent)
+    >>> root['catalog3'] = catalog = extentcatalog.Catalog(extent)
     >>> index1 = DummyIndex()
     >>> index2 = DummyIndex()
     >>> catalog['index1'] = index1
     >>> catalog['index2'] = index2
+    >>> transaction.commit()
 
     >>> extent.populated
     False
@@ -315,15 +387,140 @@ When we have fresh catalog and extent (not yet populated), we see that
     >>> extent.populated
     True
 
-    >>> list(extent)
-    [42]
-    >>> index.uids
-    Set([42])
-    >>> index2.uids
-    Set([42])
+    >>> list(extent) == [intid.getId(root[0])]
+    True
+    >>> list(index1.uids) == [intid.getId(root[0])]
+    False
+    >>> list(index2.uids) == [intid.getId(root[0])]
+    False
+    >>> transaction.commit()
+    >>> list(index1.uids) == [intid.getId(root[0])]
+    True
+    >>> list(index2.uids) == [intid.getId(root[0])]
+    True
+
+Regression Tests
+----------------
+
+The following section is for maintainers.  This should always be the last
+section in the document (or moved out to another document).
+
+When concurrent transactions are possible that both cause /any/ changes to
+a given extent catalog, the queued behavior described above had a serious
+flaw: it would /always/ provoke a conflict error!  This is because, even if
+an object starts and begins in the same state, if it is marked "dirty"
+(changed), then it will be stored as a new object in the ZODB, and will
+be the source of a ConflictError with any concurrent transactions that also
+cause the object to be marked dirty.
+
+The queue in the extentcatalog is a persistent object.  This makes it possible
+for it to behave correctly in the face of rolled back subtransactions. However,
+it also makes it possible to generate the kind of needless conflict errors that
+are described above.
+
+There are at least three possible solutions.  One is to associate the queue
+with a transaction manager and not make it actually persistent in the database.
+That is probably the "purest" solution but is not the most practical.  Another
+solution is to write a conflict resolution method (_p_resolveConflict): this
+is potentially reasonable solution.  However, for our case, the third solution
+is the easiest and the quickest: invalidate the changes on the queue at the
+end of the transaction, causing the dirty state to be tossed away and never
+saved to the database.  This is the approach that was implemented.
+
+What follows would provoke the conflict error without the change.
+
+    >>> transaction.commit() # clear the thread transactions    
+
+    >>> tm1 = transaction.TransactionManager()
+    >>> conn1 = root._p_jar.db().open(transaction_manager=tm1)
+    >>> root1 = conn1.root()
+    >>> setSiteManager(root1['components'])
+
+    >>> len(root1['catalog'].queue)
+    0
+    >>> root1['catalog'].index_doc(
+    ...     matches[0],
+    ...     zope.component.getUtility(zope.app.intid.IIntIds).getObject(
+    ...         matches[0]))
+    >>> len(root1['catalog'].queue)
+    1
+
+    >>> tm2 = transaction.TransactionManager()
+    >>> conn2 = root._p_jar.db().open(transaction_manager=tm2)
+    >>> root2 = conn2.root()
+    >>> setSiteManager(root2['components'])
+
+    >>> len(root2['catalog'].queue)
+    0
+    >>> root2['catalog'].index_doc(
+    ...     matches[-1],
+    ...     zope.component.getUtility(zope.app.intid.IIntIds).getObject(
+    ...         matches[-1]))
+    >>> len(root2['catalog'].queue)
+    1
+
+    >>> tm2.commit()
+    >>> setSiteManager(root1['components'])
+    >>> tm1.commit()
 
 
-Let's clean up behind ourselves::
+.. [#setup] We create the state that the text needs here.
 
-    >>> from zope.app.testing import ztapi
-    >>> ztapi.unprovideUtility(zope.app.intid.interfaces.IIntIds)
+    >>> import zope.app.keyreference.persistent
+    >>> import zope.component
+    >>> import zope.app.intid
+    >>> import zope.component
+    >>> import zope.component.interfaces
+    >>> import zope.component.persistentregistry
+    >>> from ZODB.tests.util import DB
+    >>> import transaction
+
+    >>> zope.component.provideAdapter(
+    ...     zope.app.keyreference.persistent.KeyReferenceToPersistent,
+    ...     adapts=(zope.interface.Interface,))
+    >>> zope.component.provideAdapter(
+    ...     zope.app.keyreference.persistent.connectionOfPersistent,
+    ...     adapts=(zope.interface.Interface,))
+
+    >>> site_manager = None
+    >>> def getSiteManager(context=None):
+    ...     if context is None:
+    ...         if site_manager is None:
+    ...             return zope.component.getGlobalSiteManager()
+    ...         else:
+    ...             return site_manager
+    ...     else:
+    ...         try:
+    ...             return zope.component.interfaces.IComponentLookup(context)
+    ...         except TypeError, error:
+    ...             raise zope.component.ComponentLookupError(*error.args)
+    ...
+    >>> def setSiteManager(sm):
+    ...     global site_manager
+    ...     site_manager = sm
+    ...     if sm is None:
+    ...         zope.component.getSiteManager.reset()
+    ...     else:
+    ...         zope.component.getSiteManager.sethook(getSiteManager)
+    ...
+    >>> def makeRoot():
+    ...     db = DB()
+    ...     conn = db.open()
+    ...     root = conn.root()
+    ...     site_manager = root['components'] = (
+    ...         zope.component.persistentregistry.PersistentComponents())
+    ...     site_manager.__bases__ = (zope.component.getGlobalSiteManager(),)
+    ...     site_manager.registerUtility(
+    ...         zope.app.intid.IntIds(),
+    ...         provided=zope.app.intid.interfaces.IIntIds)
+    ...     setSiteManager(site_manager)
+    ...     transaction.commit()
+    ...     return root
+    ...
+
+    >>> @zope.component.adapter(zope.interface.Interface)
+    ... @zope.interface.implementer(zope.component.interfaces.IComponentLookup)
+    ... def getComponentLookup(obj):
+    ...     return obj._p_jar.root()['components']
+    ...
+    >>> zope.component.provideAdapter(getComponentLookup)

@@ -2,6 +2,25 @@
 zc.catalog changes
 ==================
 
+1.0 (2007-1-5)
+==============
+
+Bugs fixed
+----------
+
+* adjusted extentcatalog tests to trigger (and discuss and test) the queueing
+  behavior.
+
+* fixed problem with excessive conflict errors due to queueing code.
+
+* updated stemming to work with newest version of TextIndexNG's extensions.
+
+* omitted stemming test when TextIndexNG's extensions are unavailable, so
+  tests pass without it.  Since TextIndexNG's extensions are optional, this
+  seems reasonable.
+
+* removed use of zapi in extentcatalog.
+
 0.2 (2006-11-22)
 ================
 

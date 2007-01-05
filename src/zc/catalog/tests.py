@@ -17,11 +17,22 @@ $Id: tests.py 2918 2005-07-19 22:12:38Z jim $
 """
 
 import unittest
-from zope.testing import doctest
+from zope.testing import doctest, module
+import zope.component.testing
+
+def modSetUp(test):
+    zope.component.testing.setUp(test)
+    module.setUp(test, 'zc.catalog.doctest_test')
+
+def modTearDown(test):
+    module.tearDown(test)
+    zope.component.testing.tearDown(test)
 
 def test_suite():
     tests = unittest.TestSuite((
-        doctest.DocFileSuite('extentcatalog.txt'),
+        doctest.DocFileSuite(
+            'extentcatalog.txt', setUp=modSetUp, tearDown=modTearDown,
+            optionflags=doctest.INTERPRET_FOOTNOTES),
         doctest.DocFileSuite('setindex.txt'),
         doctest.DocFileSuite('valueindex.txt'),
         doctest.DocFileSuite('normalizedindex.txt'),
