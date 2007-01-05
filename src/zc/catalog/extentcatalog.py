@@ -145,6 +145,8 @@ class Catalog(catalog.Catalog):
                 elif docid in self.extent:
                     super(Catalog, self).unindex_doc(docid)
                     self.extent.remove(docid)
+            self.queue.clear() # this is only necessary for using the extent
+            # catalog outside of a connection--typically, only in unit tests!
             self.queue._p_invalidate() # avoid conflict errors
             assert not self.queue
         finally:

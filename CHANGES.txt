@@ -2,6 +2,15 @@
 zc.catalog changes
 ==================
 
+1.X (unreleased)
+================
+
+Bugs fixed
+----------
+
+* Unit tests in other packages depend on the extentcatalog working without a
+  connection.  Made this story work again.
+
 1.0 (2007-1-5)
 ==============
 

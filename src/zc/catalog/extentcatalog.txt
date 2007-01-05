@@ -463,6 +463,16 @@ What follows would provoke the conflict error without the change.
     >>> setSiteManager(root1['components'])
     >>> tm1.commit()
 
+Another case is that we want extentcatalogs to be able to work without a
+connection so that unit tests in other packages can work easily.
+
+    >>> extent = extentcatalog.FilterExtent(filter)
+    >>> catalog = extentcatalog.Catalog(extent)
+    >>> index = DummyIndex()
+    >>> catalog['index'] = index
+    >>> catalog.index_doc(matches[0], intid.getObject(matches[0]))
+    >>> list(catalog.extent) == list(index.uids) == [matches[0]]
+    True
 
 .. [#setup] We create the state that the text needs here.
 
