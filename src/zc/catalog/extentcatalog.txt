@@ -2,17 +2,9 @@ An extent catalog is very similar to a normal catalog except that it only
 indexes items addable to its extent.  The extent is both a filter and a
 set that may be merged with other result sets.
 
-In addition, the catalog has a queueing feature that postpones catalog work
-until the end of a transaction.  This can save a lot of work under certain
-circumstances, such as when an object is added (one event) and modified (one
-event) in the same transaction; or when an object is modified and deleted in
-the same transaction; or any time when multiple events that cause reindexing
-are fired for the same object within a single transaction.
-
 To show the extent catalog at work, we need an intid utility, an index,
 some items to index, and a filter that determines what the extent accepts.
-Because we want to show the behavior of the queueing as well, we'll do this
-within a real ZODB, with transactions, and a real intid utility [#setup]_.
+We'll do this within a real ZODB and a real intid utility [#setup]_.
 
     >>> from zc.catalog import interfaces, extentcatalog
     >>> from zope import interface, component
@@ -31,7 +23,8 @@ within a real ZODB, with transactions, and a real intid utility [#setup]_.
     ...     def __init__(self):
     ...         self.uids = BTrees.IFBTree.IFTreeSet()
     ...     def unindex_doc(self, uid):
-    ...         self.uids.remove(uid)
+    ...         if uid in self.uids:
+    ...             self.uids.remove(uid)
     ...     def index_doc(self, uid, obj):
     ...         self.uids.insert(uid)
     ...     def clear(self):
@@ -80,30 +73,7 @@ the filter will be in the extent and in the index.
     ...
     >>> matches.sort()
     >>> sorted(extent) == sorted(index.uids) == matches
-    False
-
-Wait a second!  That was supposed to be True, to show that the extent was
-constrained by the filter!  Why did that not work?
-
-    >>> list(index.uids)
-    []
-    >>> sorted(extent) == sorted(matches)
     True
-
-Oh...this is a result of the queued behavior discussed at the start of this
-document--we need to commit the transaction for the index to be affected.
-
-    >>> transaction.commit()
-    >>> sorted(extent) == sorted(index.uids) == matches
-    True
-
-Ah, there we go!  As we were trying to demonstrate, if we create some
-content and ask the catalog to index it, only the ones that match the
-filter will be in the extent and in the index.
-
-Also, this shows that we will need to commit the transaction every time we
-want to see the effect of the index requests during the course of these
-examples.
 
 If a content object is indexed that used to match the filter but no longer
 does, it should be removed from the extent and indexes.
@@ -116,11 +86,6 @@ does, it should be removed from the extent and indexes.
     False
     >>> catalog.index_doc(matches[0], obj)
     >>> doc_id = matches.pop(0)
-    >>> doc_id in catalog.extent # postponed till transaction
-    True
-    >>> sorted(extent) == sorted(index.uids) == matches # postponed
-    False
-    >>> transaction.commit()
     >>> doc_id in catalog.extent
     False
     >>> sorted(extent) == sorted(index.uids) == matches
@@ -134,11 +99,6 @@ catalog and index as usual.
     >>> matches[0] in catalog['index'].uids
     True
     >>> catalog.unindex_doc(matches[0])
-    >>> matches[0] in catalog.extent # postponed till transaction
-    True
-    >>> matches[0] in catalog['index'].uids # postponed till transaction
-    True
-    >>> transaction.commit()
     >>> matches[0] in catalog.extent
     False
     >>> matches[0] in catalog['index'].uids
@@ -157,29 +117,19 @@ no-op.
     False
     >>> sorted(extent) == sorted(index.uids) == matches
     True
-    >>> transaction.commit()
-    >>> sorted(extent) == sorted(index.uids) == matches
-    True
 
-Clearing the catalog clears both the extent and the contained indexes.  Note
-that this does /not/ wait for transaction boundaries to take effect.
+Clearing the catalog clears both the extent and the contained indexes.
 
     >>> catalog.clear()
     >>> list(catalog.extent) == list(catalog['index'].uids) == []
     True
 
 Updating all indexes and an individual index both also update the extent.
-updateIndexes waits for transaction boundaries for much of its work.
 
     >>> catalog.updateIndexes()
     >>> matches.insert(0, doc_id)
-    >>> sorted(extent) == sorted(index.uids) == matches # postponed
-    False
-    >>> transaction.commit()
-    >>> sorted(extent) == sorted(index.uids) == matches # postponed
+    >>> sorted(extent) == sorted(index.uids) == matches
     True
-
-updateIndex does its work immediately.  
 
     >>> index2 = DummyIndex()
     >>> catalog['index2'] = index2
@@ -189,13 +139,11 @@ updateIndex does its work immediately.
     >>> catalog.updateIndex(index2)
     >>> sorted(extent) == sorted(index2.uids) == matches
     True
-
-    >>> transaction.commit()
     >>> matches[0] in index.uids
     False
     >>> matches[0] in index2.uids
     True
-    >>> res = index.uids.insert(matches[0]) # normalize things again.
+    >>> res = index.uids.insert(matches[0])
 
 If you update a single index and an object is no longer a member of the extent,
 it is removed from all indexes.
@@ -209,13 +157,6 @@ it is removed from all indexes.
     >>> obj = intid.getObject(matches[0])
     >>> obj.ignore = True
     >>> catalog.updateIndex(index2)
-    >>> matches[0] in catalog.extent # postponed
-    True
-    >>> matches[0] in index.uids # postponed
-    True
-    >>> matches[0] in index2.uids # postponed
-    True
-    >>> transaction.commit()
     >>> matches[0] in catalog.extent
     False
     >>> matches[0] in index.uids
@@ -351,7 +292,7 @@ the source of documents to include::
 
 The `updateIndexes()` method has a similar behavior.  If we add an
 additional index to the catalog, we see that it indexes only those
-objects from the extent (after the transaction.commit())::
+objects from the extent::
 
     >>> index2 = DummyIndex()
     >>> catalog['index2'] = index2
@@ -362,9 +303,6 @@ objects from the extent (after the transaction.commit())::
     True
     >>> list(index.uids) == [intid.getId(root[0])]
     True
-    >>> list(index2.uids) == [intid.getId(root[0])]
-    False
-    >>> transaction.commit()
     >>> list(index2.uids) == [intid.getId(root[0])]
     True
 
@@ -390,89 +328,14 @@ When we have fresh catalog and extent (not yet populated), we see that
     >>> list(extent) == [intid.getId(root[0])]
     True
     >>> list(index1.uids) == [intid.getId(root[0])]
-    False
+    True
     >>> list(index2.uids) == [intid.getId(root[0])]
-    False
+    True
+
+We'll make sure everything can be safely committed.
+
     >>> transaction.commit()
-    >>> list(index1.uids) == [intid.getId(root[0])]
-    True
-    >>> list(index2.uids) == [intid.getId(root[0])]
-    True
-
-Regression Tests
-----------------
-
-The following section is for maintainers.  This should always be the last
-section in the document (or moved out to another document).
-
-When concurrent transactions are possible that both cause /any/ changes to
-a given extent catalog, the queued behavior described above had a serious
-flaw: it would /always/ provoke a conflict error!  This is because, even if
-an object starts and begins in the same state, if it is marked "dirty"
-(changed), then it will be stored as a new object in the ZODB, and will
-be the source of a ConflictError with any concurrent transactions that also
-cause the object to be marked dirty.
-
-The queue in the extentcatalog is a persistent object.  This makes it possible
-for it to behave correctly in the face of rolled back subtransactions. However,
-it also makes it possible to generate the kind of needless conflict errors that
-are described above.
-
-There are at least three possible solutions.  One is to associate the queue
-with a transaction manager and not make it actually persistent in the database.
-That is probably the "purest" solution but is not the most practical.  Another
-solution is to write a conflict resolution method (_p_resolveConflict): this
-is potentially reasonable solution.  However, for our case, the third solution
-is the easiest and the quickest: invalidate the changes on the queue at the
-end of the transaction, causing the dirty state to be tossed away and never
-saved to the database.  This is the approach that was implemented.
-
-What follows would provoke the conflict error without the change.
-
-    >>> transaction.commit() # clear the thread transactions    
-
-    >>> tm1 = transaction.TransactionManager()
-    >>> conn1 = root._p_jar.db().open(transaction_manager=tm1)
-    >>> root1 = conn1.root()
-    >>> setSiteManager(root1['components'])
-
-    >>> len(root1['catalog'].queue)
-    0
-    >>> root1['catalog'].index_doc(
-    ...     matches[0],
-    ...     zope.component.getUtility(zope.app.intid.IIntIds).getObject(
-    ...         matches[0]))
-    >>> len(root1['catalog'].queue)
-    1
-
-    >>> tm2 = transaction.TransactionManager()
-    >>> conn2 = root._p_jar.db().open(transaction_manager=tm2)
-    >>> root2 = conn2.root()
-    >>> setSiteManager(root2['components'])
-
-    >>> len(root2['catalog'].queue)
-    0
-    >>> root2['catalog'].index_doc(
-    ...     matches[-1],
-    ...     zope.component.getUtility(zope.app.intid.IIntIds).getObject(
-    ...         matches[-1]))
-    >>> len(root2['catalog'].queue)
-    1
-
-    >>> tm2.commit()
-    >>> setSiteManager(root1['components'])
-    >>> tm1.commit()
-
-Another case is that we want extentcatalogs to be able to work without a
-connection so that unit tests in other packages can work easily.
-
-    >>> extent = extentcatalog.FilterExtent(filter)
-    >>> catalog = extentcatalog.Catalog(extent)
-    >>> index = DummyIndex()
-    >>> catalog['index'] = index
-    >>> catalog.index_doc(matches[0], intid.getObject(matches[0]))
-    >>> list(catalog.extent) == list(index.uids) == [matches[0]]
-    True
+    >>> setSiteManager(None)
 
 .. [#setup] We create the state that the text needs here.
 

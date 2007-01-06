@@ -2,14 +2,30 @@
 zc.catalog changes
 ==================
 
-1.X (unreleased)
+1.1 (2007-1-6)
 ================
 
-Bugs fixed
-----------
+Features removed
+----------------
 
-* Unit tests in other packages depend on the extentcatalog working without a
-  connection.  Made this story work again.
+The queueing of events in the extent catalog has been entirely removed.
+Subtransactions caused significant problems to the code introduced in 1.0.
+Other solutions also have significant problems, and the win of this kind
+of queueing is qustionable.  Here is a run down of the approaches rejected
+for getting the queueing to work:
+
+* _p_invalidate (used in 1.0).  Not really designed for use within a
+  transaction, and reverts to last savepoint, rather than the beginning of
+  the transaction.  Could monkeypatch savepoints to iterate over
+  precommit transaction hooks but that just smells too bad.
+
+* _p_resolveConflict.  Requires application software to exist in ZEO and
+  even ZRS installations, which is counter to our software deployment goals.
+  Also causes useless repeated writes of empty queue to database, but that's
+  not the showstopper.
+
+* vague hand-wavy ideas for separate storages or transaction managers for the
+  queue.  Never panned out in discussion.
 
 1.0 (2007-1-5)
 ==============
