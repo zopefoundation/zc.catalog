@@ -32,20 +32,21 @@ class FilterExtent(persistent.Persistent):
     interface.implements(interfaces.IFilterExtent)
     __parent__ = None
 
+    # The [IL]FBTree utilities of the flavor we need
+    _weightedUnion = IFBTree.weightedUnion
+    _weightedIntersection = IFBTree.weightedIntersection
+    _difference = IFBTree.difference
+
     def __init__(self, filter):
         treeset = zope.component.queryUtility(IFactory, name='IFTreeSet',
                                               default=IFBTree.IFTreeSet)
         self.set = treeset()
+        myIFBTree = zope.component.queryUtility(IMerge, name='IFBTree',
+                                                default=IFBTree)
+        self._weightedUnion = myIFBTree.weightedUnion
+        self._weightedIntersection = myIFBTree.weightedIntersection
+        self._difference = myIFBTree.difference
         self.filter = filter
-
-    @property
-    def IFBTree(self):
-        """Get the [IL]BTree module of the correct flavor.
-
-        Used for set operations.
-        """
-        return zope.component.queryUtility(IMerge, name='IFBTree',
-                                           default=IFBTree)
 
     def addable(self, uid, obj):
         return self.filter(self, uid, obj)
@@ -60,7 +61,7 @@ class FilterExtent(persistent.Persistent):
     __ror__ = __or__
 
     def union(self, other, self_weight=1, other_weight=1):
-        return self.IFBTree.weightedUnion(
+        return self._weightedUnion(
             self.set, other, self_weight, other_weight)[1]
 
     def __and__(self, other):
@@ -70,7 +71,7 @@ class FilterExtent(persistent.Persistent):
     __rand__ = __and__
 
     def intersection(self, other, self_weight=1, other_weight=1):
-        return self.IFBTree.weightedIntersection(
+        return self._weightedIntersection(
             self.set, other, self_weight, other_weight)[1]
 
     def __sub__(self, other):
@@ -78,14 +79,14 @@ class FilterExtent(persistent.Persistent):
         return self.difference(other)
 
     def difference(self, other):
-        return self.IFBTree.difference(self.set, other)
+        return self._difference(self.set, other)
 
     def __rsub__(self, other):
         "set - extent"
         return self.rdifference(other)
 
     def rdifference(self, other):
-        return self.IFBTree.difference(other, self.set)
+        return self._difference(other, self.set)
 
     def __iter__(self):
         return iter(self.set)

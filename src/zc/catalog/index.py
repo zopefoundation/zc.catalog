@@ -40,35 +40,39 @@ class AbstractIndex(persistent.Persistent):
                          zc.catalog.interfaces.IIndexValues,
                          )
 
+    # The [IL]FBTree utilities of the flavor we need
+    _multiunion = IFBTree.multiunion
+    _weightedUnion = IFBTree.weightedUnion
+    _intersection = IFBTree.intersection
+
+    # BTree components of the flavor we need
+    IFTreeSet = IFBTree.IFTreeSet
+    IFSet = IFBTree.IFSet
+    IFBucket = IFBTree.IFBucket
+
     def __init__(self):
         self.clear()
+        self.IFTreeSet = component.queryUtility(
+            zope.component.interfaces.IFactory,
+            name='IFTreeSet',
+            default=IFBTree.IFTreeSet)
+        self.IFSet = component.queryUtility(
+            zope.component.interfaces.IFactory,
+            name='IFSet',
+            default=IFBTree.IFSet)
+        self.IFBucket = component.queryUtility(
+            zope.component.interfaces.IFactory,
+            name='IFBucket',
+            default=IFBTree.IFBucket)
 
-    @property
-    def IFBTree(self):
-        """Get the [IL]FBTree module of the flavour we're using"""
-        return component.queryUtility(IMerge, name='IFBTree',
-                                      default=IFBTree)
+        myIFBTree = component.queryUtility(
+            IMerge,
+            name='IFBTree',
+            default=IFBTree)
 
-    @property
-    def IFTreeSet(self):
-        """Get the [IL]FTreeSet class of the flavour we're using"""
-        return component.queryUtility(zope.component.interfaces.IFactory,
-                                      name='IFTreeSet',
-                                      default=IFBTree.IFTreeSet)
-
-    @property
-    def IFSet(self):
-        """Get the [IL]FSet class of the flavour we're using"""
-        return component.queryUtility(zope.component.interfaces.IFactory,
-                                      name='IFSet',
-                                      default=IFBTree.IFSet)
-
-    @property
-    def IFBucket(self):
-        """Get the [IL]FBucket class of the flavour we're using"""
-        return component.queryUtility(zope.component.interfaces.IFactory,
-                                      name='IFBucket',
-                                      default=IFBTree.IFBucket)
+        self._multiunion = myIFBTree.multiunion
+        self._weightedUnion = myIFBTree.weightedUnion
+        self._intersection = myIFBTree.intersection
 
     def clear(self):
         self.values_to_documents = OOBTree.OOBTree()
@@ -171,7 +175,7 @@ class ValueIndex(AbstractIndex):
         if query_type is None:
             res = None
         elif query_type == 'any_of':
-            res = self.IFBTree.multiunion(
+            res = self._multiunion(
                 [s for s in (values_to_documents.get(v) for v in query)
                  if s is not None])
         elif query_type == 'any':
@@ -181,7 +185,7 @@ class ValueIndex(AbstractIndex):
                 assert zc.catalog.interfaces.IExtent.providedBy(query)
                 res = query & self.IFSet(self.ids())
         elif query_type == 'between':
-            res = self.IFBTree.multiunion(
+            res = self._multiunion(
                 [s for s in (values_to_documents.get(v) for v in
                              values_to_documents.keys(*query))
                  if s is not None])
@@ -270,7 +274,7 @@ class SetIndex(AbstractIndex):
         elif query_type == 'any_of':
             res = self.IFBucket()
             for v in query:
-                _, res = self.IFBTree.weightedUnion(
+                _, res = self._weightedUnion(
                     res, values_to_documents.get(v))
         elif query_type == 'any':
             if query is None:
@@ -290,13 +294,12 @@ class SetIndex(AbstractIndex):
                     v = values.next()
                 except StopIteration:
                     break
-                res = self.IFBTree.intersection(res,
-                                                values_to_documents.get(v))
+                res = self._intersection(res, values_to_documents.get(v))
         elif query_type == 'between':
             res = self.IFBucket()
             for v in values_to_documents.keys(*query):
-                _, res = self.IFBTree.weightedUnion(res,
-                                                    values_to_documents.get(v))
+                _, res = self._weightedUnion(res,
+                                             values_to_documents.get(v))
         elif query_type == 'none':
             assert zc.catalog.interfaces.IExtent.providedBy(query)
             res = query - self.IFSet(self.ids())
