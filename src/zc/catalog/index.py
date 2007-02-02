@@ -40,39 +40,13 @@ class AbstractIndex(persistent.Persistent):
                          zc.catalog.interfaces.IIndexValues,
                          )
 
-    # The [IL]FBTree utilities of the flavor we need
-    _multiunion = IFBTree.multiunion
-    _weightedUnion = IFBTree.weightedUnion
-    _intersection = IFBTree.intersection
-
-    # BTree components of the flavor we need
-    IFTreeSet = IFBTree.IFTreeSet
-    IFSet = IFBTree.IFSet
-    IFBucket = IFBTree.IFBucket
+    BTreeAPI = zc.catalog.BTreeAPI32
 
     def __init__(self):
         self.clear()
-        self.IFTreeSet = component.queryUtility(
-            zope.component.interfaces.IFactory,
-            name='IFTreeSet',
-            default=IFBTree.IFTreeSet)
-        self.IFSet = component.queryUtility(
-            zope.component.interfaces.IFactory,
-            name='IFSet',
-            default=IFBTree.IFSet)
-        self.IFBucket = component.queryUtility(
-            zope.component.interfaces.IFactory,
-            name='IFBucket',
-            default=IFBTree.IFBucket)
-
-        myIFBTree = component.queryUtility(
-            IMerge,
-            name='IFBTree',
-            default=IFBTree)
-
-        self._multiunion = myIFBTree.multiunion
-        self._weightedUnion = myIFBTree.weightedUnion
-        self._intersection = myIFBTree.intersection
+        self.BTreeAPI = component.queryUtility(
+            zc.catalog.interfaces.IBTreeAPI,
+            default=zc.catalog.BTreeAPI32)
 
     def clear(self):
         self.values_to_documents = OOBTree.OOBTree()
@@ -133,7 +107,7 @@ class ValueIndex(AbstractIndex):
         values_to_documents = self.values_to_documents
         docs = values_to_documents.get(added)
         if docs is None:
-            values_to_documents[added] = self.IFTreeSet((doc_id,))
+            values_to_documents[added] = self.BTreeAPI.TreeSet((doc_id,))
             self.wordCount.change(1)
         else:
             docs.insert(doc_id)
@@ -175,23 +149,23 @@ class ValueIndex(AbstractIndex):
         if query_type is None:
             res = None
         elif query_type == 'any_of':
-            res = self._multiunion(
+            res = self.BTreeAPI.multiunion(
                 [s for s in (values_to_documents.get(v) for v in query)
                  if s is not None])
         elif query_type == 'any':
             if query is None:
-                res = self.IFSet(self.ids())
+                res = self.BTreeAPI.Set(self.ids())
             else:
                 assert zc.catalog.interfaces.IExtent.providedBy(query)
-                res = query & self.IFSet(self.ids())
+                res = query & self.BTreeAPI.Set(self.ids())
         elif query_type == 'between':
-            res = self._multiunion(
+            res = self.BTreeAPI.multiunion(
                 [s for s in (values_to_documents.get(v) for v in
                              values_to_documents.keys(*query))
                  if s is not None])
         elif query_type == 'none':
             assert zc.catalog.interfaces.IExtent.providedBy(query)
-            res = query - self.IFSet(self.ids())
+            res = query - self.BTreeAPI.Set(self.ids())
         else:
             raise ValueError(
                 "unknown query type", query_type)
@@ -222,7 +196,7 @@ class SetIndex(AbstractIndex):
         for v in added:
             docs = values_to_documents.get(v)
             if docs is None:
-                values_to_documents[v] = self.IFTreeSet((doc_id,))
+                values_to_documents[v] = self.BTreeAPI.TreeSet((doc_id,))
                 self.wordCount.change(1)
             else:
                 docs.insert(doc_id)
@@ -272,37 +246,37 @@ class SetIndex(AbstractIndex):
         if query_type is None:
             res = None
         elif query_type == 'any_of':
-            res = self.IFBucket()
+            res = self.BTreeAPI.Bucket()
             for v in query:
-                _, res = self._weightedUnion(
+                _, res = self.BTreeAPI.weightedUnion(
                     res, values_to_documents.get(v))
         elif query_type == 'any':
             if query is None:
-                res = self.IFSet(self.ids())
+                res = self.BTreeAPI.Set(self.ids())
             else:
                 assert zc.catalog.interfaces.IExtent.providedBy(query)
-                res = query & self.IFSet(self.ids())
+                res = query & self.BTreeAPI.Set(self.ids())
         elif query_type == 'all_of':
             res = None
             values = iter(query)
             try:
                 res = values_to_documents.get(values.next())
             except StopIteration:
-                res = self.IFTreeSet()
+                res = self.BTreeAPI.TreeSet()
             while res:
                 try:
                     v = values.next()
                 except StopIteration:
                     break
-                res = self._intersection(res, values_to_documents.get(v))
+                res = self.BTreeAPI.intersection(res, values_to_documents.get(v))
         elif query_type == 'between':
-            res = self.IFBucket()
+            res = self.BTreeAPI.Bucket()
             for v in values_to_documents.keys(*query):
-                _, res = self._weightedUnion(res,
-                                             values_to_documents.get(v))
+                _, res = self.BTreeAPI.weightedUnion(res,
+                                                     values_to_documents.get(v))
         elif query_type == 'none':
             assert zc.catalog.interfaces.IExtent.providedBy(query)
-            res = query - self.IFSet(self.ids())
+            res = query - self.BTreeAPI.Set(self.ids())
         else:
             raise ValueError(
                 "unknown query type", query_type)

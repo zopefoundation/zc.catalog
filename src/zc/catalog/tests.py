@@ -22,6 +22,9 @@ import zope.component.testing
 import zope.component.factory
 import zope.component.interfaces
 
+import zc.catalog
+import zc.catalog.interfaces
+
 import BTrees.Interfaces
 import BTrees.LOBTree
 import BTrees.OLBTree
@@ -40,27 +43,15 @@ def modTearDown(test):
 def setUp64bit(test):
     zope.component.testing.setUp(test)
     zope.component.provideUtility(
-        zope.component.factory.Factory(BTrees.LFBTree.LFBTree),
-        name='IFBTree')
-    zope.component.provideUtility(
-        zope.component.factory.Factory(BTrees.LFBTree.LFTreeSet),
-        name='IFTreeSet')
-    zope.component.provideUtility(
-        zope.component.factory.Factory(BTrees.LFBTree.LFSet),
-        name='IFSet')
-    zope.component.provideUtility(
-        zope.component.factory.Factory(BTrees.LFBTree.LFBucket),
-        name='IFBucket')
-    zope.component.provideUtility(
         zope.component.factory.Factory(BTrees.LOBTree.LOBTree),
         name='IOBTree')
     zope.component.provideUtility(
         zope.component.factory.Factory(BTrees.OLBTree.OLBTree),
         name='OIBTree')
     zope.component.provideUtility(
-        BTrees.LFBTree,
-        provides=BTrees.Interfaces.IMerge,
-        name='IFBTree')
+        zc.catalog.BTreeAPI64,
+        provides=zc.catalog.interfaces.IBTreeAPI)
+
 
 
 def tearDown64bit(test):

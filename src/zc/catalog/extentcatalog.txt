@@ -6,6 +6,8 @@ To show the extent catalog at work, we need an intid utility, an index,
 some items to index, and a filter that determines what the extent accepts.
 We'll do this within a real ZODB and a real intid utility [#setup]_.
 
+    >>> import zc.catalog
+    >>> import zc.catalog.interfaces
     >>> from zc.catalog import interfaces, extentcatalog
     >>> from zope import interface, component
     >>> from zope.interface import verify
@@ -15,16 +17,15 @@ We'll do this within a real ZODB and a real intid utility [#setup]_.
     >>> root = makeRoot()
     >>> intid = zope.component.getUtility(
     ...     zope.app.intid.interfaces.IIntIds, context=root)
-    >>> IFTreeSet = component.queryUtility(component.interfaces.IFactory,
-    ...                                    name="IFTreeSet",
-    ...                                    default=BTrees.IFBTree.IFTreeSet)
+    >>> BTreeAPI = component.queryUtility(zc.catalog.interfaces.IBTreeAPI,
+    ...                                   default=zc.catalog.BTreeAPI32)
 
     >>> from zope.app.container.interfaces import IContained
     >>> class DummyIndex(persistent.Persistent):
     ...     interface.implements(IContained)
     ...     __parent__ = __name__ = None
     ...     def __init__(self):
-    ...         self.uids = IFTreeSet()
+    ...         self.uids = BTreeAPI.TreeSet()
     ...     def unindex_doc(self, uid):
     ...         if uid in self.uids:
     ...             self.uids.remove(uid)
@@ -184,7 +185,7 @@ intersections are weighted.
     >>> for i in range(1, 100, 2):
     ...     extent.add(i, None)
     ...
-    >>> alt_set = IFTreeSet()
+    >>> alt_set = BTreeAPI.TreeSet()
     >>> alt_set.update(range(0, 166, 33)) # return value is unimportant here
     6
     >>> sorted(alt_set)

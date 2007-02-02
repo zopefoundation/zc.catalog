@@ -21,6 +21,7 @@ from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 import zope.index.interfaces
 import zope.app.catalog.interfaces
 from zc.catalog.i18n import _
+import BTrees.Interfaces
 
 class IExtent(interface.Interface):
 
@@ -293,3 +294,12 @@ class IDateTimeNormalizer(INormalizer):
         title=_('Resolution'),
         default=2,
         required=True)
+
+
+class IBTreeAPI(BTrees.Interfaces.IMergeIntegerKey, BTrees.Interfaces.IIMerge):
+    """A class encapsulating a flavour (32/64 bit) of the XFBTrees"""
+
+    TreeSet = interface.Attribute("The class of a tree set flavour")
+    Set = interface.Attribute("The class of a set flavour")
+    Bucket = interface.Attribute("The class of a set flavour")
+
