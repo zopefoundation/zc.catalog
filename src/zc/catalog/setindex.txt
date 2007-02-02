@@ -74,8 +74,8 @@ contain any of the values.  The results are weighted.
     [1, 2, 3, 4, 6, 8]
     >>> list(index.apply({'any_of':(42,)}))
     []
-    >>> index.apply({'any_of': ('a', 3, 7)})
-    BTrees._IFBTree.IFBucket([(1, 1.0), (2, 3.0), (5, 1.0), (6, 1.0), (9, 2.0)])
+    >>> index.apply({'any_of': ('a', 3, 7)})              # doctest: +ELLIPSIS
+    BTrees...FBucket([(1, 1.0), (2, 3.0), (5, 1.0), (6, 1.0), (9, 2.0)])
 
 Another query is 'any'. If the key is None, all indexed document ids with any
 values are returned.  If the key is an extent, the intersection of the extent
@@ -122,8 +122,8 @@ defaults to False.  The results are weighted.
     [2, 4, 7, 9]
     >>> list(index.apply({'between': (1, 7, True, True)}))
     [2, 4, 6, 8, 9]
-    >>> index.apply({'between': (2, 6)})
-    BTrees._IFBTree.IFBucket([(2, 2.0), (4, 1.0), (6, 2.0), (8, 1.0), (9, 4.0)])
+    >>> index.apply({'between': (2, 6)})               # doctest: +ELLIPSIS
+    BTrees...FBucket([(2, 2.0), (4, 1.0), (6, 2.0), (8, 1.0), (9, 4.0)])
 
 The 'none' argument takes an extent and returns the ids in the extent
 that are not indexed; it is intended to be used to return docids that have

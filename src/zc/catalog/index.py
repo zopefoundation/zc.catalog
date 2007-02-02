@@ -19,8 +19,10 @@ import datetime
 import pytz.reference
 import persistent
 from BTrees import IFBTree, OOBTree, IOBTree, Length
+from BTrees.Interfaces import IMerge
 
 from zope import component, interface
+import zope.component.interfaces
 import zope.interface.common.idatetime
 import zope.index.interfaces
 import zope.security.management
@@ -28,6 +30,7 @@ from zope.publisher.interfaces import IRequest
 
 import zc.catalog.interfaces
 from zc.catalog.i18n import _
+
 
 class AbstractIndex(persistent.Persistent):
 
@@ -40,9 +43,38 @@ class AbstractIndex(persistent.Persistent):
     def __init__(self):
         self.clear()
 
+    @property
+    def IFBTree(self):
+        """Get the [IL]FBTree module of the flavour we're using"""
+        return component.queryUtility(IMerge, name='IFBTree',
+                                      default=IFBTree)
+
+    @property
+    def IFTreeSet(self):
+        """Get the [IL]FTreeSet class of the flavour we're using"""
+        return component.queryUtility(zope.component.interfaces.IFactory,
+                                      name='IFTreeSet',
+                                      default=IFBTree.IFTreeSet)
+
+    @property
+    def IFSet(self):
+        """Get the [IL]FSet class of the flavour we're using"""
+        return component.queryUtility(zope.component.interfaces.IFactory,
+                                      name='IFSet',
+                                      default=IFBTree.IFSet)
+
+    @property
+    def IFBucket(self):
+        """Get the [IL]FBucket class of the flavour we're using"""
+        return component.queryUtility(zope.component.interfaces.IFactory,
+                                      name='IFBucket',
+                                      default=IFBTree.IFBucket)
+
     def clear(self):
         self.values_to_documents = OOBTree.OOBTree()
-        self.documents_to_values = IOBTree.IOBTree()
+        self.documents_to_values = component.queryUtility(
+            zope.component.interfaces.IFactory,
+            name='IOBTree', default=IOBTree.IOBTree)()
         self.documentCount = Length.Length(0)
         self.wordCount = Length.Length(0)
 
@@ -97,7 +129,7 @@ class ValueIndex(AbstractIndex):
         values_to_documents = self.values_to_documents
         docs = values_to_documents.get(added)
         if docs is None:
-            values_to_documents[added] = IFBTree.IFTreeSet((doc_id,))
+            values_to_documents[added] = self.IFTreeSet((doc_id,))
             self.wordCount.change(1)
         else:
             docs.insert(doc_id)
@@ -139,23 +171,23 @@ class ValueIndex(AbstractIndex):
         if query_type is None:
             res = None
         elif query_type == 'any_of':
-            res = IFBTree.multiunion(
+            res = self.IFBTree.multiunion(
                 [s for s in (values_to_documents.get(v) for v in query)
                  if s is not None])
         elif query_type == 'any':
             if query is None:
-                res = IFBTree.IFSet(self.ids())
+                res = self.IFSet(self.ids())
             else:
                 assert zc.catalog.interfaces.IExtent.providedBy(query)
-                res = query & IFBTree.IFSet(self.ids())
+                res = query & self.IFSet(self.ids())
         elif query_type == 'between':
-            res = IFBTree.multiunion(
+            res = self.IFBTree.multiunion(
                 [s for s in (values_to_documents.get(v) for v in
                              values_to_documents.keys(*query))
                  if s is not None])
         elif query_type == 'none':
             assert zc.catalog.interfaces.IExtent.providedBy(query)
-            res = query - IFBTree.IFSet(self.ids())
+            res = query - self.IFSet(self.ids())
         else:
             raise ValueError(
                 "unknown query type", query_type)
@@ -186,7 +218,7 @@ class SetIndex(AbstractIndex):
         for v in added:
             docs = values_to_documents.get(v)
             if docs is None:
-                values_to_documents[v] = IFBTree.IFTreeSet((doc_id,))
+                values_to_documents[v] = self.IFTreeSet((doc_id,))
                 self.wordCount.change(1)
             else:
                 docs.insert(doc_id)
@@ -236,36 +268,38 @@ class SetIndex(AbstractIndex):
         if query_type is None:
             res = None
         elif query_type == 'any_of':
-            res = IFBTree.IFBucket()
+            res = self.IFBucket()
             for v in query:
-                _, res = IFBTree.weightedUnion(
+                _, res = self.IFBTree.weightedUnion(
                     res, values_to_documents.get(v))
         elif query_type == 'any':
             if query is None:
-                res = IFBTree.IFSet(self.ids())
+                res = self.IFSet(self.ids())
             else:
                 assert zc.catalog.interfaces.IExtent.providedBy(query)
-                res = query & IFBTree.IFSet(self.ids())
+                res = query & self.IFSet(self.ids())
         elif query_type == 'all_of':
             res = None
             values = iter(query)
             try:
                 res = values_to_documents.get(values.next())
             except StopIteration:
-                res = IFBTree.IFTreeSet()
+                res = self.IFTreeSet()
             while res:
                 try:
                     v = values.next()
                 except StopIteration:
                     break
-                res = IFBTree.intersection(res, values_to_documents.get(v))
+                res = self.IFBTree.intersection(res,
+                                                values_to_documents.get(v))
         elif query_type == 'between':
-            res = IFBTree.IFBucket()
+            res = self.IFBucket()
             for v in values_to_documents.keys(*query):
-                _, res = IFBTree.weightedUnion(res, values_to_documents.get(v))
+                _, res = self.IFBTree.weightedUnion(res,
+                                                    values_to_documents.get(v))
         elif query_type == 'none':
             assert zc.catalog.interfaces.IExtent.providedBy(query)
-            res = query - IFBTree.IFSet(self.ids())
+            res = query - self.IFSet(self.ids())
         else:
             raise ValueError(
                 "unknown query type", query_type)
