@@ -1,10 +1,12 @@
-An extent catalog is very similar to a normal catalog except that it only
-indexes items addable to its extent.  The extent is both a filter and a
-set that may be merged with other result sets.
+An extent catalog is very similar to a normal catalog except that it
+only indexes items addable to its extent.  The extent is both a filter
+and a set that may be merged with other result sets.  The filtering is
+an additional feature we will discuss below; we'll begin with a simple
+"do nothing" extent that only supports the second use case.
 
-To show the extent catalog at work, we need an intid utility, an index,
-some items to index, and a filter that determines what the extent accepts.
-We'll do this within a real ZODB and a real intid utility [#setup]_.
+To show the extent catalog at work, we need an intid utility, an
+index, some items to index.  We'll do this within a real ZODB and a
+real intid utility [#setup]_.
 
     >>> import zc.catalog
     >>> import zc.catalog.interfaces
@@ -39,8 +41,139 @@ We'll do this within a real ZODB and a real intid utility [#setup]_.
     ...         self.id = name
     ...         self.__parent__ = parent
     ...
+
+    >>> extent = extentcatalog.Extent()
+    >>> verify.verifyObject(interfaces.IExtent, extent)
+    True
+    >>> root['catalog'] = catalog = extentcatalog.Catalog(extent)
+    >>> verify.verifyObject(interfaces.IExtentCatalog, catalog)
+    True
+    >>> index = DummyIndex()
+    >>> catalog['index'] = index
+    >>> transaction.commit()
+
+Now we have a catalog set up with an index and an extent.  We can add
+some data to the extent:
+
+    >>> matches = []
+    >>> for i in range(100):
+    ...     c = DummyContent(i, root)
+    ...     root[i] = c
+    ...     doc_id = intid.register(c)
+    ...     catalog.index_doc(doc_id, c)
+    ...     matches.append(doc_id)
+    >>> matches.sort()
+    >>> sorted(extent) == sorted(index.uids) == matches
+    True
+
+Unindexing an object that is in the catalog should simply remove it from the
+catalog and index as usual.
+
+    >>> matches[0] in catalog.extent
+    True
+    >>> matches[0] in catalog['index'].uids
+    True
+    >>> catalog.unindex_doc(matches[0])
+    >>> matches[0] in catalog.extent
+    False
+    >>> matches[0] in catalog['index'].uids
+    False
+    >>> doc_id = matches.pop(0)
+    >>> sorted(extent) == sorted(index.uids) == matches
+    True
+
+Clearing the catalog clears both the extent and the contained indexes.
+
+    >>> catalog.clear()
+    >>> list(catalog.extent) == list(catalog['index'].uids) == []
+    True
+
+Updating all indexes and an individual index both also update the extent.
+
+    >>> catalog.updateIndexes()
+    >>> matches.insert(0, doc_id)
+    >>> sorted(extent) == sorted(index.uids) == matches
+    True
+
+    >>> index2 = DummyIndex()
+    >>> catalog['index2'] = index2
+    >>> index2.__parent__ == catalog
+    True
+    >>> index.uids.remove(matches[0]) # to confirm that only index 2 is touched
+    >>> catalog.updateIndex(index2)
+    >>> sorted(extent) == sorted(index2.uids) == matches
+    True
+    >>> matches[0] in index.uids
+    False
+    >>> matches[0] in index2.uids
+    True
+    >>> res = index.uids.insert(matches[0])
+
+But so why have an extent in the first place?  It allows indices to
+operate against a reliable collection of the full indexed data;
+therefore, it allows the indices in zc.catalog to perform NOT
+operations.
+
+The extent itself provides a number of merging features to allow its
+values to be merged with other BTrees.IFBTree data structures.  These
+include intersection, union, difference, and reverse difference.
+Given an extent named 'extent' and another IFBTree data structure
+named 'data', intersections can be spelled "extent & data" or "data &
+extent"; unions can be spelled "extent | data" or "data | extent";
+differences can be spelled "extent - data"; and reverse differences
+can be spelled "data - extent".  Unions and intersections are
+weighted.
+
+    >>> extent = extentcatalog.Extent()
+    >>> for i in range(1, 100, 2):
+    ...     extent.add(i, None)
+    ...
+    >>> alt_set = BTreeAPI.TreeSet()
+    >>> alt_set.update(range(0, 166, 33)) # return value is unimportant here
+    6
+    >>> sorted(alt_set)
+    [0, 33, 66, 99, 132, 165]
+    >>> sorted(extent & alt_set)
+    [33, 99]
+    >>> sorted(alt_set & extent)
+    [33, 99]
+    >>> sorted(extent.intersection(alt_set))
+    [33, 99]
+    >>> original = set(extent)
+    >>> union_matches = original.copy()
+    >>> union_matches.update(alt_set)
+    >>> union_matches = sorted(union_matches)
+    >>> sorted(alt_set | extent) == union_matches
+    True
+    >>> sorted(extent | alt_set) == union_matches
+    True
+    >>> sorted(extent.union(alt_set)) == union_matches
+    True
+    >>> sorted(alt_set - extent)
+    [0, 66, 132, 165]
+    >>> sorted(extent.rdifference(alt_set))
+    [0, 66, 132, 165]
+    >>> original.remove(33)
+    >>> original.remove(99)
+    >>> set(extent - alt_set) == original
+    True
+    >>> set(extent.difference(alt_set)) == original
+    True
+
+[#cleanup]_
+
+
+Catalog with a filter extent
+----------------------------
+
+As discussed at the beginning of this document, extents can not only help
+with index operations, but also act as a filter, so that a given catalog
+can answer questions about a subset of the objects contained in the intids.
+
+The filter extent only stores objects that match a given filter.
+
     >>> def filter(extent, uid, ob):
-    ...     assert interfaces.IExtent.providedBy(extent)
+    ...     assert interfaces.IFilterExtent.providedBy(extent)
     ...     # This is an extent of objects with odd-numbered uids without a
     ...     # True ignore attribute
     ...     return uid % 2 and not getattr(ob, 'ignore', False)
@@ -48,7 +181,7 @@ We'll do this within a real ZODB and a real intid utility [#setup]_.
     >>> extent = extentcatalog.FilterExtent(filter)
     >>> verify.verifyObject(interfaces.IFilterExtent, extent)
     True
-    >>> root['catalog'] = catalog = extentcatalog.Catalog(extent)
+    >>> root['catalog1'] = catalog = extentcatalog.Catalog(extent)
     >>> verify.verifyObject(interfaces.IExtentCatalog, catalog)
     True
     >>> index = DummyIndex()
@@ -95,24 +228,7 @@ does, it should be removed from the extent and indexes.
     >>> sorted(extent) == sorted(index.uids) == matches
     True
 
-Unindexing an object that is in the catalog should simply remove it from the
-catalog and index as usual.
-
-    >>> matches[0] in catalog.extent
-    True
-    >>> matches[0] in catalog['index'].uids
-    True
-    >>> catalog.unindex_doc(matches[0])
-    >>> matches[0] in catalog.extent
-    False
-    >>> matches[0] in catalog['index'].uids
-    False
-    >>> doc_id = matches.pop(0)
-    >>> sorted(extent) == sorted(index.uids) == matches
-    True
-
-And similarly, unindexing an object that is not in the catalog should be a
-no-op.
+Unindexing an object that is not in the catalog should be a no-op.
 
     >>> fails[0] in catalog.extent
     False
@@ -122,18 +238,7 @@ no-op.
     >>> sorted(extent) == sorted(index.uids) == matches
     True
 
-Clearing the catalog clears both the extent and the contained indexes.
-
-    >>> catalog.clear()
-    >>> list(catalog.extent) == list(catalog['index'].uids) == []
-    True
-
 Updating all indexes and an individual index both also update the extent.
-
-    >>> catalog.updateIndexes()
-    >>> matches.insert(0, doc_id)
-    >>> sorted(extent) == sorted(index.uids) == matches
-    True
 
     >>> index2 = DummyIndex()
     >>> catalog['index2'] = index2
@@ -141,7 +246,7 @@ Updating all indexes and an individual index both also update the extent.
     True
     >>> index.uids.remove(matches[0]) # to confirm that only index 2 is touched
     >>> catalog.updateIndex(index2)
-    >>> sorted(extent) == sorted(index2.uids) == matches
+    >>> sorted(extent) == sorted(index2.uids)
     True
     >>> matches[0] in index.uids
     False
@@ -170,51 +275,6 @@ it is removed from all indexes.
     >>> doc_id = matches.pop(0)
     >>> (matches == sorted(catalog.extent) == sorted(index.uids)
     ...  == sorted(index2.uids))
-    True
-
-The extent itself provides a number of merging features to allow its values to
-be merged with other BTrees.IFBTree data structures.  These include
-intersection, union, difference, and reverse difference.  Given an extent
-named 'extent' and another IFBTree data structure named 'data', intersections
-can be spelled "extent & data" or "data & extent"; unions can be spelled
-"extent | data" or "data | extent"; differences can be spelled "extent - data";
-and reverse differences can be spelled "data - extent".  Unions and
-intersections are weighted.
-
-    >>> extent = extentcatalog.FilterExtent(filter)
-    >>> for i in range(1, 100, 2):
-    ...     extent.add(i, None)
-    ...
-    >>> alt_set = BTreeAPI.TreeSet()
-    >>> alt_set.update(range(0, 166, 33)) # return value is unimportant here
-    6
-    >>> sorted(alt_set)
-    [0, 33, 66, 99, 132, 165]
-    >>> sorted(extent & alt_set)
-    [33, 99]
-    >>> sorted(alt_set & extent)
-    [33, 99]
-    >>> sorted(extent.intersection(alt_set))
-    [33, 99]
-    >>> original = set(extent)
-    >>> union_matches = original.copy()
-    >>> union_matches.update(alt_set)
-    >>> union_matches = sorted(union_matches)
-    >>> sorted(alt_set | extent) == union_matches
-    True
-    >>> sorted(extent | alt_set) == union_matches
-    True
-    >>> sorted(extent.union(alt_set)) == union_matches
-    True
-    >>> sorted(alt_set - extent)
-    [0, 66, 132, 165]
-    >>> sorted(extent.rdifference(alt_set))
-    [0, 66, 132, 165]
-    >>> original.remove(33)
-    >>> original.remove(99)
-    >>> set(extent - alt_set) == original
-    True
-    >>> set(extent.difference(alt_set)) == original
     True
 
 
@@ -400,3 +460,12 @@ We'll make sure everything can be safely committed.
     ...     return obj._p_jar.root()['components']
     ...
     >>> zope.component.provideAdapter(getComponentLookup)
+
+
+.. [#cleanup] Unregister the objects of the previous tests from intid utility:
+
+    >>> intid = zope.component.getUtility(
+    ...     zope.app.intid.interfaces.IIntIds, context=root)
+    >>> for doc_id in matches:
+    ...     intid.unregister(intid.queryObject(doc_id))
+

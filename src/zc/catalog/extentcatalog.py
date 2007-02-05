@@ -30,21 +30,20 @@ import zc.catalog
 from zc.catalog import interfaces
 
 
-class FilterExtent(persistent.Persistent):
-    interface.implements(interfaces.IFilterExtent)
+class Extent(persistent.Persistent):
+    interface.implements(interfaces.IExtent)
     __parent__ = None
 
     BTreeAPI = zc.catalog.BTreeAPI32
 
-    def __init__(self, filter):
+    def __init__(self):
         self.BTreeAPI = zope.component.queryUtility(
             interfaces.IBTreeAPI,
             default=zc.catalog.BTreeAPI32)
         self.set = self.BTreeAPI.TreeSet()
-        self.filter = filter
 
-    def addable(self, uid, obj):
-        return self.filter(self, uid, obj)
+    def add(self, uid, obj):
+        self.set.insert(uid)
 
     def clear(self):
         self.set.clear()
@@ -92,12 +91,6 @@ class FilterExtent(persistent.Persistent):
     def __contains__(self, uid):
         return self.set.has_key(uid)
 
-    def add(self, uid, obj):
-        if not self.addable(uid, obj):
-            raise ValueError
-        else:
-            self.set.insert(uid)
-
     def remove(self, uid):
         self.set.remove(uid)
 
@@ -106,6 +99,24 @@ class FilterExtent(persistent.Persistent):
             self.set.remove(uid)
         except KeyError:
             pass
+
+
+class FilterExtent(Extent):
+    interface.implements(interfaces.IFilterExtent)
+
+    def __init__(self, filter):
+        super(FilterExtent, self).__init__()
+        self.filter = filter
+
+    def add(self, uid, obj):
+        if not self.addable(uid, obj):
+            raise ValueError
+        else:
+            self.set.insert(uid)
+
+    def addable(self, uid, obj):
+        return self.filter(self, uid, obj)
+
 
 class Catalog(catalog.Catalog):
     interface.implements(interfaces.IExtentCatalog)

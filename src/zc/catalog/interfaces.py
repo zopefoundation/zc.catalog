@@ -23,15 +23,15 @@ import zope.app.catalog.interfaces
 from zc.catalog.i18n import _
 import BTrees.Interfaces
 
+
 class IExtent(interface.Interface):
+    """An extent represents the full set of objects indexed by a catalog.
+    It is useful for a variety of index operations and catalog queries.
+    """
 
     __parent__ = interface.Attribute(
         """The catalog for which this is an extent; must be None before it is
         set to a catalog""")
-
-    def addable(uid, obj):
-        """returns True or False, indicating whether the obj may be added to
-        the extent"""
 
     def add(uid, obj):
         """add uid to extent; raise ValueError if it is not addable.
@@ -88,12 +88,17 @@ class IExtent(interface.Interface):
     def __contains__(uid):
         "return boolean indicating if uid is in set"
 
+
 class IFilterExtent(IExtent):
 
     filter = interface.Attribute(
         """A (persistent) callable that is passed the extent, a docid, and the
         associated obj and should return a boolean True (is member of extent)
         or False (is not member of extent).""")
+
+    def addable(uid, obj):
+        """returns True or False, indicating whether the obj may be added to
+        the extent"""
 
 
 class ISelfPopulatingExtent(IExtent):
@@ -125,6 +130,7 @@ class IExtentCatalog(interface.Interface):
 
     extent = interface.Attribute(
         """An IExtent of the objects cataloged""")
+
 
 class IIndexValues(interface.Interface):
     """An index that allows introspection of the indexed values"""
@@ -175,6 +181,7 @@ class IIndexValues(interface.Interface):
         IIndexValues.values(doc_id=id).
         """
 
+
 class ISetIndex(interface.Interface):
 
     def apply(query):
@@ -206,6 +213,7 @@ class ISetIndex(interface.Interface):
         the extent that do not have any values in the index.
         """
 
+
 class IValueIndex(interface.Interface):
 
     def apply(query):
@@ -234,15 +242,18 @@ class IValueIndex(interface.Interface):
         the extent that do not have any values in the index.
         """
 
+
 class ICatalogValueIndex(zope.app.catalog.interfaces.IAttributeIndex,
                          zope.app.catalog.interfaces.ICatalogIndex):
     """Interface-based catalog value index
     """
 
+
 class ICatalogSetIndex(zope.app.catalog.interfaces.IAttributeIndex,
                        zope.app.catalog.interfaces.ICatalogIndex):
     """Interface-based catalog set index
     """
+
 
 class INormalizationWrapper(zope.index.interfaces.IInjection,
                             zope.index.interfaces.IIndexSearch,
@@ -261,6 +272,7 @@ class INormalizationWrapper(zope.index.interfaces.IInjection,
         """boolean: whether indexed values should be treated as collections
         (each composite value normalized) or not (original value is
         normalized)""")
+
 
 class INormalizer(interface.Interface):
 
@@ -287,6 +299,7 @@ class INormalizer(interface.Interface):
 resolution_vocabulary = SimpleVocabulary([SimpleTerm(i, t, t) for i, t in enumerate(
     (_('day'), _('hour'), _('minute'), _('second'), _('microsecond')))])
     #  0         1          2            3            4
+
 
 class IDateTimeNormalizer(INormalizer):
     resolution = schema.Choice(
