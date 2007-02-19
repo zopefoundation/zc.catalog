@@ -15,6 +15,7 @@
 
 $Id: index.py 2918 2005-07-19 22:12:38Z jim $
 """
+import sys
 import datetime
 import pytz.reference
 import persistent
@@ -40,19 +41,23 @@ class AbstractIndex(persistent.Persistent):
                          zc.catalog.interfaces.IIndexValues,
                          )
 
-    BTreeAPI = zc.catalog.BTreeAPI32
-
     def __init__(self):
+        self.btreemodule = component.queryUtility(
+            component.interfaces.IFactory,
+            name="IFTreeSet",
+            default=IFBTree.IFTreeSet)().__class__.__module__
+        self.IOBTree = component.queryUtility(
+            zope.component.interfaces.IFactory,
+            name='IOBTree', default=IOBTree.IOBTree)().__class__
         self.clear()
-        self.BTreeAPI = component.queryUtility(
-            zc.catalog.interfaces.IBTreeAPI,
-            default=zc.catalog.BTreeAPI32)
+
+    @property
+    def BTreeAPI(self):
+        return sys.modules[self.btreemodule]
 
     def clear(self):
         self.values_to_documents = OOBTree.OOBTree()
-        self.documents_to_values = component.queryUtility(
-            zope.component.interfaces.IFactory,
-            name='IOBTree', default=IOBTree.IOBTree)()
+        self.documents_to_values = self.IOBTree()
         self.documentCount = Length.Length(0)
         self.wordCount = Length.Length(0)
 

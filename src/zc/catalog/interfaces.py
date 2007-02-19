@@ -307,12 +307,3 @@ class IDateTimeNormalizer(INormalizer):
         title=_('Resolution'),
         default=2,
         required=True)
-
-
-class IBTreeAPI(BTrees.Interfaces.IMergeIntegerKey, BTrees.Interfaces.IIMerge):
-    """A class encapsulating a flavour (32/64 bit) of the XFBTrees"""
-
-    TreeSet = interface.Attribute("The class of a tree set flavour")
-    Set = interface.Attribute("The class of a set flavour")
-    Bucket = interface.Attribute("The class of a set flavour")
-

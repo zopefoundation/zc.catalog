@@ -16,7 +16,8 @@
 $Id: extentcatalog.py 3296 2005-09-09 19:29:20Z benji $
 """
 
-from BTrees import IFBTree
+import sys
+import BTrees.IFBTree
 import persistent
 from zope import interface, component
 from zope.app.catalog import catalog
@@ -34,13 +35,14 @@ class Extent(persistent.Persistent):
     interface.implements(interfaces.IExtent)
     __parent__ = None
 
-    BTreeAPI = zc.catalog.BTreeAPI32
-
     def __init__(self):
-        self.BTreeAPI = zope.component.queryUtility(
-            interfaces.IBTreeAPI,
-            default=zc.catalog.BTreeAPI32)
-        self.set = self.BTreeAPI.TreeSet()
+        self.set = zope.component.queryUtility(
+            IFactory, name="IFTreeSet",
+            default=BTrees.IFBTree.IFTreeSet)()
+
+    @property
+    def BTreeAPI(self):
+        return sys.modules[self.set.__class__.__module__]
 
     def add(self, uid, obj):
         self.set.insert(uid)

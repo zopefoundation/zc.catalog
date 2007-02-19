@@ -49,9 +49,8 @@ def setUp64bit(test):
         zope.component.factory.Factory(BTrees.OLBTree.OLBTree),
         name='OIBTree')
     zope.component.provideUtility(
-        zc.catalog.BTreeAPI64,
-        provides=zc.catalog.interfaces.IBTreeAPI)
-
+        zope.component.factory.Factory(BTrees.LFBTree.LFTreeSet),
+        name='IFTreeSet')
 
 
 def tearDown64bit(test):
