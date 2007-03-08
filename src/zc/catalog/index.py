@@ -41,6 +41,9 @@ class AbstractIndex(persistent.Persistent):
                          zc.catalog.interfaces.IIndexValues,
                          )
 
+    btreemodule = 'BTrees.IFBTree'
+    IOBTree = IOBTree.IOBTree
+
     def __init__(self):
         self.btreemodule = component.queryUtility(
             component.interfaces.IFactory,
