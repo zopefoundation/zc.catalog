@@ -18,9 +18,7 @@ setup(
     author_email='zope3-dev@zope.org',
     description="zc.catalog contains a number of extensions to the Zope 3 catalog",
     long_description=(
-    open('README.txt').read()
-    + '\n' +
-    open('CHANGES.txt').read()),
+        open('README.txt').read() + '\n' + open('CHANGES.txt').read()),
     license='ZPL',
     keywords="zope zope3 indexing",
     classifiers = ['Framework :: Zope3'],

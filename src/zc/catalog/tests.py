@@ -68,7 +68,8 @@ def test_suite():
         doctest.DocFileSuite(
             'extentcatalog.txt', setUp=modSetUp, tearDown=modTearDown,
             optionflags=doctest.INTERPRET_FOOTNOTES),
-        doctest.DocFileSuite('setindex.txt'),
+        doctest.DocFileSuite(
+            'setindex.txt', optionflags=doctest.INTERPRET_FOOTNOTES),
         doctest.DocFileSuite('valueindex.txt'),
         doctest.DocFileSuite('normalizedindex.txt'),
         doctest.DocFileSuite('globber.txt'),

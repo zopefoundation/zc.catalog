@@ -267,16 +267,18 @@ class SetIndex(AbstractIndex):
         elif query_type == 'all_of':
             res = None
             values = iter(query)
+            empty = self.BTreeAPI.TreeSet()
             try:
-                res = values_to_documents.get(values.next())
+                res = values_to_documents.get(values.next(), empty)
             except StopIteration:
-                res = self.BTreeAPI.TreeSet()
+                res = empty
             while res:
                 try:
                     v = values.next()
                 except StopIteration:
                     break
-                res = self.BTreeAPI.intersection(res, values_to_documents.get(v))
+                res = self.BTreeAPI.intersection(
+                    res, values_to_documents.get(v, empty))
         elif query_type == 'between':
             res = self.BTreeAPI.Bucket()
             for v in values_to_documents.keys(*query):
