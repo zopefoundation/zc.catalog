@@ -2,6 +2,23 @@
 zc.catalog changes
 ==================
 
+1.2 (Unreleased)
+================
+
+Features added
+--------------
+
+zc.catalog now can use 64-bit BTrees ("L") as provided by ZODB 3.8.
+
+1.1.1 (2007-3-17)
+=================
+
+Bugs fixed
+----------
+
+'all_of' would return all results when one of the values had no results.
+Reported, with test and fix provided, by Nando Quintana.
+
 1.1 (2007-1-6)
 ================
 
