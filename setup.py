@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="zc.catalog",
-    version="1.0",
+    version="1.1.1",
     packages=find_packages('src', exclude=["*.tests", "*.ftests"]),
     
     package_dir= {'':'src'},
@@ -18,9 +18,7 @@ setup(
     author_email='zope3-dev@zope.org',
     description="zc.catalog contains a number of extensions to the Zope 3 catalog",
     long_description=(
-    open('README.txt').read()
-    + '\n' +
-    open('CHANGES.txt').read()),
+        open('README.txt').read() + '\n' + open('CHANGES.txt').read()),
     license='ZPL',
     keywords="zope zope3 indexing",
     classifiers = ['Framework :: Zope3'],

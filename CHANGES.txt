@@ -2,8 +2,17 @@
 zc.catalog changes
 ==================
 
+1.1.1 (2007-3-17)
+=================
+
+Bugs fixed
+----------
+
+'all_of' would return all results when one of the values had no results.
+Reported, with test and fix provided, by Nando Quintana.
+
 1.1 (2007-1-6)
-================
+==============
 
 Features removed
 ----------------

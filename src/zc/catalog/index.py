@@ -249,16 +249,18 @@ class SetIndex(AbstractIndex):
         elif query_type == 'all_of':
             res = None
             values = iter(query)
+            empty = IFBTree.IFTreeSet()
             try:
-                res = values_to_documents.get(values.next())
+                res = values_to_documents.get(values.next(), empty)
             except StopIteration:
-                res = IFBTree.IFTreeSet()
+                res = empty
             while res:
                 try:
                     v = values.next()
                 except StopIteration:
                     break
-                res = IFBTree.intersection(res, values_to_documents.get(v))
+                res = IFBTree.intersection(
+                    res, values_to_documents.get(v, empty))
         elif query_type == 'between':
             res = IFBTree.IFBucket()
             for v in values_to_documents.keys(*query):
