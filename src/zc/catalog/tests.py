@@ -73,6 +73,7 @@ def test_suite():
         doctest.DocFileSuite('valueindex.txt'),
         doctest.DocFileSuite('normalizedindex.txt'),
         doctest.DocFileSuite('globber.txt'),
+        doctest.DocFileSuite('callablewrapper.txt'),
 
         # 64 bits
         doctest.DocFileSuite(
@@ -85,6 +86,8 @@ def test_suite():
         doctest.DocFileSuite('normalizedindex.txt', setUp=setUp64bit,
                              tearDown=tearDown64bit),
         doctest.DocFileSuite('globber.txt', setUp=setUp64bit,
+                             tearDown=tearDown64bit),
+        doctest.DocFileSuite('callablewrapper.txt', setUp=setUp64bit,
                              tearDown=tearDown64bit),
         ))
     import zc.catalog.stemmer

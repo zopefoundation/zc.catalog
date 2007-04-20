@@ -28,7 +28,6 @@ import zope.interface.common.idatetime
 import zope.index.interfaces
 import zope.security.management
 from zope.publisher.interfaces import IRequest
-
 import zc.catalog.interfaces
 from zc.catalog.i18n import _
 
@@ -371,6 +370,26 @@ class NormalizationWrapper(persistent.Persistent):
     def ids(self):
         return self.index.ids()
 
+
+class CallableWrapper(persistent.Persistent):
+
+    interface.implements(zc.catalog.interfaces.ICallableWrapper)
+
+    converter = None
+    index = None
+
+    def __init__(self, index, converter):
+        self.index = index
+        self.converter = converter
+
+    def index_doc(self, docid, value):
+        "See zope.index.interfaces.IInjection"
+        self.index.index_doc(docid, self.converter(value))
+
+    def __getattr__(self, name):
+        return getattr(self.index, name)
+
+
 def set_resolution(value, resolution):
     resolution += 2
     if resolution < 6:
@@ -413,6 +432,7 @@ def day_end(value):
 def day_begin(value):
     return datetime.datetime.combine(
         value, datetime.time(tzinfo=get_tz()))
+
 
 class DateTimeNormalizer(persistent.Persistent):
 

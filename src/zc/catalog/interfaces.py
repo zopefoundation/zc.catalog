@@ -307,3 +307,16 @@ class IDateTimeNormalizer(INormalizer):
         title=_('Resolution'),
         default=2,
         required=True)
+
+
+class ICallableWrapper(zope.index.interfaces.IInjection,
+                       zope.index.interfaces.IIndexSearch,
+                       zope.index.interfaces.IStatistics,
+                       IIndexValues):
+    """A wrapper for an index that uses a callable to convert injection."""
+
+    index = interface.Attribute(
+        """An index implementing IInjection, IIndexSearch, IStatistics, and
+        IIndexValues""")
+
+    converter = interface.Attribute("A callable converter")
