@@ -45,7 +45,7 @@ class NormalizationWrapper(
 
 class CallableWrapper(zc.catalog.index.CallableWrapper,
                       zope.app.container.contained.Contained):
-    pass
+    zope.interface.implements(zc.catalog.interfaces.ICallableWrapper)
 
 
 @zope.interface.implementer(
