@@ -1,0 +1,81 @@
+==================
+zc.catalog changes
+==================
+
+The 1.2 line supports Zope 3.4/ZODB 3.8.  The 1.1 line supports Zope
+3.3/ZODB 3.7.
+
+1.2dev
+======
+
+Features added
+--------------
+
+* zc.catalog now can use 64-bit BTrees ("L") as provided by ZODB 3.8.
+
+* Albertas Agejavas (alga@pov.lt) included the new CallableWrapper, for
+  when the typical Zope 3 index-by-adapter story
+  (zope.app.catalog.attribute) is unnecessary trouble, and you just want
+  to use a callable.  See callablewrapper.txt.  This can also be used for
+  other indexes based on the zope.index interfaces.
+
+1.1.1 (2007-3-17)
+=================
+
+Bugs fixed
+----------
+
+'all_of' would return all results when one of the values had no results.
+Reported, with test and fix provided, by Nando Quintana.
+
+1.1 (2007-1-6)
+================
+
+Features removed
+----------------
+
+The queueing of events in the extent catalog has been entirely removed.
+Subtransactions caused significant problems to the code introduced in 1.0.
+Other solutions also have significant problems, and the win of this kind
+of queueing is qustionable.  Here is a run down of the approaches rejected
+for getting the queueing to work:
+
+* _p_invalidate (used in 1.0).  Not really designed for use within a
+  transaction, and reverts to last savepoint, rather than the beginning of
+  the transaction.  Could monkeypatch savepoints to iterate over
+  precommit transaction hooks but that just smells too bad.
+
+* _p_resolveConflict.  Requires application software to exist in ZEO and
+  even ZRS installations, which is counter to our software deployment goals.
+  Also causes useless repeated writes of empty queue to database, but that's
+  not the showstopper.
+
+* vague hand-wavy ideas for separate storages or transaction managers for the
+  queue.  Never panned out in discussion.
+
+1.0 (2007-1-5)
+==============
+
+Bugs fixed
+----------
+
+* adjusted extentcatalog tests to trigger (and discuss and test) the queueing
+  behavior.
+
+* fixed problem with excessive conflict errors due to queueing code.
+
+* updated stemming to work with newest version of TextIndexNG's extensions.
+
+* omitted stemming test when TextIndexNG's extensions are unavailable, so
+  tests pass without it.  Since TextIndexNG's extensions are optional, this
+  seems reasonable.
+
+* removed use of zapi in extentcatalog.
+
+0.2 (2006-11-22)
+================
+
+Features added
+--------------
+
+* First release on Cheeseshop.
