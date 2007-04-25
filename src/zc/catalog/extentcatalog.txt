@@ -469,4 +469,3 @@ We'll make sure everything can be safely committed.
     ...     zope.app.intid.interfaces.IIntIds, context=root)
     >>> for doc_id in matches:
     ...     intid.unregister(intid.queryObject(doc_id))
-

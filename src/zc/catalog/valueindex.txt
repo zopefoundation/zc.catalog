@@ -216,4 +216,3 @@ values.
     True
     >>> index.containsValue('q')
     False
-
