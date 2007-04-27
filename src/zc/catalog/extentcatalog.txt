@@ -19,9 +19,7 @@ real intid utility [#setup]_.
     >>> root = makeRoot()
     >>> intid = zope.component.getUtility(
     ...     zope.app.intid.interfaces.IIntIds, context=root)
-    >>> TreeSet = component.queryUtility(zope.component.interfaces.IFactory,
-    ...                                  name="IFTreeSet",
-    ...                                  default=BTrees.IFBTree.IFTreeSet)
+    >>> TreeSet = btrees_family.IF.TreeSet
 
     >>> from zope.app.container.interfaces import IContained
     >>> class DummyIndex(persistent.Persistent):
@@ -43,7 +41,7 @@ real intid utility [#setup]_.
     ...         self.__parent__ = parent
     ...
 
-    >>> extent = extentcatalog.Extent()
+    >>> extent = extentcatalog.Extent(family=btrees_family)
     >>> verify.verifyObject(interfaces.IExtent, extent)
     True
     >>> root['catalog'] = catalog = extentcatalog.Catalog(extent)
@@ -125,7 +123,7 @@ differences can be spelled "extent - data"; and reverse differences
 can be spelled "data - extent".  Unions and intersections are
 weighted.
 
-    >>> extent = extentcatalog.Extent()
+    >>> extent = extentcatalog.Extent(family=btrees_family)
     >>> for i in range(1, 100, 2):
     ...     extent.add(i, None)
     ...
@@ -179,7 +177,7 @@ The filter extent only stores objects that match a given filter.
     ...     # True ignore attribute
     ...     return uid % 2 and not getattr(ob, 'ignore', False)
     ...
-    >>> extent = extentcatalog.FilterExtent(filter)
+    >>> extent = extentcatalog.FilterExtent(filter, family=btrees_family)
     >>> verify.verifyObject(interfaces.IFilterExtent, extent)
     True
     >>> root['catalog1'] = catalog = extentcatalog.Catalog(extent)
@@ -310,7 +308,7 @@ database already::
     >>> def accept_any(extent, uid, ob):
     ...     return True
 
-    >>> extent = PopulatingExtent(accept_any)
+    >>> extent = PopulatingExtent(accept_any, family=btrees_family)
     >>> catalog = extentcatalog.Catalog(extent)
     >>> index = DummyIndex()
     >>> catalog['index'] = index
@@ -373,7 +371,7 @@ objects from the extent::
 When we have fresh catalog and extent (not yet populated), we see that
 `updateIndexes()` will cause the extent to be populated::
 
-    >>> extent = PopulatingExtent(accept_any)
+    >>> extent = PopulatingExtent(accept_any, family=btrees_family)
     >>> root['catalog3'] = catalog = extentcatalog.Catalog(extent)
     >>> index1 = DummyIndex()
     >>> index2 = DummyIndex()
@@ -448,7 +446,7 @@ We'll make sure everything can be safely committed.
     ...         zope.component.persistentregistry.PersistentComponents())
     ...     site_manager.__bases__ = (zope.component.getGlobalSiteManager(),)
     ...     site_manager.registerUtility(
-    ...         zope.app.intid.IntIds(),
+    ...         zope.app.intid.IntIds(family=btrees_family),
     ...         provided=zope.app.intid.interfaces.IIntIds)
     ...     setSiteManager(site_manager)
     ...     transaction.commit()

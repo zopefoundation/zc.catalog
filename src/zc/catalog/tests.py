@@ -31,64 +31,62 @@ import BTrees.OLBTree
 import BTrees.LFBTree
 
 
-def modSetUp(test):
+def setUp32bit(test):
     zope.component.testing.setUp(test)
+    test.globs["btrees_family"] = BTrees.family32
+
+def modSetUp32bit(test):
+    setUp32bit(test)
     module.setUp(test, 'zc.catalog.doctest_test')
+
+def setUp64bit(test):
+    zope.component.testing.setUp(test)
+    test.globs["btrees_family"] = BTrees.family64
+
+def modSetUp64bit(test):
+    setUp64bit(test)
+    module.setUp(test, 'zc.catalog.doctest_test')
+
+def tearDown(test):
+    zope.component.testing.tearDown(test)
 
 def modTearDown(test):
     module.tearDown(test)
     zope.component.testing.tearDown(test)
 
 
-def setUp64bit(test):
-    zope.component.testing.setUp(test)
-    zope.component.provideUtility(
-        zope.component.factory.Factory(BTrees.LOBTree.LOBTree),
-        name='IOBTree')
-    zope.component.provideUtility(
-        zope.component.factory.Factory(BTrees.OLBTree.OLBTree),
-        name='OIBTree')
-    zope.component.provideUtility(
-        zope.component.factory.Factory(BTrees.LFBTree.LFTreeSet),
-        name='IFTreeSet')
-
-
-def tearDown64bit(test):
-    zope.component.testing.tearDown(test)
-
-
-def modSetUp64bit(test):
-    setUp64bit(test)
-    module.setUp(test, 'zc.catalog.doctest_test')
-
-
 def test_suite():
     tests = unittest.TestSuite((
         # 32 bits
         doctest.DocFileSuite(
-            'extentcatalog.txt', setUp=modSetUp, tearDown=modTearDown,
+            'extentcatalog.txt', setUp=modSetUp32bit, tearDown=modTearDown,
             optionflags=doctest.INTERPRET_FOOTNOTES),
         doctest.DocFileSuite(
-            'setindex.txt', optionflags=doctest.INTERPRET_FOOTNOTES),
-        doctest.DocFileSuite('valueindex.txt'),
-        doctest.DocFileSuite('normalizedindex.txt'),
-        doctest.DocFileSuite('globber.txt'),
-        doctest.DocFileSuite('callablewrapper.txt'),
+            'setindex.txt', setUp=setUp32bit, tearDown=tearDown,
+            optionflags=doctest.INTERPRET_FOOTNOTES),
+        doctest.DocFileSuite(
+            'valueindex.txt', setUp=setUp32bit, tearDown=tearDown),
+        doctest.DocFileSuite(
+            'normalizedindex.txt', setUp=setUp32bit, tearDown=tearDown),
+        doctest.DocFileSuite(
+            'globber.txt', setUp=setUp32bit, tearDown=tearDown),
+        doctest.DocFileSuite(
+            'callablewrapper.txt', setUp=setUp32bit, tearDown=tearDown),
 
         # 64 bits
         doctest.DocFileSuite(
-            'extentcatalog.txt', setUp=modSetUp64bit, tearDown=tearDown64bit,
+            'extentcatalog.txt', setUp=modSetUp64bit, tearDown=modTearDown,
             optionflags=doctest.INTERPRET_FOOTNOTES),
         doctest.DocFileSuite('setindex.txt', setUp=setUp64bit,
-                             tearDown=tearDown64bit),
+                             tearDown=tearDown),
         doctest.DocFileSuite('valueindex.txt', setUp=setUp64bit,
-                             tearDown=tearDown64bit),
+                             tearDown=tearDown),
         doctest.DocFileSuite('normalizedindex.txt', setUp=setUp64bit,
-                             tearDown=tearDown64bit),
+                             tearDown=tearDown),
         doctest.DocFileSuite('globber.txt', setUp=setUp64bit,
-                             tearDown=tearDown64bit),
+                             tearDown=tearDown),
         doctest.DocFileSuite('callablewrapper.txt', setUp=setUp64bit,
-                             tearDown=tearDown64bit),
+                             tearDown=tearDown),
         ))
     import zc.catalog.stemmer
     if not zc.catalog.stemmer.broken:

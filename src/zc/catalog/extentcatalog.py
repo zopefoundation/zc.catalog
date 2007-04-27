@@ -17,7 +17,7 @@ $Id: extentcatalog.py 3296 2005-09-09 19:29:20Z benji $
 """
 
 import sys
-import BTrees.IFBTree
+import BTrees
 import persistent
 from zope import interface, component
 from zope.app.catalog import catalog
@@ -34,12 +34,14 @@ from zc.catalog import interfaces
 class Extent(persistent.Persistent):
     interface.implements(interfaces.IExtent)
     __parent__ = None
+    family = BTrees.family32
 
-    def __init__(self):
-        self.set = zope.component.queryUtility(
-            IFactory, name="IFTreeSet",
-            default=BTrees.IFBTree.IFTreeSet)()
+    def __init__(self, family=None):
+        if family is not None:
+            self.family = family
+        self.set = self.family.IF.TreeSet()
 
+    # Deprecated.
     @property
     def BTreeAPI(self):
         return sys.modules[self.set.__class__.__module__]
@@ -57,7 +59,7 @@ class Extent(persistent.Persistent):
     __ror__ = __or__
 
     def union(self, other, self_weight=1, other_weight=1):
-        return self.BTreeAPI.weightedUnion(
+        return self.family.IF.weightedUnion(
             self.set, other, self_weight, other_weight)[1]
 
     def __and__(self, other):
@@ -67,7 +69,7 @@ class Extent(persistent.Persistent):
     __rand__ = __and__
 
     def intersection(self, other, self_weight=1, other_weight=1):
-        return self.BTreeAPI.weightedIntersection(
+        return self.family.IF.weightedIntersection(
             self.set, other, self_weight, other_weight)[1]
 
     def __sub__(self, other):
@@ -75,14 +77,14 @@ class Extent(persistent.Persistent):
         return self.difference(other)
 
     def difference(self, other):
-        return self.BTreeAPI.difference(self.set, other)
+        return self.family.IF.difference(self.set, other)
 
     def __rsub__(self, other):
         "set - extent"
         return self.rdifference(other)
 
     def rdifference(self, other):
-        return self.BTreeAPI.difference(other, self.set)
+        return self.family.IF.difference(other, self.set)
 
     def __iter__(self):
         return iter(self.set)
@@ -106,8 +108,8 @@ class Extent(persistent.Persistent):
 class FilterExtent(Extent):
     interface.implements(interfaces.IFilterExtent)
 
-    def __init__(self, filter):
-        super(FilterExtent, self).__init__()
+    def __init__(self, filter, family=None):
+        super(FilterExtent, self).__init__(family=family)
         self.filter = filter
 
     def add(self, uid, obj):
@@ -122,11 +124,18 @@ class FilterExtent(Extent):
 
 class Catalog(catalog.Catalog):
     interface.implements(interfaces.IExtentCatalog)
-    
+
     def __init__(self, extent):
+        """Construct a catalog based on an extent.
+
+        Note that the `family` keyword parameter of the base class
+        constructor is not supported here; the family of the extent is
+        used.
+
+        """
         if extent.__parent__ is not None:
             raise ValueError("extent's __parent__ must be None")
-        super(Catalog, self).__init__()
+        super(Catalog, self).__init__(family=extent.family)
         self.extent = extent
         extent.__parent__ = self # inform extent of catalog
 

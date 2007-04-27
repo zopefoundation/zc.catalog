@@ -26,10 +26,10 @@ setup(
     install_requires=['setuptools',
                       'zope.component',
                       'zope.testing',
-                      'ZODB3',
+                      'ZODB3 >=3.8.0a1.dev-r74856', # required BTrees.family*
                       'zope.schema',
                       'zope.interface',
-                      'zope.app.catalog',
+                      'zope.app.catalog >=3.4.0a2',
                       'pytz',
                       'zope.security',
                       'zope.publisher',
