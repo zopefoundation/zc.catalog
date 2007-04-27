@@ -87,6 +87,9 @@ def test_suite():
                              tearDown=tearDown),
         doctest.DocFileSuite('callablewrapper.txt', setUp=setUp64bit,
                              tearDown=tearDown),
+
+        # legacy data support
+        doctest.DocFileSuite('legacy.txt', optionflags=doctest.ELLIPSIS),
         ))
     import zc.catalog.stemmer
     if not zc.catalog.stemmer.broken:
