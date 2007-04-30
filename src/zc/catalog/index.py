@@ -41,6 +41,8 @@ class FamilyProperty(object):
         if instance is None:
             return self
         d = instance.__dict__
+        if "family" in d:
+            return d["family"]
         if "btreemodule" in d:
             iftype = d["btreemodule"].split(".")[-1][:2]
             if iftype == "IF":
@@ -50,12 +52,23 @@ class FamilyProperty(object):
             else:
                 raise ValueError("can't determine btree family based on"
                                  " btreemodule of %r" % (iftype,))
-            del d["btreemodule"]
-            if "IOBTree" in d:
-                del d["IOBTree"]
         else:
             d["family"] = BTrees.family32
+        self._clear_old_cruft(instance)
         return d["family"]
+
+    def __set__(self, instance, value):
+        instance.__dict__["family"] = value
+        self._clear_old_cruft(instance)
+
+    def _clear_old_cruft(self, instance):
+        d = instance.__dict__
+        if "btreemodule" in d:
+            del d["btreemodule"]
+        if "IOBTree" in d:
+            del d["IOBTree"]
+        if "BTreeAPI" in d:
+            del d["BTreeAPI"]
 
 
 class AbstractIndex(persistent.Persistent):

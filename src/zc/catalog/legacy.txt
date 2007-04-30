@@ -96,6 +96,8 @@ instance dictionary::
   False
   >>> "IOBTree" in vi32.__dict__
   False
+  >>> "BTreeAPI" in vi64.__dict__
+  False
 
 Accessing these attributes as attributes provides the proper values
 anyway::
@@ -136,6 +138,8 @@ The 64-bit variation provides equivalent behavior::
   False
   >>> "IOBTree" in vi64.__dict__
   False
+  >>> "BTreeAPI" in vi64.__dict__
+  False
 
   >>> vi64.btreemodule
   'BTrees.LFBTree'
@@ -146,3 +150,38 @@ The 64-bit variation provides equivalent behavior::
 
   >>> vi64._p_changed
   False
+
+Now, if we have a legacy structure and explicitly set the ``family``
+attribute, the old data structures will be cleared and replaced with
+the new structure.  If the object is associated with a data manager,
+the changed flag will be set as well::
+
+  >>> class DataManager(object):
+  ...     def register(self, ob):
+  ...         pass
+
+  >>> vi64 = pickle.loads(legacy64_pickle)
+  >>> vi64._p_jar = DataManager()
+  >>> vi64.family = BTrees.family64
+
+  >>> vi64._p_changed
+  True
+
+  >>> "btreemodule" in vi64.__dict__
+  False
+  >>> "IOBTree" in vi64.__dict__
+  False
+  >>> "BTreeAPI" in vi64.__dict__
+  False
+
+  >>> "family" in vi64.__dict__
+  True
+  >>> vi64.family is BTrees.family64
+  True
+
+  >>> vi64.btreemodule
+  'BTrees.LFBTree'
+  >>> vi64.IOBTree
+  <type 'BTrees.LOBTree.LOBTree'>
+  >>> vi64.BTreeAPI
+  <module 'BTrees.LFBTree' from ...>
