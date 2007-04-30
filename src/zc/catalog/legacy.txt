@@ -96,7 +96,7 @@ instance dictionary::
   False
   >>> "IOBTree" in vi32.__dict__
   False
-  >>> "BTreeAPI" in vi64.__dict__
+  >>> "BTreeAPI" in vi32.__dict__
   False
 
 Accessing these attributes as attributes provides the proper values
