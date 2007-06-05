@@ -125,6 +125,21 @@ class FilterExtent(Extent):
         return self.filter(self, uid, obj)
 
 
+class NonPopulatingExtent(Extent):
+    """Base class for populating extent.
+    
+    This simple, no-op implementation comes in handy surprisingly often
+    for catalogs that handle a very contained domain within an application.
+    """
+
+    interface.implements(interfaces.ISelfPopulatingExtent)
+
+    populated = False
+
+    def populate(self):
+        self.populated = True
+
+
 class Catalog(catalog.Catalog):
     interface.implements(interfaces.IExtentCatalog)
 

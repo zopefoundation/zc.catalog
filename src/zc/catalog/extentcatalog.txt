@@ -295,17 +295,15 @@ which requires two attributes.  Let's use the `FilterExtent` class as a
 base for implementing such an extent, with a method that selects content item
 0 (created and registered above)::
 
-    >>> class PopulatingExtent(extentcatalog.FilterExtent):
-    ...
-    ...     interface.implements(interfaces.ISelfPopulatingExtent)
-    ...
-    ...     populated = False
+    >>> class PopulatingExtent(
+    ...     extentcatalog.FilterExtent,
+    ...     extentcatalog.NonPopulatingExtent):
     ...
     ...     def populate(self):
     ...         if self.populated:
     ...             return
     ...         self.add(intid.getId(root[0]), root[0])
-    ...         self.populated = True
+    ...         super(PopulatingExtent, self).populate()
 
 Creating a catalog based on this extent ignores objects in the
 database already::
