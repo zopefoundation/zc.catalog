@@ -46,6 +46,9 @@ class Extent(persistent.Persistent):
     def BTreeAPI(self):
         return sys.modules[self.set.__class__.__module__]
 
+    def __len__(self):
+        return len(self.set)
+
     def add(self, uid, obj):
         self.set.insert(uid)
 

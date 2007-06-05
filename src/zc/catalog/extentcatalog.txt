@@ -65,6 +65,11 @@ some data to the extent:
     >>> sorted(extent) == sorted(index.uids) == matches
     True
 
+We can get the size of the extent.
+
+    >>> len(extent)
+    100
+
 Unindexing an object that is in the catalog should simply remove it from the
 catalog and index as usual.
 

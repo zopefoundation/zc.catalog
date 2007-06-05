@@ -49,6 +49,9 @@ class IExtent(interface.Interface):
     def clear():
         """Remove all uids from set."""
 
+    def __len__():
+        """the number of items in the extent."""
+
     def __iter__():
         """return iterator of uids in set"""
 
