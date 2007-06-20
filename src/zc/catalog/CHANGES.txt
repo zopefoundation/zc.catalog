@@ -19,6 +19,18 @@ Features added
   to use a callable.  See callablewrapper.txt.  This can also be used for
   other indexes based on the zope.index interfaces.
 
+* Extents now have a __len__.  The current implementation defers to the
+  standard BTree len implementation, and shares its performance
+  characteristics: it needs to wake up all of the buckets, but if all of the
+  buckets are awake it is a fairly quick operation.
+
+* A simple ISelfPoulatingExtent was added to the extentcatalog module for
+  which populating is a no-op.  This is directly useful for catalogs that
+  are used as implementation details of a component, in which objects are
+  indexed explicitly by your own calls rather than by the usual subscribers.
+  It is also potentially slightly useful as a base for other self-populating
+  extents.
+
 1.1.1 (2007-3-17)
 =================
 
