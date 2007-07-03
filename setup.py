@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="zc.catalog",
-    version="1.2dev",
+    version="1.2b",
     packages=find_packages('src', exclude=["*.tests", "*.ftests"]),
     
     package_dir= {'':'src'},
