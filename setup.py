@@ -49,8 +49,8 @@ setup(name='zc.catalog',
           read('src', 'zc', 'catalog', 'callablewrapper.txt')
           + '\n\n' +
           read('src', 'zc', 'catalog', 'browser', 'README.txt')
-          #+ '\n\n' +
-          #read('CHANGES.txt')
+          + '\n\n' +
+          read('CHANGES.txt')
           ),
       keywords = "zope3 i18n date time duration",
       classifiers = [
