@@ -1,3 +1,7 @@
+===========
+Value Index
+===========
+
 The valueindex is an index similar to, but more flexible than a standard Zope
 field index.  The index allows searches for documents that contain any of a
 set of values; between a set of values; any (non-None) values; and any empty

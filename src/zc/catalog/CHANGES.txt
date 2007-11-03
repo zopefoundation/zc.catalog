@@ -5,11 +5,13 @@ zc.catalog changes
 The 1.2 line supports Zope 3.4/ZODB 3.8.  The 1.1 line supports Zope
 3.3/ZODB 3.7.
 
-1.2dev
-======
+1.2.0 (2007-11-03)
+------------------
 
 Features added
---------------
+~~~~~~~~~~~~~~
+
+* Updated package meta-data.
 
 * zc.catalog now can use 64-bit BTrees ("L") as provided by ZODB 3.8.
 
@@ -31,20 +33,22 @@ Features added
   It is also potentially slightly useful as a base for other self-populating
   extents.
 
+
 1.1.1 (2007-3-17)
-=================
+-----------------
 
 Bugs fixed
-----------
+~~~~~~~~~~
 
 'all_of' would return all results when one of the values had no results.
 Reported, with test and fix provided, by Nando Quintana.
 
-1.1 (2007-1-6)
-================
+
+1.1 (2007-01-06)
+----------------
 
 Features removed
-----------------
+~~~~~~~~~~~~~~~~
 
 The queueing of events in the extent catalog has been entirely removed.
 Subtransactions caused significant problems to the code introduced in 1.0.
@@ -65,11 +69,12 @@ for getting the queueing to work:
 * vague hand-wavy ideas for separate storages or transaction managers for the
   queue.  Never panned out in discussion.
 
-1.0 (2007-1-5)
-==============
+
+1.0 (2007-01-05)
+----------------
 
 Bugs fixed
-----------
+~~~~~~~~~~
 
 * adjusted extentcatalog tests to trigger (and discuss and test) the queueing
   behavior.
@@ -84,10 +89,11 @@ Bugs fixed
 
 * removed use of zapi in extentcatalog.
 
+
 0.2 (2006-11-22)
-================
+----------------
 
 Features added
---------------
+~~~~~~~~~~~~~~
 
 * First release on Cheeseshop.

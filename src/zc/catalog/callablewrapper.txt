@@ -1,5 +1,6 @@
-CallableWrapper
-===============
+================
+Callable Wrapper
+================
 
 If we want to index some value that is easily derivable from a
 document, we have to define an interface with this value as an

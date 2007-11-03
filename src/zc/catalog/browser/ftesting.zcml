@@ -21,7 +21,7 @@
   <include package="zope.app.catalog" />
   <include package="zc.catalog" />
 
-  <subscriber handler="zc.catalog.browser.ftests.initializeIntIds" />
+  <subscriber handler="zc.catalog.browser.tests.initializeIntIds" />
 
   <!-- Security -->
 
@@ -29,8 +29,7 @@
   <include package="zope.app.securitypolicy" />
 
   <securityPolicy
-      component="zope.app.securitypolicy.zopepolicy.ZopeSecurityPolicy"
-      />
+      component="zope.securitypolicy.zopepolicy.ZopeSecurityPolicy" />
 
   <role
       id="zope.Anonymous"

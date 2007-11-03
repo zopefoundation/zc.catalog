@@ -1,3 +1,7 @@
+==============
+Extent Catalog
+==============
+
 An extent catalog is very similar to a normal catalog except that it
 only indexes items addable to its extent.  The extent is both a filter
 and a set that may be merged with other result sets.  The filtering is

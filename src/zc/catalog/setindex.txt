@@ -1,3 +1,7 @@
+=========
+Set Index
+=========
+
 The setindex is an index similar to, but more general than a traditional
 keyword index.  The values indexed are expected to be iterables; the index
 allows searches for documents that contain any of a set of values; all of a set

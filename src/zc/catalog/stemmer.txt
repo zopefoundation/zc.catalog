@@ -1,3 +1,7 @@
+=======
+Stemmer
+=======
+
 The stemmer uses Andreas Jung's stemmer code, which is a Python wrapper of
 M. F. Porter's Snowball project (http://snowball.tartarus.org/index.php).
 It is designed to be used as part of a pipeline in a zope/index/text/

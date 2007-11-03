@@ -1,5 +1,6 @@
-zc.catalog
-==========
+==========================
+zc.catalog Browser Support
+==========================
 
 The zc.catalog.browser package adds simple TTW addition/inspection for SetIndex
 and ValueIndex.

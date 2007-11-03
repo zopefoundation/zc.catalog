@@ -1,3 +1,7 @@
+================
+Normalized Index
+================
+
 The index module provides a normalizing wrapper, a DateTime normalizer, and
 a set index and a value index normalized with the DateTime normalizer.
 
