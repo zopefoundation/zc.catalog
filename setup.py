@@ -19,17 +19,17 @@ import os
 from setuptools import setup, find_packages
 
 def read(*rnames):
-    return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
+    return open(os.path.join(os.path.dirname('.'), *rnames)).read()
 
 setup(name='zc.catalog',
-      version = '1.3.0dev',
+      version = '1.3.0',
       author='Zope Corporation and Contributors',
       author_email='zope3-dev@zope.org',
       description="Extensions to the Zope 3 Catalog",
       long_description=(
           read('README.txt')
           + '\n\n' +
-          'Detailed Dcoumentation\n' +
+          'Detailed Documentation\n' +
           '======================\n'
           + '\n\n' +
           read('src', 'zc', 'catalog', 'valueindex.txt')

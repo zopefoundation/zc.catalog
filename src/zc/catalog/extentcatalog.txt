@@ -168,6 +168,18 @@ weighted.
     >>> set(extent.difference(alt_set)) == original
     True
 
+We can pass our own instantiated UID utility to extentcatalog.Catalog.
+
+    >>> ext = extentcatalog.Extent(family=btrees_family)
+    >>> UIDSource = zope.app.intid.IntIds()
+    >>> cat = extentcatalog.Catalog(ext, UIDSource=UIDSource)
+    >>> cat.UIDSource is UIDSource
+    True
+    >>> obj = DummyContent(43, root)
+    >>> cat.index_doc(UIDSource.register(obj), obj)
+    >>> cat.updateIndex(DummyIndex())
+    >>> cat.updateIndexes()
+
 [#cleanup]_
 
 

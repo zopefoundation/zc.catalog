@@ -127,7 +127,7 @@ class FilterExtent(Extent):
 
 class NonPopulatingExtent(Extent):
     """Base class for populating extent.
-    
+
     This simple, no-op implementation comes in handy surprisingly often
     for catalogs that handle a very contained domain within an application.
     """
@@ -143,7 +143,9 @@ class NonPopulatingExtent(Extent):
 class Catalog(catalog.Catalog):
     interface.implements(interfaces.IExtentCatalog)
 
-    def __init__(self, extent):
+    UIDSource = None
+
+    def __init__(self, extent, UIDSource=None):
         """Construct a catalog based on an extent.
 
         Note that the `family` keyword parameter of the base class
@@ -151,11 +153,20 @@ class Catalog(catalog.Catalog):
         used.
 
         """
+
+        self.UIDSource = UIDSource
+
         if extent.__parent__ is not None:
             raise ValueError("extent's __parent__ must be None")
         super(Catalog, self).__init__(family=extent.family)
         self.extent = extent
         extent.__parent__ = self # inform extent of catalog
+
+    def _getUIDSource(self):
+        res = self.UIDSource
+        if res is None:
+            res = zope.component.getUtility(IIntIds)
+        return res
 
     def clear(self):
         self.extent.clear()
@@ -181,7 +192,7 @@ class Catalog(catalog.Catalog):
             # not an index in us.  Let the superclass handle it.
             super(Catalog, self).updateIndex(index)
         else:
-            uidutil = zope.component.getUtility(IIntIds)
+            uidutil = self._getUIDSource()
 
             if interfaces.ISelfPopulatingExtent.providedBy(self.extent):
                 if not self.extent.populated:
@@ -203,7 +214,7 @@ class Catalog(catalog.Catalog):
                         index.index_doc(uid, obj)
 
     def updateIndexes(self):
-        uidutil = zope.component.getUtility(IIntIds)
+        uidutil = self._getUIDSource()
 
         if interfaces.ISelfPopulatingExtent.providedBy(self.extent):
             if not self.extent.populated:
