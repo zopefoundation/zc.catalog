@@ -5,6 +5,11 @@ CHANGES
 The 1.2 line (and higher) supports Zope 3.4/ZODB 3.8.  The 1.1 line supports
 Zope 3.3/ZODB 3.7.
 
+1.3.1 (unreleased)
+------------------
+
+* Fixed a typo in ValueIndex addform and addMenuItem
+
 1.3.0 (2008-09-10)
 ------------------
 

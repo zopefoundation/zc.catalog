@@ -37,7 +37,7 @@
 
   <addform
       name="AddValueIndex"
-      label="Add a set index"
+      label="Add a value index"
       schema="zope.app.catalog.interfaces.IAttributeIndex"
       permission="zope.ManageServices"
       content_factory="..catalogindex.ValueIndex"
@@ -47,7 +47,7 @@
 
   <addMenuItem
       title="Value Index"
-      description="Index items based on a set of values"
+      description="Index items based on a value"
       class="..catalogindex.ValueIndex"
       permission="zope.ManageServices"
       view="AddValueIndex"
