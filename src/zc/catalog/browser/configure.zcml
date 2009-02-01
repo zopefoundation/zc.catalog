@@ -9,7 +9,7 @@
   <addform
       name="AddSetIndex"
       label="Add a set index"
-      schema="zope.app.catalog.interfaces.IAttributeIndex"
+      schema="zope.catalog.interfaces.IAttributeIndex"
       permission="zope.ManageServices"
       content_factory="..catalogindex.SetIndex"
       arguments="field_name"
@@ -38,7 +38,7 @@
   <addform
       name="AddValueIndex"
       label="Add a value index"
-      schema="zope.app.catalog.interfaces.IAttributeIndex"
+      schema="zope.catalog.interfaces.IAttributeIndex"
       permission="zope.ManageServices"
       content_factory="..catalogindex.ValueIndex"
       arguments="field_name"

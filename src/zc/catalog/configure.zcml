@@ -9,15 +9,15 @@
         id="zc.catalog.extentcatalog"
         />
     <require
-        interface="zope.app.catalog.interfaces.ICatalogQuery"
+        interface="zope.catalog.interfaces.ICatalogQuery"
         permission="zope.Public"
         />
     <require
-        interface="zope.app.catalog.interfaces.ICatalogEdit"
+        interface="zope.catalog.interfaces.ICatalogEdit"
         permission="zope.ManageServices"
         />
     <require
-        interface="zope.app.container.interfaces.IContainer"
+        interface="zope.container.interfaces.IContainer"
         permission="zope.ManageServices"
         />
   </class>
@@ -37,27 +37,27 @@
   <class class=".catalogindex.ValueIndex">
     <require
         permission="zope.ManageServices"
-        interface="zope.app.catalog.interfaces.IAttributeIndex
+        interface="zope.catalog.interfaces.IAttributeIndex
                    zope.index.interfaces.IStatistics"
-        set_schema="zope.app.catalog.interfaces.IAttributeIndex"
+        set_schema="zope.catalog.interfaces.IAttributeIndex"
         />
   </class>
 
   <class class=".catalogindex.SetIndex">
     <require
         permission="zope.ManageServices"
-        interface="zope.app.catalog.interfaces.IAttributeIndex
+        interface="zope.catalog.interfaces.IAttributeIndex
                    zope.index.interfaces.IStatistics"
-        set_schema="zope.app.catalog.interfaces.IAttributeIndex"
+        set_schema="zope.catalog.interfaces.IAttributeIndex"
         />
   </class>
 
   <class class=".catalogindex.NormalizationWrapper">
     <require
         permission="zope.ManageServices"
-        interface="zope.app.catalog.interfaces.IAttributeIndex
+        interface="zope.catalog.interfaces.IAttributeIndex
                    zope.index.interfaces.IStatistics"
-        set_schema="zope.app.catalog.interfaces.IAttributeIndex"
+        set_schema="zope.catalog.interfaces.IAttributeIndex"
         />
   </class>
 

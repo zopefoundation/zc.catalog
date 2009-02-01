@@ -22,10 +22,10 @@ real intid utility [#setup]_.
 
     >>> root = makeRoot()
     >>> intid = zope.component.getUtility(
-    ...     zope.app.intid.interfaces.IIntIds, context=root)
+    ...     zope.intid.interfaces.IIntIds, context=root)
     >>> TreeSet = btrees_family.IF.TreeSet
 
-    >>> from zope.app.container.interfaces import IContained
+    >>> from zope.container.interfaces import IContained
     >>> class DummyIndex(persistent.Persistent):
     ...     interface.implements(IContained)
     ...     __parent__ = __name__ = None
@@ -171,7 +171,7 @@ weighted.
 We can pass our own instantiated UID utility to extentcatalog.Catalog.
 
     >>> ext = extentcatalog.Extent(family=btrees_family)
-    >>> UIDSource = zope.app.intid.IntIds()
+    >>> UIDSource = zope.intid.IntIds()
     >>> cat = extentcatalog.Catalog(ext, UIDSource=UIDSource)
     >>> cat.UIDSource is UIDSource
     True
@@ -420,9 +420,9 @@ We'll make sure everything can be safely committed.
 
 .. [#setup] We create the state that the text needs here.
 
-    >>> import zope.app.keyreference.persistent
+    >>> import zope.keyreference.persistent
     >>> import zope.component
-    >>> import zope.app.intid
+    >>> import zope.intid
     >>> import zope.component
     >>> import zope.component.interfaces
     >>> import zope.component.persistentregistry
@@ -430,10 +430,10 @@ We'll make sure everything can be safely committed.
     >>> import transaction
 
     >>> zope.component.provideAdapter(
-    ...     zope.app.keyreference.persistent.KeyReferenceToPersistent,
+    ...     zope.keyreference.persistent.KeyReferenceToPersistent,
     ...     adapts=(zope.interface.Interface,))
     >>> zope.component.provideAdapter(
-    ...     zope.app.keyreference.persistent.connectionOfPersistent,
+    ...     zope.keyreference.persistent.connectionOfPersistent,
     ...     adapts=(zope.interface.Interface,))
 
     >>> site_manager = None
@@ -465,8 +465,8 @@ We'll make sure everything can be safely committed.
     ...         zope.component.persistentregistry.PersistentComponents())
     ...     site_manager.__bases__ = (zope.component.getGlobalSiteManager(),)
     ...     site_manager.registerUtility(
-    ...         zope.app.intid.IntIds(family=btrees_family),
-    ...         provided=zope.app.intid.interfaces.IIntIds)
+    ...         zope.intid.IntIds(family=btrees_family),
+    ...         provided=zope.intid.interfaces.IIntIds)
     ...     setSiteManager(site_manager)
     ...     transaction.commit()
     ...     return root
@@ -483,6 +483,6 @@ We'll make sure everything can be safely committed.
 .. [#cleanup] Unregister the objects of the previous tests from intid utility:
 
     >>> intid = zope.component.getUtility(
-    ...     zope.app.intid.interfaces.IIntIds, context=root)
+    ...     zope.intid.interfaces.IIntIds, context=root)
     >>> for doc_id in matches:
     ...     intid.unregister(intid.queryObject(doc_id))

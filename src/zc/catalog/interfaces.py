@@ -19,7 +19,7 @@ $Id: interfaces.py 2918 2005-07-19 22:12:38Z jim $
 from zope import interface, schema
 from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 import zope.index.interfaces
-import zope.app.catalog.interfaces
+import zope.catalog.interfaces
 from zc.catalog.i18n import _
 import BTrees.Interfaces
 
@@ -129,7 +129,7 @@ class ISelfPopulatingExtent(IExtent):
 class IExtentCatalog(interface.Interface):
     """A catalog of only items within an extent.
 
-    Interface intended to be used with zope.app.catalog.interfaces.ICatalog"""
+    Interface intended to be used with zope.catalog.interfaces.ICatalog"""
 
     extent = interface.Attribute(
         """An IExtent of the objects cataloged""")
@@ -246,14 +246,14 @@ class IValueIndex(interface.Interface):
         """
 
 
-class ICatalogValueIndex(zope.app.catalog.interfaces.IAttributeIndex,
-                         zope.app.catalog.interfaces.ICatalogIndex):
+class ICatalogValueIndex(zope.catalog.interfaces.IAttributeIndex,
+                         zope.catalog.interfaces.ICatalogIndex):
     """Interface-based catalog value index
     """
 
 
-class ICatalogSetIndex(zope.app.catalog.interfaces.IAttributeIndex,
-                       zope.app.catalog.interfaces.ICatalogIndex):
+class ICatalogSetIndex(zope.catalog.interfaces.IAttributeIndex,
+                       zope.catalog.interfaces.ICatalogIndex):
     """Interface-based catalog set index
     """
 

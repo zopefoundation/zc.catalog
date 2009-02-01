@@ -20,8 +20,8 @@ import sys
 import BTrees
 import persistent
 from zope import interface, component
-from zope.app.catalog import catalog
-from zope.app.intid.interfaces import IIntIds
+from zope.catalog import catalog
+from zope.intid.interfaces import IIntIds
 
 import zope.component
 from zope.component.interfaces import IFactory

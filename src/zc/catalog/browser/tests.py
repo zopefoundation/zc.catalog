@@ -23,9 +23,9 @@ import transaction
 
 import zope.app.appsetup.bootstrap
 import zope.app.appsetup.interfaces
-import zope.app.intid
-import zope.app.intid.interfaces
 import zope.app.testing.functional
+import zope.intid
+import zope.intid.interfaces
 
 
 here = os.path.dirname(os.path.realpath(__file__))
@@ -41,11 +41,11 @@ def initializeIntIds(event):
     db, connection, root, root_folder = (
         zope.app.appsetup.bootstrap.getInformationFromEvent(event))
     sm = root_folder.getSiteManager()
-    intids = zope.app.intid.IntIds()
+    intids = zope.intid.IntIds()
     sm["default"]["test-int-ids"] = intids
     sm.registerUtility(
         intids,
-        zope.app.intid.interfaces.IIntIds)
+        zope.intid.interfaces.IIntIds)
     transaction.commit()
     connection.close()
 

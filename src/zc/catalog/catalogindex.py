@@ -11,40 +11,40 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""Indexes appropriate for zope.app.catalog
+"""Indexes appropriate for zope.catalog
 
 $Id: catalogindex.py 2918 2005-07-19 22:12:38Z jim $
 """
 import zope.interface
 
-import zope.app.container.contained
-import zope.app.catalog.attribute
+import zope.catalog.attribute
+import zope.container.contained
 
 import zc.catalog.index
 import zc.catalog.interfaces
 
-class ValueIndex(zope.app.catalog.attribute.AttributeIndex,
+class ValueIndex(zope.catalog.attribute.AttributeIndex,
                  zc.catalog.index.ValueIndex,
-                 zope.app.container.contained.Contained):
+                 zope.container.contained.Contained):
 
     zope.interface.implements(zc.catalog.interfaces.ICatalogValueIndex)
 
-class SetIndex(zope.app.catalog.attribute.AttributeIndex,
+class SetIndex(zope.catalog.attribute.AttributeIndex,
                zc.catalog.index.SetIndex,
-               zope.app.container.contained.Contained):
+               zope.container.contained.Contained):
 
     zope.interface.implements(zc.catalog.interfaces.ICatalogSetIndex)
 
 class NormalizationWrapper(
-    zope.app.catalog.attribute.AttributeIndex,
+    zope.catalog.attribute.AttributeIndex,
     zc.catalog.index.NormalizationWrapper,
-    zope.app.container.contained.Contained):
+    zope.container.contained.Contained):
 
     pass
 
 
 class CallableWrapper(zc.catalog.index.CallableWrapper,
-                      zope.app.container.contained.Contained):
+                      zope.container.contained.Contained):
     zope.interface.implements(zc.catalog.interfaces.ICallableWrapper)
 
 

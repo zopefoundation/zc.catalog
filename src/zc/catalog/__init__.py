@@ -11,6 +11,4 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""zc.component package
-
-"""
+"""zc.catalog package"""
