@@ -28,10 +28,7 @@ setup(name='zc.catalog',
       description="Extensions to the Zope 3 Catalog",
       long_description=(
           read('README.txt')
-          + '\n\n' +
-          'Detailed Documentation\n' +
-          '======================\n'
-          + '\n\n' +
+          + '\n\n.. contents::\n\n' +
           read('src', 'zc', 'catalog', 'valueindex.txt')
           + '\n\n' +
           read('src', 'zc', 'catalog', 'setindex.txt')
