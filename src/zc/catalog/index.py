@@ -27,6 +27,7 @@ from zope import component, interface
 import zope.component.interfaces
 import zope.interface.common.idatetime
 import zope.index.interfaces
+from zope.index.field.sorting import SortingIndexMixin
 import zope.security.management
 from zope.publisher.interfaces import IRequest
 import zc.catalog.interfaces
@@ -150,9 +151,14 @@ def parseQuery(query):
         raise ValueError('may only pass a dict to apply')
     return query_type, query
 
-class ValueIndex(AbstractIndex):
+class ValueIndex(SortingIndexMixin, AbstractIndex):
 
     interface.implements(zc.catalog.interfaces.IValueIndex)
+
+    # attributes used by sorting mixin
+    _sorting_num_docs_attr = 'documentCount'        # Length object
+    _sorting_fwd_index_attr = 'values_to_documents' # forward BTree index
+    _sorting_rev_index_attr = 'documents_to_values' # reverse BTree index
 
     def _add_value(self, doc_id, added):
         values_to_documents = self.values_to_documents
