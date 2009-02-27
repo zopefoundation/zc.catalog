@@ -322,3 +322,36 @@ Value, Minvalue and Maxvalue can take timezone-less datetimes and dates.
      datetime.datetime(2005, 7, 17, 23, 21, ...<...Eastern...>)]
 
     >>> zope.security.management.endInteraction() # TODO put in tests tearDown
+
+Sorting
+-------
+
+The normalization wrapper provides the zope.index.interfaces.IIndexSort
+interface if its upstream index provides it. For example, the
+DateTimeValueIndex will provide IIndexSort, because ValueIndex provides
+sorting. It will also delegate the ``sort`` method to the value index.
+
+    >>> from zc.catalog.index import DateTimeValueIndex
+    >>> from zope.index.interfaces import IIndexSort
+
+    >>> ix = DateTimeValueIndex()
+    >>> IIndexSort.providedBy(ix.index)
+    True
+    >>> IIndexSort.providedBy(ix)
+    True
+    >>> ix.sort.im_self is ix.index
+    True
+
+But it won't work for indexes that doesn't do sorting, for example
+DateTimeSetIndex.
+
+    >>> ix = DateTimeSetIndex()
+    >>> IIndexSort.providedBy(ix.index)
+    False
+    >>> IIndexSort.providedBy(ix)
+    False
+    >>> ix.sort
+    Traceback (most recent call last):
+    ...
+    AttributeError: 'SetIndex' object has no attribute 'sort'
+   

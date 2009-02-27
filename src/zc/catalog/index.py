@@ -360,6 +360,8 @@ class NormalizationWrapper(persistent.Persistent):
 
     def __init__(self, index, normalizer, collection_index=False):
         self.index = index
+        if zope.index.interfaces.IIndexSort.providedBy(index):
+            zope.interface.alsoProvides(self, zope.index.interfaces.IIndexSort)
         self.normalizer = normalizer
         self.collection_index = collection_index
 
@@ -420,6 +422,10 @@ class NormalizationWrapper(persistent.Persistent):
     def ids(self):
         return self.index.ids()
 
+    @property
+    def sort(self):
+        # delegate upstream or raise AttributeError
+        return self.index.sort
 
 class CallableWrapper(persistent.Persistent):
 
@@ -527,11 +533,12 @@ class DateTimeNormalizer(persistent.Persistent):
 
 @interface.implementer(
     zope.interface.implementedBy(NormalizationWrapper),
+    zope.index.interfaces.IIndexSort,
     zc.catalog.interfaces.IValueIndex)
 def DateTimeValueIndex(resolution=2): # 2 == minute; note that hour is good
     # for timezone-aware per-day searches
     ix = NormalizationWrapper(ValueIndex(), DateTimeNormalizer(resolution))
-    interface.directlyProvides(ix, zc.catalog.interfaces.IValueIndex)
+    interface.alsoProvides(ix, zc.catalog.interfaces.IValueIndex)
     return ix
 
 @interface.implementer(
@@ -540,5 +547,5 @@ def DateTimeValueIndex(resolution=2): # 2 == minute; note that hour is good
 def DateTimeSetIndex(resolution=2): # 2 == minute; note that hour is good
     # for timezone-aware per-day searches
     ix = NormalizationWrapper(SetIndex(), DateTimeNormalizer(resolution), True)
-    interface.directlyProvides(ix, zc.catalog.interfaces.ISetIndex)    
+    interface.alsoProvides(ix, zc.catalog.interfaces.ISetIndex)    
     return ix

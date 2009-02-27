@@ -10,6 +10,8 @@ Zope 3.3/ZODB 3.7.
 
 * Add FieldIndex-like sorting support for the ValueIndex.
 
+* Add sorting indexes support for the NormalizationWrapper.
+
 
 1.4.0 (2009-02-07)
 ------------------
