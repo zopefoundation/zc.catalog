@@ -8,7 +8,7 @@ Zope 3.3/ZODB 3.7.
 1.4.2 (unreleased)
 ------------------
 
-* ...
+* Fix missing testing dependencies when using ZTK by adding zope.login.
 
 1.4.1 (2009-02-27)
 ------------------
