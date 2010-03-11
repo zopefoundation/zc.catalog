@@ -5,6 +5,14 @@ CHANGES
 The 1.2 line (and higher) supports Zope 3.4/ZODB 3.8.  The 1.1 line supports
 Zope 3.3/ZODB 3.7.
 
+1.3.1 (2010-03-11)
+------------------
+
+* Try to import the stemmer from the zopyx.txng3.ext package first, which
+  as of 3.3.2 contains stability and memory leak fixes.
+
+* Pin versions to get tests passing without modifying zc.catalog code.
+
 1.3.0 (2008-09-10)
 ------------------
 
