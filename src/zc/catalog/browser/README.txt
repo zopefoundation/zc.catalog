@@ -54,7 +54,7 @@ Now we can look at the index and see how is is configured.
 
 We need to go back to the catalog so we can add a different index.
 
-    >>> browser.goBack()
+    >>> browser.open('/++etc++site/default/catalog/@@contents.html')
 
 
 ValueIndex
