@@ -8,7 +8,8 @@ Zope 3.3/ZODB 3.7.
 1.4.5 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Remove implicit test dependency on zope.app.dublincore, that was not needed
+  in the first place.
 
 
 1.4.4 (2010-07-06)
