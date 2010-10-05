@@ -45,10 +45,6 @@
       permission="zope.View"
       role="zope.Member"
       />
-  <grant
-      permission="zope.app.dublincore.view"
-      role="zope.Member"
-      />
 
   <grantAll role="zope.Manager" />
 
