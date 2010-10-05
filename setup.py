@@ -22,7 +22,7 @@ def read(*rnames):
     return open(os.path.join(os.path.dirname('.'), *rnames)).read()
 
 setup(name='zc.catalog',
-      version='1.4.5',
+      version='1.4.6dev',
       author='Zope Corporation and Contributors',
       author_email='zope-dev@zope.org',
       description="Extensions to the Zope 3 Catalog",
