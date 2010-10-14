@@ -38,8 +38,8 @@ Let's add a couple of cars to the index!
 
 The indexed values should be the converted l/100 km ratings:
 
-    >>> list(idx.values())
-    [5.2269907628339389, 10.691572014887601, 23.521458432752723]
+    >>> list(idx.values()) # doctest: +ELLIPSIS
+    [5.22699076283393..., 10.691572014887601, 23.521458432752723]
 
 We can query for cars that consume fuel in some range:
 
