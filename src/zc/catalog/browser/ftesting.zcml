@@ -5,23 +5,16 @@
     i18n_domain="zc.catalog"
     >
 
-  <include
-      zcml:condition="installed zope.app.zcmlfiles"
-      package="zope.app.zcmlfiles"
-      />
-  <include
-      zcml:condition="not-installed zope.app.zcmlfiles"
-      package="zope.app"
-      />
-
+  <include package="zope.app.zcmlfiles" />
   <include package="zope.app.authentication" />
   <include package="zope.app.server" />
   <include package="zope.keyreference" />
   <include package="zope.intid" />
   <include package="zope.app.catalog" />
   <include package="zope.login" />
-  <include package="zc.catalog" />
 
+  <include package="zc.catalog" />
+  <include package="zc.catalog.browser" />
   <subscriber handler="zc.catalog.browser.tests.initializeIntIds" />
 
   <!-- Security -->
@@ -47,7 +40,6 @@
       />
 
   <grantAll role="zope.Manager" />
-
 
   <unauthenticatedPrincipal id="zope.anybody" title="Unauthenticated User" />
 

@@ -5,6 +5,10 @@
    >
 
   <!-- UI for SetIndex -->
+  <include package="zope.app.form.browser" file="meta.zcml" />
+  <include package="zope.app.form.browser"/>
+  <include package="zope.browsermenu" file="meta.zcml" />
+  <include package="zope.browsermenu"/>
 
   <addform
       name="AddSetIndex"
