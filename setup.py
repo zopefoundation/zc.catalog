@@ -29,6 +29,8 @@ setup(name='zc.catalog',
       long_description=(
           read('README.txt')
           + '\n\n.. contents::\n\n' +
+          read('CHANGES.txt')
+          + '\n\n' +
           read('src', 'zc', 'catalog', 'valueindex.txt')
           + '\n\n' +
           read('src', 'zc', 'catalog', 'setindex.txt')
@@ -46,8 +48,6 @@ setup(name='zc.catalog',
           read('src', 'zc', 'catalog', 'callablewrapper.txt')
           + '\n\n' +
           read('src', 'zc', 'catalog', 'browser', 'README.txt')
-          + '\n\n' +
-          read('CHANGES.txt')
           ),
       keywords = "zope3 i18n date time duration catalog index",
       classifiers = [
