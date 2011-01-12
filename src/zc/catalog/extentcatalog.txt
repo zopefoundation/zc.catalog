@@ -38,6 +38,8 @@ real intid utility [#setup]_.
     ...         self.uids.insert(uid)
     ...     def clear(self):
     ...         self.uids.clear()
+    ...     def apply(self, query):
+    ...         return [uid for uid in self.uids if uid <= query]
     ...
     >>> class DummyContent(persistent.Persistent):
     ...     def __init__(self, name, parent):
@@ -170,15 +172,97 @@ weighted.
 
 We can pass our own instantiated UID utility to extentcatalog.Catalog.
 
-    >>> ext = extentcatalog.Extent(family=btrees_family)
-    >>> UIDSource = zope.intid.IntIds()
-    >>> cat = extentcatalog.Catalog(ext, UIDSource=UIDSource)
-    >>> cat.UIDSource is UIDSource
+    >>> extent = extentcatalog.Extent(family=btrees_family)
+    >>> uidutil = zope.intid.IntIds()
+    >>> cat = extentcatalog.Catalog(extent, uidutil)
+    >>> cat["index"] = DummyIndex()
+    >>> cat.UIDSource is uidutil
     True
+
+    >>> cat._getUIDSource() is uidutil
+    True
+
+The ResultSet instance returned by the catalog's `searchResults` method
+uses our UID utility.
+
     >>> obj = DummyContent(43, root)
-    >>> cat.index_doc(UIDSource.register(obj), obj)
-    >>> cat.updateIndex(DummyIndex())
+    >>> uid = uidutil.register(obj)
+    >>> cat.index_doc(uid, obj)
+    >>> res = cat.searchResults(index=uid)
+    >>> res.uidutil is uidutil
+    True
+
+    >>> list(res) == [obj]
+    True
+
+`searchResults` may also return None.
+
+    >>> cat.searchResults() is None
+    True
+
+Calling `updateIndex` and `updateIndexes` when the catalog has its uid source
+set works as well.
+
+    >>> cat.clear()
+    >>> uid in cat.extent
+    False
+
+All objects in the uid utility are indexed.
+
     >>> cat.updateIndexes()
+    >>> uid in cat.extent
+    True
+
+    >>> len(cat.extent)
+    1
+
+    >>> obj2 = DummyContent(44, root)
+    >>> uid2 = uidutil.register(obj2)
+    >>> cat.updateIndexes()
+    >>> len(cat.extent)
+    2
+
+    >>> uid2 in cat.extent
+    True
+
+    >>> uidutil.unregister(obj2)
+
+    >>> cat.clear()
+    >>> uid in cat.extent
+    False
+    >>> cat.updateIndex(cat["index"])
+    >>> uid in cat.extent
+    True
+
+With a self-populating extent, calling `updateIndex` or `updateIndexes` means
+only the objects whose ids are in the extent are updated/reindexed; if present,
+the catalog will use its uid source to look up the objects by id.
+
+    >>> extent = extentcatalog.NonPopulatingExtent(family=btrees_family)
+    >>> cat = extentcatalog.Catalog(extent, uidutil)
+    >>> cat["index"] = DummyIndex()
+
+    >>> extent.add(uid, obj)
+    >>> uid in cat["index"].uids
+    False
+
+    >>> cat.updateIndexes()
+    >>> uid in cat["index"].uids
+    True
+
+    >>> cat.clear()
+    >>> uid in cat["index"].uids
+    False
+
+    >>> uid in cat.extent
+    False
+
+    >>> cat.extent.add(uid, obj)
+    >>> cat.updateIndex(cat["index"])
+    >>> uid in cat["index"].uids
+    True
+
+
 
 [#cleanup]_
 
