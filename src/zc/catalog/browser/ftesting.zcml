@@ -6,12 +6,12 @@
     >
 
   <include package="zope.app.zcmlfiles" />
-  <include package="zope.app.authentication" />
   <include package="zope.app.server" />
   <include package="zope.keyreference" />
   <include package="zope.intid" />
   <include package="zope.app.catalog" />
   <include package="zope.login" />
+  <include package="zope.password" />
 
   <include package="zc.catalog" />
   <include package="zc.catalog.browser" />

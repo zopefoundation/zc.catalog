@@ -11,6 +11,8 @@ Zope 3.3/ZODB 3.7.
 - Fix the extent catalog's `searchResults` method to work when using a
   local uid source.
 
+- Replaced a testing dependency on zope.app.authentication with zope.password.
+
 1.5 (2010-10-19)
 ----------------
 
