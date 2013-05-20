@@ -104,12 +104,19 @@ and all document ids with any values is returned.
 
 The 'all_of' argument also takes an iterable of values, but returns an
 iterable of document ids that contains all of the values.  The results are not
-weighted [#all_of_regression_test]_.
+weighted.
 
     >>> list(index.apply({'all_of': ('a',)}))
     [1, 2, 9]
     >>> list(index.apply({'all_of': (3, 4)}))
     [2, 9]
+
+These tests illustrate two related reported errors that have been fixed.
+
+    >>> list(index.apply({'all_of': ('z', 3, 4)}))
+    []
+    >>> list(index.apply({'all_of': (3, 4, 'z')}))
+    []
 
 The 'between' argument takes from 1 to four values.  The first is the
 minimum, and defaults to None, indicating no minimum; the second is the
@@ -232,11 +239,3 @@ values.
     True
     >>> index.containsValue(20)
     False
-
-.. [#all_of_regression_test] These tests illustrate two related reported
-    errors that have been fixed.
-
-    >>> list(index.apply({'all_of': ('z', 3, 4)}))
-    []
-    >>> list(index.apply({'all_of': (3, 4, 'z')}))
-    []

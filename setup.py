@@ -68,7 +68,7 @@ setup(name='zc.catalog',
       extras_require=dict(
           test=[
               'zope.keyreference',
-              'zope.testing < 4',
+              'zope.testing',
               ],
           browser=[
               'zope.app.form',

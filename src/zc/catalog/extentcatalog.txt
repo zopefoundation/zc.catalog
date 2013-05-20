@@ -8,9 +8,70 @@ and a set that may be merged with other result sets.  The filtering is
 an additional feature we will discuss below; we'll begin with a simple
 "do nothing" extent that only supports the second use case.
 
+We create the state that the text needs here.
+
+    >>> import zope.keyreference.persistent
+    >>> import zope.component
+    >>> import zope.intid
+    >>> import zope.component
+    >>> import zope.component.interfaces
+    >>> import zope.component.persistentregistry
+    >>> from ZODB.tests.util import DB
+    >>> import transaction
+
+    >>> zope.component.provideAdapter(
+    ...     zope.keyreference.persistent.KeyReferenceToPersistent,
+    ...     adapts=(zope.interface.Interface,))
+    >>> zope.component.provideAdapter(
+    ...     zope.keyreference.persistent.connectionOfPersistent,
+    ...     adapts=(zope.interface.Interface,))
+
+    >>> site_manager = None
+    >>> def getSiteManager(context=None):
+    ...     if context is None:
+    ...         if site_manager is None:
+    ...             return zope.component.getGlobalSiteManager()
+    ...         else:
+    ...             return site_manager
+    ...     else:
+    ...         try:
+    ...             return zope.component.interfaces.IComponentLookup(context)
+    ...         except TypeError, error:
+    ...             raise zope.component.ComponentLookupError(*error.args)
+    ...
+    >>> def setSiteManager(sm):
+    ...     global site_manager
+    ...     site_manager = sm
+    ...     if sm is None:
+    ...         zope.component.getSiteManager.reset()
+    ...     else:
+    ...         zope.component.getSiteManager.sethook(getSiteManager)
+    ...
+    >>> def makeRoot():
+    ...     db = DB()
+    ...     conn = db.open()
+    ...     root = conn.root()
+    ...     site_manager = root['components'] = (
+    ...         zope.component.persistentregistry.PersistentComponents())
+    ...     site_manager.__bases__ = (zope.component.getGlobalSiteManager(),)
+    ...     site_manager.registerUtility(
+    ...         zope.intid.IntIds(family=btrees_family),
+    ...         provided=zope.intid.interfaces.IIntIds)
+    ...     setSiteManager(site_manager)
+    ...     transaction.commit()
+    ...     return root
+    ...
+
+    >>> @zope.component.adapter(zope.interface.Interface)
+    ... @zope.interface.implementer(zope.component.interfaces.IComponentLookup)
+    ... def getComponentLookup(obj):
+    ...     return obj._p_jar.root()['components']
+    ...
+    >>> zope.component.provideAdapter(getComponentLookup)
+
 To show the extent catalog at work, we need an intid utility, an
 index, some items to index.  We'll do this within a real ZODB and a
-real intid utility [#setup]_.
+real intid utility.
 
     >>> import zc.catalog
     >>> import zc.catalog.interfaces
@@ -262,9 +323,12 @@ the catalog will use its uid source to look up the objects by id.
     >>> uid in cat["index"].uids
     True
 
+Unregister the objects of the previous tests from intid utility:
 
-
-[#cleanup]_
+    >>> intid = zope.component.getUtility(
+    ...     zope.intid.interfaces.IIntIds, context=root)
+    >>> for doc_id in matches:
+    ...     intid.unregister(intid.queryObject(doc_id))
 
 
 Catalog with a filter extent
@@ -501,72 +565,3 @@ We'll make sure everything can be safely committed.
 
     >>> transaction.commit()
     >>> setSiteManager(None)
-
-.. [#setup] We create the state that the text needs here.
-
-    >>> import zope.keyreference.persistent
-    >>> import zope.component
-    >>> import zope.intid
-    >>> import zope.component
-    >>> import zope.component.interfaces
-    >>> import zope.component.persistentregistry
-    >>> from ZODB.tests.util import DB
-    >>> import transaction
-
-    >>> zope.component.provideAdapter(
-    ...     zope.keyreference.persistent.KeyReferenceToPersistent,
-    ...     adapts=(zope.interface.Interface,))
-    >>> zope.component.provideAdapter(
-    ...     zope.keyreference.persistent.connectionOfPersistent,
-    ...     adapts=(zope.interface.Interface,))
-
-    >>> site_manager = None
-    >>> def getSiteManager(context=None):
-    ...     if context is None:
-    ...         if site_manager is None:
-    ...             return zope.component.getGlobalSiteManager()
-    ...         else:
-    ...             return site_manager
-    ...     else:
-    ...         try:
-    ...             return zope.component.interfaces.IComponentLookup(context)
-    ...         except TypeError, error:
-    ...             raise zope.component.ComponentLookupError(*error.args)
-    ...
-    >>> def setSiteManager(sm):
-    ...     global site_manager
-    ...     site_manager = sm
-    ...     if sm is None:
-    ...         zope.component.getSiteManager.reset()
-    ...     else:
-    ...         zope.component.getSiteManager.sethook(getSiteManager)
-    ...
-    >>> def makeRoot():
-    ...     db = DB()
-    ...     conn = db.open()
-    ...     root = conn.root()
-    ...     site_manager = root['components'] = (
-    ...         zope.component.persistentregistry.PersistentComponents())
-    ...     site_manager.__bases__ = (zope.component.getGlobalSiteManager(),)
-    ...     site_manager.registerUtility(
-    ...         zope.intid.IntIds(family=btrees_family),
-    ...         provided=zope.intid.interfaces.IIntIds)
-    ...     setSiteManager(site_manager)
-    ...     transaction.commit()
-    ...     return root
-    ...
-
-    >>> @zope.component.adapter(zope.interface.Interface)
-    ... @zope.interface.implementer(zope.component.interfaces.IComponentLookup)
-    ... def getComponentLookup(obj):
-    ...     return obj._p_jar.root()['components']
-    ...
-    >>> zope.component.provideAdapter(getComponentLookup)
-
-
-.. [#cleanup] Unregister the objects of the previous tests from intid utility:
-
-    >>> intid = zope.component.getUtility(
-    ...     zope.intid.interfaces.IIntIds, context=root)
-    >>> for doc_id in matches:
-    ...     intid.unregister(intid.queryObject(doc_id))

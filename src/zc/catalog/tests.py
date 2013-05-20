@@ -17,7 +17,8 @@ $Id: tests.py 2918 2005-07-19 22:12:38Z jim $
 """
 
 import unittest
-from zope.testing import doctest, module
+import doctest
+from zope.testing import module
 import zope.component.testing
 import zope.component.factory
 import zope.component.interfaces
@@ -59,11 +60,9 @@ def test_suite():
     tests = unittest.TestSuite((
         # 32 bits
         doctest.DocFileSuite(
-            'extentcatalog.txt', setUp=modSetUp32bit, tearDown=modTearDown,
-            optionflags=doctest.INTERPRET_FOOTNOTES),
+            'extentcatalog.txt', setUp=modSetUp32bit, tearDown=modTearDown),
         doctest.DocFileSuite(
-            'setindex.txt', setUp=setUp32bit, tearDown=tearDown,
-            optionflags=doctest.INTERPRET_FOOTNOTES),
+            'setindex.txt', setUp=setUp32bit, tearDown=tearDown),
         doctest.DocFileSuite(
             'valueindex.txt', setUp=setUp32bit, tearDown=tearDown),
         doctest.DocFileSuite(
@@ -75,8 +74,7 @@ def test_suite():
 
         # 64 bits
         doctest.DocFileSuite(
-            'extentcatalog.txt', setUp=modSetUp64bit, tearDown=modTearDown,
-            optionflags=doctest.INTERPRET_FOOTNOTES),
+            'extentcatalog.txt', setUp=modSetUp64bit, tearDown=modTearDown),
         doctest.DocFileSuite('setindex.txt', setUp=setUp64bit,
                              tearDown=tearDown),
         doctest.DocFileSuite('valueindex.txt', setUp=setUp64bit,
