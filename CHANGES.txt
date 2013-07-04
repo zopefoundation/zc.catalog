@@ -2,11 +2,13 @@
 CHANGES
 =======
 
-1.6 (unreleased)
+1.6 (2013-07-04)
 ----------------
 
 - Using Python's ``doctest`` module instead of deprecated
   ``zope.testing.doctest``.
+
+- Move ``zope.intid`` to dependencies.
 
 
 1.5.1 (2012-01-20)
