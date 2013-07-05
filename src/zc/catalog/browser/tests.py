@@ -28,6 +28,8 @@ try:
     import zope.app.appsetup.bootstrap
     import zope.app.appsetup.interfaces
     import zope.app.testing.functional
+    import zope.app.zcmlfiles
+    import zope.app.catalog
 
     here = os.path.dirname(os.path.realpath(__file__))
 
