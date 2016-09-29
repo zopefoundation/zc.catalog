@@ -31,8 +31,8 @@ import zc.catalog
 from zc.catalog import interfaces
 
 
+@interface.implementer(interfaces.IExtent)
 class Extent(persistent.Persistent):
-    interface.implements(interfaces.IExtent)
     __parent__ = None
     family = BTrees.family32
 
@@ -108,8 +108,8 @@ class Extent(persistent.Persistent):
             pass
 
 
+@interface.implementer(interfaces.IFilterExtent)
 class FilterExtent(Extent):
-    interface.implements(interfaces.IFilterExtent)
 
     def __init__(self, filter, family=None):
         super(FilterExtent, self).__init__(family=family)
@@ -125,23 +125,21 @@ class FilterExtent(Extent):
         return self.filter(self, uid, obj)
 
 
+@interface.implementer(interfaces.ISelfPopulatingExtent)
 class NonPopulatingExtent(Extent):
     """Base class for populating extent.
 
     This simple, no-op implementation comes in handy surprisingly often
     for catalogs that handle a very contained domain within an application.
     """
-
-    interface.implements(interfaces.ISelfPopulatingExtent)
-
     populated = False
 
     def populate(self):
         self.populated = True
 
 
+@interface.implementer(interfaces.IExtentCatalog)
 class Catalog(catalog.Catalog):
-    interface.implements(interfaces.IExtentCatalog)
 
     UIDSource = None
 

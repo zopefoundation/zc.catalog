@@ -144,7 +144,7 @@ def parseQuery(query):
                 'may only pass one of key, value pair')
         elif not query:
             return None, None
-        query_type, query = query.items()[0]
+        query_type, query = list(query.items())[0]
         query_type = query_type.lower()
     else:
         raise ValueError('may only pass a dict to apply')
@@ -317,12 +317,12 @@ class SetIndex(AbstractIndex):
             values = iter(query)
             empty = self.family.IF.TreeSet()
             try:
-                res = values_to_documents.get(values.next(), empty)
+                res = values_to_documents.get(next(values), empty)
             except StopIteration:
                 res = empty
             while res:
                 try:
-                    v = values.next()
+                    v = next(values)
                 except StopIteration:
                     break
                 res = self.family.IF.intersection(

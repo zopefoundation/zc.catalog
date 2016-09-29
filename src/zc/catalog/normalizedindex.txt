@@ -196,7 +196,7 @@ Now let's examine these normalizers in the context of a real index.
     >>> count = 0
     >>> while True:
     ...     try:
-    ...         next = [gen.next() for i in range(6)]
+    ...         next = [next(gen) for i in range(6)]
     ...     except StopIteration:
     ...         break
     ...     data.append((count, next[0:1]))
@@ -339,7 +339,7 @@ sorting. It will also delegate the ``sort`` method to the value index.
     True
     >>> IIndexSort.providedBy(ix)
     True
-    >>> ix.sort.im_self is ix.index
+    >>> ix.sort.__self__ is ix.index
     True
 
 But it won't work for indexes that doesn't do sorting, for example
@@ -354,4 +354,3 @@ DateTimeSetIndex.
     Traceback (most recent call last):
     ...
     AttributeError: 'SetIndex' object has no attribute 'sort'
-   

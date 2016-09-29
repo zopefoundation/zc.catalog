@@ -87,8 +87,9 @@ real intid utility.
     >>> TreeSet = btrees_family.IF.TreeSet
 
     >>> from zope.container.interfaces import IContained
-    >>> class DummyIndex(persistent.Persistent):
-    ...     interface.implements(IContained)
+    >>> @interface.implementer(IContained)
+    ... class DummyIndex(persistent.Persistent):
+    ...
     ...     __parent__ = __name__ = None
     ...     def __init__(self):
     ...         self.uids = TreeSet()

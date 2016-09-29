@@ -77,7 +77,7 @@ start with the 32-bit variety::
   >>> vi32.__dict__["btreemodule"]
   'BTrees.IFBTree'
   >>> vi32.__dict__["IOBTree"]
-  <type 'BTrees.IOBTree.IOBTree'>
+  <... 'BTrees.IOBTree.IOBTree'>
 
   >>> "family" in vi32.__dict__
   False
@@ -106,7 +106,7 @@ anyway::
   >>> vi32.btreemodule
   'BTrees.IFBTree'
   >>> vi32.IOBTree
-  <type 'BTrees.IOBTree.IOBTree'>
+  <... 'BTrees.IOBTree.IOBTree'>
   >>> vi32.BTreeAPI
   <module 'BTrees.IFBTree' from ...>
 
@@ -124,7 +124,7 @@ The 64-bit variation provides equivalent behavior::
   >>> vi64.__dict__["btreemodule"]
   'BTrees.LFBTree'
   >>> vi64.__dict__["IOBTree"]
-  <type 'BTrees.LOBTree.LOBTree'>
+  <... 'BTrees.LOBTree.LOBTree'>
 
   >>> "family" in vi64.__dict__
   False
@@ -145,7 +145,7 @@ The 64-bit variation provides equivalent behavior::
   >>> vi64.btreemodule
   'BTrees.LFBTree'
   >>> vi64.IOBTree
-  <type 'BTrees.LOBTree.LOBTree'>
+  <... 'BTrees.LOBTree.LOBTree'>
   >>> vi64.BTreeAPI
   <module 'BTrees.LFBTree' from ...>
 
@@ -183,6 +183,6 @@ the changed flag will be set as well::
   >>> vi64.btreemodule
   'BTrees.LFBTree'
   >>> vi64.IOBTree
-  <type 'BTrees.LOBTree.LOBTree'>
+  <... 'BTrees.LOBTree.LOBTree'>
   >>> vi64.BTreeAPI
   <module 'BTrees.LFBTree' from ...>
