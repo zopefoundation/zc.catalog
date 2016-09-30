@@ -57,7 +57,7 @@ try:
         suite.layer = ZcCatalogLayer
         return suite
 
-except (ImportError,) as e:
+except ImportError as e:
     def test_suite():
         return unittest.TestSuite()
 

@@ -77,7 +77,7 @@ contain any of the values.  The results are not weighted.
     [2, 8]
     >>> list(index.apply({'any_of': ('d',)}))
     [5]
-    >>> list(index.apply({'any_of':(42,)}))
+    >>> list(index.apply({'any_of':('doesnotexist',)}))
     []
 
 Another query is 'any', If the key is None, all indexed document ids with any
@@ -249,7 +249,7 @@ We can also specify the ``reverse`` argument to reverse results:
 And as per IIndexSort, we can limit results by specifying the ``limit``
 argument:
 
-    >>> list(index.sort([4, 2, 9, 7, 3, 1, 5], limit=3)) 
+    >>> list(index.sort([4, 2, 9, 7, 3, 1, 5], limit=3))
     [9, 7, 5]
 
 If we pass an id that is not indexed by this index, it won't be included

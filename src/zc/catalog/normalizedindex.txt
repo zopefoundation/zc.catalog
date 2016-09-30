@@ -196,17 +196,17 @@ Now let's examine these normalizers in the context of a real index.
     >>> count = 0
     >>> while True:
     ...     try:
-    ...         next = [next(gen) for i in range(6)]
+    ...         foo = [next(gen) for i in range(6)]
     ...     except StopIteration:
     ...         break
-    ...     data.append((count, next[0:1]))
+    ...     data.append((count, foo[0:1]))
     ...     count += 1
-    ...     data.append((count, next[1:3]))
+    ...     data.append((count, foo[1:3]))
     ...     count += 1
-    ...     data.append((count, next[3:6]))
+    ...     data.append((count, foo[3:6]))
     ...     count += 1
     ...
-    >>> print data # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+    >>> print(data) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
     [(0,
       [datetime.datetime(2005, 7, 15, 11, 21, 32, 104, ...<...Eastern...>)]),
      (1,

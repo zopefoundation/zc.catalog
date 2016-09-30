@@ -36,7 +36,7 @@ We create the state that the text needs here.
     ...     else:
     ...         try:
     ...             return zope.component.interfaces.IComponentLookup(context)
-    ...         except TypeError, error:
+    ...         except TypeError as error:
     ...             raise zope.component.ComponentLookupError(*error.args)
     ...
     >>> def setSiteManager(sm):
