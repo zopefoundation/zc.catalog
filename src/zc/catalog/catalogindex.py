@@ -24,17 +24,18 @@ import zope.index.interfaces
 import zc.catalog.index
 import zc.catalog.interfaces
 
+
+@zope.interface.implementer(zc.catalog.interfaces.ICatalogValueIndex)
 class ValueIndex(zope.catalog.attribute.AttributeIndex,
                  zc.catalog.index.ValueIndex,
                  zope.container.contained.Contained):
+    pass
 
-    zope.interface.implements(zc.catalog.interfaces.ICatalogValueIndex)
-
+@zope.interface.implementer(zc.catalog.interfaces.ICatalogSetIndex)
 class SetIndex(zope.catalog.attribute.AttributeIndex,
                zc.catalog.index.SetIndex,
                zope.container.contained.Contained):
-
-    zope.interface.implements(zc.catalog.interfaces.ICatalogSetIndex)
+    pass
 
 class NormalizationWrapper(
     zope.catalog.attribute.AttributeIndex,
@@ -44,9 +45,10 @@ class NormalizationWrapper(
     pass
 
 
+@zope.interface.implementer(zc.catalog.interfaces.ICallableWrapper)
 class CallableWrapper(zc.catalog.index.CallableWrapper,
                       zope.container.contained.Contained):
-    zope.interface.implements(zc.catalog.interfaces.ICallableWrapper)
+    pass
 
 
 @zope.interface.implementer(
@@ -66,7 +68,7 @@ def DateTimeValueIndex(
     zope.interface.implementedBy(NormalizationWrapper),
     zc.catalog.interfaces.ISetIndex)
 def DateTimeSetIndex(
-    field_name=None, interface=None, field_callable=False, 
+    field_name=None, interface=None, field_callable=False,
     resolution=2): # hour; good for per-day searches
     ix = NormalizationWrapper(
         field_name, interface, field_callable, zc.catalog.index.SetIndex(),

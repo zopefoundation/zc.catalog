@@ -5,7 +5,9 @@ CHANGES
 1.6.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Python 3 compatibily. Note how this implies the indexes can only store
+  values of the same type from now on. The possible necessity for this was
+  already expressed in the tests for setindex and is now explicit.
 
 
 1.6 (2013-07-04)

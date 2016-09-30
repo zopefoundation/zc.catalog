@@ -72,13 +72,12 @@ class FamilyProperty(object):
             del d["BTreeAPI"]
 
 
+@interface.implementer(
+    zope.index.interfaces.IInjection,
+    zope.index.interfaces.IIndexSearch,
+    zope.index.interfaces.IStatistics,
+    zc.catalog.interfaces.IIndexValues)
 class AbstractIndex(persistent.Persistent):
-
-    interface.implements(zope.index.interfaces.IInjection,
-                         zope.index.interfaces.IIndexSearch,
-                         zope.index.interfaces.IStatistics,
-                         zc.catalog.interfaces.IIndexValues,
-                         )
 
     family = FamilyProperty()
 
@@ -145,15 +144,15 @@ def parseQuery(query):
                 'may only pass one of key, value pair')
         elif not query:
             return None, None
-        query_type, query = query.items()[0]
+        query_type, query = list(query.items())[0]
         query_type = query_type.lower()
     else:
         raise ValueError('may only pass a dict to apply')
     return query_type, query
 
-class ValueIndex(SortingIndexMixin, AbstractIndex):
 
-    interface.implements(zc.catalog.interfaces.IValueIndex)
+@interface.implementer(zc.catalog.interfaces.IValueIndex)
+class ValueIndex(SortingIndexMixin, AbstractIndex):
 
     # attributes used by sorting mixin
     _sorting_num_docs_attr = 'documentCount'        # Length object
@@ -244,9 +243,9 @@ class ValueIndex(SortingIndexMixin, AbstractIndex):
             else:
                 return (value,)
 
+@interface.implementer(zc.catalog.interfaces.ISetIndex)
 class SetIndex(AbstractIndex):
 
-    interface.implements(zc.catalog.interfaces.ISetIndex)
 
     def _add_values(self, doc_id, added):
         values_to_documents = self.values_to_documents
@@ -318,12 +317,12 @@ class SetIndex(AbstractIndex):
             values = iter(query)
             empty = self.family.IF.TreeSet()
             try:
-                res = values_to_documents.get(values.next(), empty)
+                res = values_to_documents.get(next(values), empty)
             except StopIteration:
                 res = empty
             while res:
                 try:
-                    v = values.next()
+                    v = next(values)
                 except StopIteration:
                     break
                 res = self.family.IF.intersection(
@@ -341,9 +340,9 @@ class SetIndex(AbstractIndex):
                 "unknown query type", query_type)
         return res
 
-class NormalizationWrapper(persistent.Persistent):
 
-    interface.implements(zc.catalog.interfaces.INormalizationWrapper)
+@interface.implementer(zc.catalog.interfaces.INormalizationWrapper)
+class NormalizationWrapper(persistent.Persistent):
 
     index = normalizer = None
     collection_index = False
@@ -427,9 +426,9 @@ class NormalizationWrapper(persistent.Persistent):
         # delegate upstream or raise AttributeError
         return self.index.sort
 
-class CallableWrapper(persistent.Persistent):
 
-    interface.implements(zc.catalog.interfaces.ICallableWrapper)
+@interface.implementer(zc.catalog.interfaces.ICallableWrapper)
+class CallableWrapper(persistent.Persistent):
 
     converter = None
     index = None
@@ -490,9 +489,9 @@ def day_begin(value):
         value, datetime.time(tzinfo=get_tz()))
 
 
+@interface.implementer(zc.catalog.interfaces.IDateTimeNormalizer)
 class DateTimeNormalizer(persistent.Persistent):
 
-    interface.implements(zc.catalog.interfaces.IDateTimeNormalizer)
     def __init__(self, resolution=2):
         self.resolution = resolution
         # 0, 1, 2, 3, 4
@@ -547,5 +546,5 @@ def DateTimeValueIndex(resolution=2): # 2 == minute; note that hour is good
 def DateTimeSetIndex(resolution=2): # 2 == minute; note that hour is good
     # for timezone-aware per-day searches
     ix = NormalizationWrapper(SetIndex(), DateTimeNormalizer(resolution), True)
-    interface.alsoProvides(ix, zc.catalog.interfaces.ISetIndex)    
+    interface.alsoProvides(ix, zc.catalog.interfaces.ISetIndex)
     return ix
