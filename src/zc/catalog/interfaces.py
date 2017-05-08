@@ -13,7 +13,6 @@
 ##############################################################################
 """interfaces for zc.catalog
 
-$Id: interfaces.py 2918 2005-07-19 22:12:38Z jim $
 """
 
 from zope import interface, schema

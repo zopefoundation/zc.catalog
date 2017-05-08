@@ -1,15 +1,19 @@
-=======
-CHANGES
-=======
+=========
+ CHANGES
+=========
 
-1.6.1 (unreleased)
-------------------
+2.0.0 (unreleased)
+==================
 
-- Nothing changed yet.
+- Add support for Python 3.4, 3.5, 3.6 and PyPy. Note that the
+  ``zopyx.txng3.ext`` stemmer is not available on Python 3.4 or PyPy.
+
+- Remove test dependency on zope.app.zcmlfiles and zope.app.testing,
+  among others.
 
 
 1.6 (2013-07-04)
-----------------
+================
 
 - Using Python's ``doctest`` module instead of deprecated
   ``zope.testing.doctest``.
@@ -18,7 +22,7 @@ CHANGES
 
 
 1.5.1 (2012-01-20)
-------------------
+==================
 
 - Fix the extent catalog's `searchResults` method to work when using a
   local uid source.
@@ -30,7 +34,7 @@ CHANGES
 
 
 1.5 (2010-10-19)
-----------------
+================
 
 - The package's ``configure.zcml`` does not include the browser subpackage's
   ``configure.zcml`` anymore.
@@ -54,32 +58,32 @@ CHANGES
 
 
 1.4.5 (2010-10-05)
-------------------
+==================
 
 - Remove implicit test dependency on zope.app.dublincore, that was not needed
   in the first place.
 
 
 1.4.4 (2010-07-06)
-------------------
+==================
 
 * Fixed test-failure happening with more recent ``mechanize`` (>=2.0).
 
 
 1.4.3 (2010-03-09)
-------------------
+==================
 
 * Try to import the stemmer from the zopyx.txng3.ext package first, which
   as of 3.3.2 contains stability and memory leak fixes.
 
 
 1.4.2 (2010-01-20)
-------------------
+==================
 
 * Fix missing testing dependencies when using ZTK by adding zope.login.
 
 1.4.1 (2009-02-27)
-------------------
+==================
 
 * Add FieldIndex-like sorting support for the ValueIndex.
 
@@ -87,10 +91,7 @@ CHANGES
 
 
 1.4.0 (2009-02-07)
-------------------
-
-Bugs fixed
-~~~~~~~~~~
+==================
 
 * Fixed a typo in ValueIndex addform and addMenuItem
 
@@ -104,19 +105,13 @@ Bugs fixed
 
 
 1.3.0 (2008-09-10)
-------------------
-
-Features added
-~~~~~~~~~~~~~~
+==================
 
 * Added hook point to allow extent catalog to be used with local UID sources.
 
 
 1.2.0 (2007-11-03)
-------------------
-
-Features added
-~~~~~~~~~~~~~~
+==================
 
 * Updated package meta-data.
 
@@ -142,20 +137,17 @@ Features added
 
 
 1.1.1 (2007-3-17)
------------------
-
-Bugs fixed
-~~~~~~~~~~
+=================
 
 'all_of' would return all results when one of the values had no results.
 Reported, with test and fix provided, by Nando Quintana.
 
 
 1.1 (2007-01-06)
-----------------
+================
 
 Features removed
-~~~~~~~~~~~~~~~~
+----------------
 
 The queueing of events in the extent catalog has been entirely removed.
 Subtransactions caused significant problems to the code introduced in 1.0.
@@ -178,10 +170,10 @@ for getting the queueing to work:
 
 
 1.0 (2007-01-05)
-----------------
+================
 
 Bugs fixed
-~~~~~~~~~~
+----------
 
 * adjusted extentcatalog tests to trigger (and discuss and test) the queueing
   behavior.
@@ -198,9 +190,9 @@ Bugs fixed
 
 
 0.2 (2006-11-22)
-----------------
+================
 
 Features added
-~~~~~~~~~~~~~~
+--------------
 
 * First release on Cheeseshop.

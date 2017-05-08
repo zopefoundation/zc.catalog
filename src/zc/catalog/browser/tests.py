@@ -13,53 +13,55 @@
 ##############################################################################
 """Functional tests for `zc.catalog.browser`.
 
-$Id$
 """
 import doctest
-import os.path
 import unittest
 import transaction
 import zope.intid
 import zope.intid.interfaces
 
-try:
-    # Only include the functional tests whenever the required dependencies
-    # are installed.
-    import zope.app.appsetup.bootstrap
-    import zope.app.appsetup.interfaces
-    import zope.app.testing.functional
-    import zope.app.zcmlfiles
-    import zope.app.catalog
 
-    here = os.path.dirname(os.path.realpath(__file__))
+from zope.processlifetime import IDatabaseOpenedWithRoot
+import zope.app.appsetup.bootstrap
+from zope.app.wsgi.testlayer import BrowserLayer
+from zope.testbrowser.wsgi import TestBrowserLayer
 
-    ZcCatalogLayer = zope.app.testing.functional.ZCMLLayer(
-        os.path.join(here, "ftesting.zcml"), __name__, "ZcCatalogLayer")
 
-    @zope.component.adapter(
-        zope.app.appsetup.interfaces.IDatabaseOpenedWithRootEvent)
-    def initializeIntIds(event):
-        db, connection, root, root_folder = (
+import zc.catalog.browser
+
+class _ZcCatalogLayer(TestBrowserLayer,
+                      BrowserLayer):
+    pass
+
+ZcCatalogLayer = _ZcCatalogLayer(zc.catalog.browser)
+
+
+@zope.component.adapter(IDatabaseOpenedWithRoot)
+def initializeIntIds(event):
+        _db, connection, _root, root_folder = (
             zope.app.appsetup.bootstrap.getInformationFromEvent(event))
         sm = root_folder.getSiteManager()
-        intids = zope.intid.IntIds()
-        sm["default"]["test-int-ids"] = intids
-        sm.registerUtility(
-            intids,
-            zope.intid.interfaces.IIntIds)
-        transaction.commit()
+        if 'test-int-ids' not in sm['default']:
+            intids = zope.intid.IntIds()
+
+            sm["default"]["test-int-ids"] = intids
+            sm.registerUtility(
+                intids,
+                zope.intid.interfaces.IIntIds)
+            transaction.commit()
         connection.close()
 
-    def test_suite():
-        suite = zope.app.testing.functional.FunctionalDocFileSuite(
-            "README.txt",
-            optionflags=doctest.ELLIPSIS|doctest.NORMALIZE_WHITESPACE)
-        suite.layer = ZcCatalogLayer
-        return suite
+def test_suite():
+    suite = doctest.DocFileSuite(
+        "README.rst",
+        optionflags=doctest.ELLIPSIS|doctest.NORMALIZE_WHITESPACE)
+    suite.layer = ZcCatalogLayer
+    return suite
 
-except (ImportError,), e:
-    def test_suite():
-        return unittest.TestSuite()
+class LoginLogout(object):
+    # dummy to avoid dep on zope.app.security
+    def __call__(self):
+        return
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main(defaultTest="test_suite")

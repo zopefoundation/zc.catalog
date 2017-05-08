@@ -13,7 +13,6 @@
 ##############################################################################
 """A stemmer based on the textindexng stemmer, itself based on snowball.
 
-$Id: stemmer.py 2918 2005-07-19 22:12:38Z jim $
 """
 import re
 broken = None
@@ -57,8 +56,8 @@ class Stemmer(object):
         result = []
         for s in lst:
             try:
-                s = unicode(s)
-            except UnicodeDecodeError:
+                s = s.decode('utf-8')
+            except UnicodeDecodeError: # pragma: no cover
                 pass
             else:
                 s = stemmer.stem((s,))[0]
@@ -72,8 +71,8 @@ class Stemmer(object):
         for s in lst:
             if not rxGlob.search(s):
                 try:
-                    s = unicode(s)
-                except UnicodeDecodeError:
+                    s = s.decode('utf-8')
+                except UnicodeDecodeError: # pragma: no cover
                     pass
                 else:
                     s = stemmer.stem((s,))[0]
