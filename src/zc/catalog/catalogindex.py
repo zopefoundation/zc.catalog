@@ -27,33 +27,13 @@ import zc.catalog.interfaces
 class ValueIndex(zope.catalog.attribute.AttributeIndex,
                  zc.catalog.index.ValueIndex,
                  zope.container.contained.Contained):
-
-    def __init__(self, field_name=None, interface=None, field_callable=False,
-                 *args, **kwargs):
-        if field_name and not isinstance(field_name, str):
-            # Workaround for https://github.com/zopefoundation/zope.catalog/issues/7
-            if bytes is str: # pragma: no cover
-                field_name = str(field_name)
-            else:
-                field_name = field_name.decode('utf-8')
-        super(ValueIndex, self).__init__(field_name, interface, field_callable, *args, **kwargs)
-
+    pass
 
 @zope.interface.implementer(zc.catalog.interfaces.ICatalogSetIndex)
 class SetIndex(zope.catalog.attribute.AttributeIndex,
                zc.catalog.index.SetIndex,
                zope.container.contained.Contained):
-
-    def __init__(self, field_name=None, interface=None, field_callable=False,
-                 *args, **kwargs):
-        if field_name and not isinstance(field_name, str):
-            # Workaround for https://github.com/zopefoundation/zope.catalog/issues/7
-            if bytes is str: # pragma: no cover
-                field_name = str(field_name)
-            else:
-                field_name = field_name.decode('utf-8')
-        super(SetIndex, self).__init__(field_name, interface, field_callable, *args, **kwargs)
-
+    pass
 
 class NormalizationWrapper(
     zope.catalog.attribute.AttributeIndex,
