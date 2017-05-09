@@ -109,7 +109,9 @@ setup(name='zc.catalog',
               'zope.app.form',
               'zope.browsermenu',
           ],
-          'stemmer:platform_python_implementation=="CPython" and python_version=="2.7"': [
+          'stemmer:python_version=="2.7"': [
+              # This is only available on Python 2. It compiles
+              # and runs under both CPython and PyPy.
               'zopyx.txng3.ext',
           ],
           'stemmer:python_version >= "3.3"': [

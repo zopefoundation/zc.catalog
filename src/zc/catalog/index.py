@@ -227,7 +227,7 @@ class ValueIndex(SortingIndexMixin, AbstractIndex):
                     [s for s in (values_to_documents.get(v) for v in query)
                      if s is not None])
             except TypeError:
-                return None
+                return []
         elif query_type == 'any':
             if query is None:
                 res = self.family.IF.Set(self.ids())
@@ -235,10 +235,13 @@ class ValueIndex(SortingIndexMixin, AbstractIndex):
                 assert zc.catalog.interfaces.IExtent.providedBy(query)
                 res = query & self.family.IF.Set(self.ids())
         elif query_type == 'between':
-            res = self.family.IF.multiunion(
-                [s for s in (values_to_documents.get(v) for v in
-                             values_to_documents.keys(*query))
-                 if s is not None])
+            try:
+                res = self.family.IF.multiunion(
+                    [s for s in (values_to_documents.get(v) for v in
+                                 values_to_documents.keys(*query))
+                     if s is not None])
+            except TypeError:
+                return []
         elif query_type == 'none':
             assert zc.catalog.interfaces.IExtent.providedBy(query)
             res = query - self.family.IF.Set(self.ids())
@@ -324,8 +327,11 @@ class SetIndex(AbstractIndex):
         elif query_type == 'any_of':
             res = self.family.IF.Bucket()
             for v in query:
-                _, res = self.family.IF.weightedUnion(
-                    res, values_to_documents.get(v))
+                try:
+                    _, res = self.family.IF.weightedUnion(
+                        res, values_to_documents.get(v))
+                except TypeError:
+                    continue
         elif query_type == 'any':
             if query is None:
                 res = self.family.IF.Set(self.ids())
@@ -340,18 +346,27 @@ class SetIndex(AbstractIndex):
                 res = values_to_documents.get(next(values), empty)
             except StopIteration:
                 res = empty
+            except TypeError:
+                return []
+
             while res:
                 try:
                     v = next(values)
                 except StopIteration:
                     break
-                res = self.family.IF.intersection(
-                    res, values_to_documents.get(v, empty))
+                try:
+                    res = self.family.IF.intersection(
+                        res, values_to_documents.get(v, empty))
+                except TypeError:
+                    return []
         elif query_type == 'between':
             res = self.family.IF.Bucket()
-            for v in values_to_documents.keys(*query):
-                _, res = self.family.IF.weightedUnion(
-                    res, values_to_documents.get(v))
+            try:
+                for v in values_to_documents.keys(*query):
+                    _, res = self.family.IF.weightedUnion(
+                        res, values_to_documents.get(v))
+            except TypeError:
+                return []
         elif query_type == 'none':
             assert zc.catalog.interfaces.IExtent.providedBy(query)
             res = query - self.family.IF.Set(self.ids())

@@ -6,7 +6,7 @@
 ==================
 
 - Add support for Python 3.4, 3.5, 3.6 and PyPy. Note that the
-  ``zopyx.txng3.ext`` stemmer is not available on Python 3.4 or PyPy.
+  ``zopyx.txng3.ext`` stemmer is not available on Python 3.
 
 - Remove test dependency on zope.app.zcmlfiles and zope.app.testing,
   among others.

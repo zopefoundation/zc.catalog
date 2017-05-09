@@ -72,14 +72,21 @@ The index supports five types of query.  The first is 'any_of'.  It
 takes an iterable of values, and returns an iterable of document ids that
 contain any of the values.  The results are weighted.
 
-    >>> list(index.apply({'any_of':('b', '1', '5')}))
+    >>> list(index.apply({'any_of': ('b', '1', '5')}))
     [1, 2, 3, 4, 6, 8]
     >>> list(index.apply({'any_of': ('b', '1', '5')}))
     [1, 2, 3, 4, 6, 8]
-    >>> list(index.apply({'any_of':('42',)}))
+    >>> list(index.apply({'any_of': ('42',)}))
     []
     >>> index.apply({'any_of': ('a', '3', '7')})              # doctest: +ELLIPSIS
     BTrees...FBucket([(1, 1.0), (2, 3.0), (5, 1.0), (6, 1.0), (9, 2.0)])
+
+Using an invalid (non-comparable on Python 3) argument is ignored:
+
+    >>> list(index.apply({'any_of': (1,)}))
+    []
+    >>> list(index.apply({'any_of': (1, '1')}))
+    [1, 3, 4, 8]
 
 Another query is 'any'. If the key is None, all indexed document ids with any
 values are returned.  If the key is an extent, the intersection of the extent
@@ -111,6 +118,10 @@ weighted.
     [1, 2, 9]
     >>> list(index.apply({'all_of': ('3', '4')}))
     [2, 9]
+    >>> list(index.apply({'all_of': (3, '4')}))
+    []
+    >>> list(index.apply({'all_of': ('3', 4)}))
+    []
 
 These tests illustrate two related reported errors that have been fixed.
 
@@ -137,6 +148,12 @@ defaults to False.  The results are weighted.
     >>> index.apply({'between': ('2', '6')})               # doctest: +ELLIPSIS
     BTrees...FBucket([(2, 2.0), (4, 1.0), (6, 2.0), (8, 1.0), (9, 4.0)])
 
+Using invalid (non-comparable on Python 3) arguments produces no results:
+
+    >>> list(index.apply({'between': (1, 7)}))
+    []
+
+
 The 'none' argument takes an extent and returns the ids in the extent
 that are not indexed; it is intended to be used to return docids that have
 no (or empty) values.
@@ -158,7 +175,7 @@ Using none of them simply returns None.
 
 Invalid query names cause ValueErrors.
 
-    >>> index.apply({'foo':()})
+    >>> index.apply({'foo': ()})
     ... # doctest: +ELLIPSIS
     Traceback (most recent call last):
     ...

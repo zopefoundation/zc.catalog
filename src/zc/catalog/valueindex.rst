@@ -71,13 +71,13 @@ The index supports four types of query.  The first is 'any_of'.  It
 takes an iterable of values, and returns an iterable of document ids that
 contain any of the values.  The results are not weighted.
 
-    >>> list(index.apply({'any_of':('b', 'c')}))
+    >>> list(index.apply({'any_of': ('b', 'c')}))
     [2, 4, 6, 7, 8, 9]
     >>> list(index.apply({'any_of': ('b',)}))
     [2, 8]
     >>> list(index.apply({'any_of': ('d',)}))
     [5]
-    >>> bool(index.apply({'any_of':(42,)}))
+    >>> bool(index.apply({'any_of': (42,)}))
     False
 
 Another query is 'any', If the key is None, all indexed document ids with any
@@ -117,6 +117,12 @@ defaults to False.  The results are not weighted.
     >>> list(index.apply({'between': ('b', 'd', True, True)}))
     [4, 6, 7, 9]
 
+Using an invalid (non-comparable on Python 3) argument to between produces
+nothing:
+
+    >>> list(index.apply({'between': (1, 5)}))
+    []
+
 The 'none' argument takes an extent and returns the ids in the extent
 that are not indexed; it is intended to be used to return docids that have
 no (or empty) values.
@@ -138,7 +144,7 @@ Using none of them simply returns None.
 
 Invalid query names cause ValueErrors.
 
-    >>> index.apply({'foo':()})
+    >>> index.apply({'foo': ()})
     ... # doctest: +ELLIPSIS
     Traceback (most recent call last):
     ...
