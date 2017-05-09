@@ -1,6 +1,6 @@
-================
-Normalized Index
-================
+==================
+ Normalized Index
+==================
 
 The index module provides a normalizing wrapper, a DateTime normalizer, and
 a set index and a value index normalized with the DateTime normalizer.
@@ -196,17 +196,17 @@ Now let's examine these normalizers in the context of a real index.
     >>> count = 0
     >>> while True:
     ...     try:
-    ...         next = [gen.next() for i in range(6)]
+    ...         next_ = [next(gen) for i in range(6)]
     ...     except StopIteration:
     ...         break
-    ...     data.append((count, next[0:1]))
+    ...     data.append((count, next_[0:1]))
     ...     count += 1
-    ...     data.append((count, next[1:3]))
+    ...     data.append((count, next_[1:3]))
     ...     count += 1
-    ...     data.append((count, next[3:6]))
+    ...     data.append((count, next_[3:6]))
     ...     count += 1
     ...
-    >>> print data # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+    >>> print(data) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
     [(0,
       [datetime.datetime(2005, 7, 15, 11, 21, 32, 104, ...<...Eastern...>)]),
      (1,
@@ -324,7 +324,7 @@ Value, Minvalue and Maxvalue can take timezone-less datetimes and dates.
     >>> zope.security.management.endInteraction() # TODO put in tests tearDown
 
 Sorting
--------
+=======
 
 The normalization wrapper provides the zope.index.interfaces.IIndexSort
 interface if its upstream index provides it. For example, the
@@ -339,7 +339,7 @@ sorting. It will also delegate the ``sort`` method to the value index.
     True
     >>> IIndexSort.providedBy(ix)
     True
-    >>> ix.sort.im_self is ix.index
+    >>> ix.sort.__self__ is ix.index
     True
 
 But it won't work for indexes that doesn't do sorting, for example
@@ -354,4 +354,3 @@ DateTimeSetIndex.
     Traceback (most recent call last):
     ...
     AttributeError: 'SetIndex' object has no attribute 'sort'
-   

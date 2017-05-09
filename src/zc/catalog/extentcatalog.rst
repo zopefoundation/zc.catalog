@@ -1,6 +1,6 @@
-==============
-Extent Catalog
-==============
+================
+ Extent Catalog
+================
 
 An extent catalog is very similar to a normal catalog except that it
 only indexes items addable to its extent.  The extent is both a filter
@@ -36,7 +36,7 @@ We create the state that the text needs here.
     ...     else:
     ...         try:
     ...             return zope.component.interfaces.IComponentLookup(context)
-    ...         except TypeError, error:
+    ...         except TypeError as error:
     ...             raise zope.component.ComponentLookupError(*error.args)
     ...
     >>> def setSiteManager(sm):
@@ -87,8 +87,8 @@ real intid utility.
     >>> TreeSet = btrees_family.IF.TreeSet
 
     >>> from zope.container.interfaces import IContained
-    >>> class DummyIndex(persistent.Persistent):
-    ...     interface.implements(IContained)
+    >>> @interface.implementer(IContained)
+    ... class DummyIndex(persistent.Persistent):
     ...     __parent__ = __name__ = None
     ...     def __init__(self):
     ...         self.uids = TreeSet()
@@ -200,8 +200,7 @@ weighted.
     ...     extent.add(i, None)
     ...
     >>> alt_set = TreeSet()
-    >>> alt_set.update(range(0, 166, 33)) # return value is unimportant here
-    6
+    >>> _ = alt_set.update(range(0, 166, 33)) # return value is unimportant here
     >>> sorted(alt_set)
     [0, 33, 66, 99, 132, 165]
     >>> sorted(extent & alt_set)
@@ -332,7 +331,7 @@ Unregister the objects of the previous tests from intid utility:
 
 
 Catalog with a filter extent
-----------------------------
+============================
 
 As discussed at the beginning of this document, extents can not only help
 with index operations, but also act as a filter, so that a given catalog
@@ -447,7 +446,7 @@ it is removed from all indexes.
 
 
 Self-populating extents
------------------------
+=======================
 
 An extent may know how to populate itself; this is especially useful if
 the catalog can be initialized with fewer items than those available in

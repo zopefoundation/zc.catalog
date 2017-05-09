@@ -13,7 +13,7 @@
 ##############################################################################
 """glob all terms at the end.
 
-$Id: globber.py 2918 2005-07-19 22:12:38Z jim $
+
 """
 from zope.index.text import queryparser, parsetree
 
@@ -36,5 +36,3 @@ def glob(query, lexicon): # lexicon is index.lexicon
         return None
     if tree is not None:
         return reconstitute[tree.nodeType()](tree)
-    else:
-        return None
