@@ -51,7 +51,7 @@ tests_require = [
 ]
 
 setup(name='zc.catalog',
-      version='2.0.0.dev0',
+      version='2.0.0',
       author='Zope Corporation and Contributors',
       author_email='zope-dev@zope.org',
       description="Extensions to the Zope 3 Catalog",

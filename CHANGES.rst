@@ -2,7 +2,7 @@
  CHANGES
 =========
 
-2.0.0 (unreleased)
+2.0.0 (2017-05-09)
 ==================
 
 - Add support for Python 3.4, 3.5, 3.6 and PyPy. Note that the
