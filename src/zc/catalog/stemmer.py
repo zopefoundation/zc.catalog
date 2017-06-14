@@ -18,7 +18,7 @@ import re
 broken = None
 try:
     from zopyx.txng3.ext import stemmer
-except ImportError:
+except ImportError: # pragma: no cover
     try:
         from zopyx.txng3 import stemmer
     except ImportError:
@@ -26,7 +26,7 @@ except ImportError:
             import txngstemmer as stemmer
         except ImportError:
             stemmer = None
-            class Broken:
+            class Broken(object):
                 def stem(self, l):
                     return l
             broken = Broken()
@@ -56,7 +56,7 @@ class Stemmer(object):
         result = []
         for s in lst:
             try:
-                s = s.decode('utf-8')
+                s = s.decode('utf-8') if isinstance(s, bytes) else s
             except UnicodeDecodeError: # pragma: no cover
                 pass
             else:
@@ -71,7 +71,7 @@ class Stemmer(object):
         for s in lst:
             if not rxGlob.search(s):
                 try:
-                    s = s.decode('utf-8')
+                    s = s.decode('utf-8') if isinstance(s, bytes) else s
                 except UnicodeDecodeError: # pragma: no cover
                     pass
                 else:
