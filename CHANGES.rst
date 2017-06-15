@@ -5,7 +5,8 @@
 2.0.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Add Python 3 compatibility for the ``zopyx.txng3.ext`` stemmer.
+  See https://github.com/zopefoundation/zc.catalog/issues/4.
 
 
 2.0.0 (2017-05-09)

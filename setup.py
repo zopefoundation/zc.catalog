@@ -21,6 +21,10 @@ def read(*rnames):
     with open(os.path.join(os.path.dirname('.'), *rnames)) as f:
         return f.read()
 
+stemmer_requires = [
+    'zopyx.txng3.ext >= 2.0.0',
+]
+
 tests_require = [
     'ZODB',
     'zope.annotation',
@@ -48,7 +52,7 @@ tests_require = [
     'zope.testbrowser >= 5.2',
     'zope.testing',
     'zope.testrunner',
-]
+] + stemmer_requires
 
 setup(name='zc.catalog',
       version='2.0.1.dev0',
@@ -109,14 +113,7 @@ setup(name='zc.catalog',
               'zope.app.form',
               'zope.browsermenu',
           ],
-          'stemmer:python_version=="2.7"': [
-              # This is only available on Python 2. It compiles
-              # and runs under both CPython and PyPy.
-              'zopyx.txng3.ext',
-          ],
-          'stemmer:python_version >= "3.3"': [
-
-          ],
+          'stemmer': stemmer_requires,
       },
       tests_require=tests_require,
       install_requires=[
