@@ -2,7 +2,7 @@
  CHANGES
 =========
 
-2.0.1 (unreleased)
+2.0.1 (2017-06-15)
 ==================
 
 - Add Python 3 compatibility for the ``zopyx.txng3.ext`` stemmer.
