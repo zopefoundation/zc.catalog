@@ -5,7 +5,7 @@
 2.0.2 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Add support for Python 3.7 and PyPy3.
 
 
 2.0.1 (2017-06-15)
