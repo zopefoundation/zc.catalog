@@ -305,9 +305,11 @@ class INormalizer(interface.Interface):
         """normalize a query value for maximum of a range; return the value for
         query"""
 
-resolution_vocabulary = SimpleVocabulary([SimpleTerm(i, t, t) for i, t in enumerate(
-    (_('day'), _('hour'), _('minute'), _('second'), _('microsecond')))])
-    #  0         1          2            3            4
+
+resolution_vocabulary = SimpleVocabulary(
+    [SimpleTerm(i, t, t) for i, t in enumerate(
+        (_('day'), _('hour'), _('minute'), _('second'), _('microsecond')))])
+        #  0         1          2            3            4   # noqa: E116
 
 
 class IDateTimeNormalizer(INormalizer):
