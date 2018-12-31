@@ -14,16 +14,13 @@
 """indexes, as might be found in zope.index
 
 """
-import sys
 import datetime
 import pytz.reference
 import BTrees
 import persistent
 from BTrees import Length
-from BTrees.Interfaces import IMerge
 
-from zope import component, interface
-import zope.component.interfaces
+from zope import interface
 import zope.interface.common.idatetime
 import zope.index.interfaces
 from zope.index.field.sorting import SortingIndexMixin
@@ -50,9 +47,11 @@ class FamilyProperty(object):
                 d["family"] = BTrees.family32
             elif iftype == "LF":
                 d["family"] = BTrees.family64
-            else: # pragma: no cover
-                raise ValueError("can't determine btree family based on"
-                                 " btreemodule of %r" % (iftype,))
+            else:  # pragma: no cover
+                raise ValueError(
+                    "can't determine btree family based on"
+                    " btreemodule of %r" % (iftype,)
+                )
         else:
             d["family"] = BTrees.family32
         self._clear_old_cruft(instance)
@@ -82,7 +81,6 @@ class FamilyProperty(object):
             del d["BTreeAPI"]
 
 
-
 @interface.implementer(
     zope.index.interfaces.IInjection,
     zope.index.interfaces.IIndexSearch,
@@ -90,7 +88,6 @@ class FamilyProperty(object):
     zc.catalog.interfaces.IIndexValues,
 )
 class AbstractIndex(persistent.Persistent):
-
 
     family = FamilyProperty()
 
@@ -132,11 +129,18 @@ class AbstractIndex(persistent.Persistent):
         else:
             return self.values_to_documents.maxKey(max)
 
-    def values(self, min=None, max=None, excludemin=False, excludemax=False,
-               doc_id=None):
+    def values(
+        self,
+        min=None,
+        max=None,
+        excludemin=False,
+        excludemax=False,
+        doc_id=None,
+    ):
         if doc_id is None:
-            return iter(self.values_to_documents.keys(
-                min, max, excludemin, excludemax))
+            return iter(
+                self.values_to_documents.keys(min, max, excludemin, excludemax)
+            )
         else:
             values = self.documents_to_values.get(doc_id)
             if values is None:
@@ -146,20 +150,20 @@ class AbstractIndex(persistent.Persistent):
 
     def containsValue(self, value):
         try:
-            return bool(self.values_to_documents.has_key(value))
+            return bool(value in self.values_to_documents)
         except TypeError:
             return False
 
     def ids(self):
         return self.documents_to_values.keys()
 
+
 def parseQuery(query):
-    if not isinstance(query, dict): # pragma: no cover
-        raise ValueError('may only pass a dict to apply')
+    if not isinstance(query, dict):  # pragma: no cover
+        raise ValueError("may only pass a dict to apply")
 
     if len(query) > 1:
-        raise ValueError(
-            'may only pass one of key, value pair')
+        raise ValueError("may only pass one of key, value pair")
     elif not query:
         return None, None
     query_type, query = list(query.items())[0]
@@ -170,11 +174,10 @@ def parseQuery(query):
 @interface.implementer(zc.catalog.interfaces.IValueIndex)
 class ValueIndex(SortingIndexMixin, AbstractIndex):
 
-
     # attributes used by sorting mixin
-    _sorting_num_docs_attr = 'documentCount'        # Length object
-    _sorting_fwd_index_attr = 'values_to_documents' # forward BTree index
-    _sorting_rev_index_attr = 'documents_to_values' # reverse BTree index
+    _sorting_num_docs_attr = "documentCount"  # Length object
+    _sorting_fwd_index_attr = "values_to_documents"  # forward BTree index
+    _sorting_rev_index_attr = "documents_to_values"  # reverse BTree index
 
     def _add_value(self, doc_id, added):
         values_to_documents = self.values_to_documents
@@ -216,52 +219,70 @@ class ValueIndex(SortingIndexMixin, AbstractIndex):
                 del values_to_documents[value]
                 self.wordCount.change(-1)
 
-    def apply(self, query): # any_of, any, between, none,
+    def apply(self, query):  # any_of, any, between, none,
         values_to_documents = self.values_to_documents
         query_type, query = parseQuery(query)
         if query_type is None:
             res = None
-        elif query_type == 'any_of':
+        elif query_type == "any_of":
             try:
                 res = self.family.IF.multiunion(
-                    [s for s in (values_to_documents.get(v) for v in query)
-                     if s is not None])
+                    [
+                        s
+                        for s in (values_to_documents.get(v) for v in query)
+                        if s is not None
+                    ]
+                )
             except TypeError:
                 return []
-        elif query_type == 'any':
+        elif query_type == "any":
             if query is None:
                 res = self.family.IF.Set(self.ids())
             else:
                 assert zc.catalog.interfaces.IExtent.providedBy(query)
                 res = query & self.family.IF.Set(self.ids())
-        elif query_type == 'between':
+        elif query_type == "between":
             try:
                 res = self.family.IF.multiunion(
-                    [s for s in (values_to_documents.get(v) for v in
-                                 values_to_documents.keys(*query))
-                     if s is not None])
+                    [
+                        s
+                        for s in (
+                            values_to_documents.get(v)
+                            for v in values_to_documents.keys(*query)
+                        )
+                        if s is not None
+                    ]
+                )
             except TypeError:
                 return []
-        elif query_type == 'none':
+        elif query_type == "none":
             assert zc.catalog.interfaces.IExtent.providedBy(query)
             res = query - self.family.IF.Set(self.ids())
         else:
-            raise ValueError(
-                "unknown query type", query_type)
+            raise ValueError("unknown query type", query_type)
         return res
 
-    def values(self, min=None, max=None, excludemin=False, excludemax=False,
-               doc_id=None):
+    def values(
+        self,
+        min=None,
+        max=None,
+        excludemin=False,
+        excludemax=False,
+        doc_id=None,
+    ):
         if doc_id is None:
-            return iter(self.values_to_documents.keys(
-                min, max, excludemin, excludemax))
+            return iter(
+                self.values_to_documents.keys(min, max, excludemin, excludemax)
+            )
         else:
             value = self.documents_to_values.get(doc_id)
-            if (value is None or
-                min is not None and (
-                    value < min or excludemin and value == min) or
-                max is not None and (
-                    value > max or excludemax and value == max)):
+            if (
+                value is None
+                or min is not None
+                and (value < min or excludemin and value == min)
+                or max is not None
+                and (value > max or excludemax and value == max)
+            ):
                 return ()
             else:
                 return (value,)
@@ -269,7 +290,6 @@ class ValueIndex(SortingIndexMixin, AbstractIndex):
 
 @interface.implementer(zc.catalog.interfaces.ISetIndex)
 class SetIndex(AbstractIndex):
-
     def _add_values(self, doc_id, added):
         values_to_documents = self.values_to_documents
         for v in added:
@@ -319,26 +339,27 @@ class SetIndex(AbstractIndex):
                     del values_to_documents[v]
                     self.wordCount.change(-1)
 
-    def apply(self, query): # any_of, any, between, none, all_of
+    def apply(self, query):  # any_of, any, between, none, all_of
         values_to_documents = self.values_to_documents
         query_type, query = parseQuery(query)
         if query_type is None:
             res = None
-        elif query_type == 'any_of':
+        elif query_type == "any_of":
             res = self.family.IF.Bucket()
             for v in query:
                 try:
                     _, res = self.family.IF.weightedUnion(
-                        res, values_to_documents.get(v))
+                        res, values_to_documents.get(v)
+                    )
                 except TypeError:
                     continue
-        elif query_type == 'any':
+        elif query_type == "any":
             if query is None:
                 res = self.family.IF.Set(self.ids())
             else:
                 assert zc.catalog.interfaces.IExtent.providedBy(query)
                 res = query & self.family.IF.Set(self.ids())
-        elif query_type == 'all_of':
+        elif query_type == "all_of":
             res = None
             values = iter(query)
             empty = self.family.IF.TreeSet()
@@ -356,23 +377,24 @@ class SetIndex(AbstractIndex):
                     break
                 try:
                     res = self.family.IF.intersection(
-                        res, values_to_documents.get(v, empty))
+                        res, values_to_documents.get(v, empty)
+                    )
                 except TypeError:
                     return []
-        elif query_type == 'between':
+        elif query_type == "between":
             res = self.family.IF.Bucket()
             try:
                 for v in values_to_documents.keys(*query):
                     _, res = self.family.IF.weightedUnion(
-                        res, values_to_documents.get(v))
+                        res, values_to_documents.get(v)
+                    )
             except TypeError:
                 return []
-        elif query_type == 'none':
+        elif query_type == "none":
             assert zc.catalog.interfaces.IExtent.providedBy(query)
             res = query - self.family.IF.Set(self.ids())
         else:
-            raise ValueError(
-                "unknown query type", query_type)
+            raise ValueError("unknown query type", query_type)
         return res
 
 
@@ -402,7 +424,8 @@ class NormalizationWrapper(persistent.Persistent):
     def index_doc(self, doc_id, value):
         if self.collection_index:
             self.index.index_doc(
-                doc_id, (self.normalizer.value(v) for v in value))
+                doc_id, (self.normalizer.value(v) for v in value)
+            )
         else:
             self.index.index_doc(doc_id, self.normalizer.value(value))
 
@@ -411,21 +434,29 @@ class NormalizationWrapper(persistent.Persistent):
 
     def apply(self, query):
         query_type, query = parseQuery(query)
-        if query_type == 'any_of':
+        if query_type == "any_of":
             res = set()
             for v in query:
                 res.update(self.normalizer.any(v, self.index))
-        elif query_type == 'all_of':
+        elif query_type == "all_of":
             res = [self.normalizer.all(v, self.index) for v in query]
-        elif query_type == 'between':
-            query = tuple(query) # collect iterators
+        elif query_type == "between":
+            query = tuple(query)  # collect iterators
             len_query = len(query)
             max_exclude = len_query >= 4 and bool(query[3])
             min_exclude = len_query >= 3 and bool(query[2])
-            max = len_query >= 2 and query[1] and self.normalizer.maximum(
-                query[1], self.index, max_exclude) or None
-            min = len_query >= 1 and query[0] and self.normalizer.minimum(
-                query[0], self.index, min_exclude) or None
+            max = (
+                len_query >= 2
+                and query[1]
+                and self.normalizer.maximum(query[1], self.index, max_exclude)
+                or None
+            )
+            min = (
+                len_query >= 1
+                and query[0]
+                and self.normalizer.minimum(query[0], self.index, min_exclude)
+                or None
+            )
             res = (min, max, min_exclude, max_exclude)
         else:
             res = query
@@ -441,14 +472,21 @@ class NormalizationWrapper(persistent.Persistent):
             max = self.normalizer.maximum(max, self.index)
         return self.index.maxValue(max)
 
-    def values(self, min=None, max=None, excludemin=False, excludemax=False,
-               doc_id=None):
+    def values(
+        self,
+        min=None,
+        max=None,
+        excludemin=False,
+        excludemax=False,
+        doc_id=None,
+    ):
         if min is not None:
             min = self.normalizer.minimum(min, self.index)
         if max is not None:
             max = self.normalizer.maximum(max, self.index)
-        return self.index.values(min, max, excludemin, excludemax,
-                doc_id=doc_id)
+        return self.index.values(
+            min, max, excludemin, excludemax, doc_id=doc_id
+        )
 
     def containsValue(self, value):
         return self.index.containsValue(value)
@@ -484,11 +522,12 @@ def set_resolution(value, resolution):
     resolution += 2
     if resolution < 6:
         args = []
-        args.extend(value.timetuple()[:resolution+1])
-        args.extend([0]*(6-resolution))
+        args.extend(value.timetuple()[: resolution + 1])
+        args.extend([0] * (6 - resolution))
         args.append(value.tzinfo)
         value = datetime.datetime(*args)
     return value
+
 
 def get_request():
     i = zope.security.management.queryInteraction()
@@ -498,11 +537,13 @@ def get_request():
                 return p
     return None
 
+
 def get_tz(default=pytz.reference.Local):
     request = get_request()
     if request is None:
         return default
     return zope.interface.common.idatetime.ITZInfo(request, default)
+
 
 def add_tz(value):
     if type(value) is datetime.datetime:
@@ -512,21 +553,21 @@ def add_tz(value):
     else:
         raise ValueError(value)
 
+
 def day_end(value):
     return (
-        datetime.datetime.combine(
-            value, datetime.time(tzinfo=get_tz())) +
-        datetime.timedelta(days=1) - # separate for daylight savings
-        datetime.timedelta(microseconds=1))
+        datetime.datetime.combine(value, datetime.time(tzinfo=get_tz()))
+        + datetime.timedelta(days=1)
+        - datetime.timedelta(microseconds=1)  # separate for daylight savings
+    )
+
 
 def day_begin(value):
-    return datetime.datetime.combine(
-        value, datetime.time(tzinfo=get_tz()))
+    return datetime.datetime.combine(value, datetime.time(tzinfo=get_tz()))
 
 
 @interface.implementer(zc.catalog.interfaces.IDateTimeNormalizer)
 class DateTimeNormalizer(persistent.Persistent):
-
     def __init__(self, resolution=2):
         self.resolution = resolution
         # 0, 1, 2, 3, 4
@@ -535,13 +576,15 @@ class DateTimeNormalizer(persistent.Persistent):
     def value(self, value):
         if not isinstance(value, datetime.datetime) or value.tzinfo is None:
             raise ValueError(
-                _('This index only indexes timezone-aware datetimes.'))
+                _("This index only indexes timezone-aware datetimes.")
+            )
         return set_resolution(value, self.resolution)
 
     def any(self, value, index):
         if type(value) is datetime.date:
             start = datetime.datetime.combine(
-                value, datetime.time(tzinfo=get_tz()))
+                value, datetime.time(tzinfo=get_tz())
+            )
             stop = start + datetime.timedelta(days=1)
             return index.values(start, stop, False, True)
         return (add_tz(value),)
@@ -565,20 +608,24 @@ class DateTimeNormalizer(persistent.Persistent):
                 return day_end(value)
         return add_tz(value)
 
+
 @interface.implementer(
     zope.interface.implementedBy(NormalizationWrapper),
     zope.index.interfaces.IIndexSort,
-    zc.catalog.interfaces.IValueIndex)
-def DateTimeValueIndex(resolution=2): # 2 == minute; note that hour is good
+    zc.catalog.interfaces.IValueIndex,
+)
+def DateTimeValueIndex(resolution=2):  # 2 == minute; note that hour is good
     # for timezone-aware per-day searches
     ix = NormalizationWrapper(ValueIndex(), DateTimeNormalizer(resolution))
     interface.alsoProvides(ix, zc.catalog.interfaces.IValueIndex)
     return ix
 
+
 @interface.implementer(
     zope.interface.implementedBy(NormalizationWrapper),
-    zc.catalog.interfaces.ISetIndex)
-def DateTimeSetIndex(resolution=2): # 2 == minute; note that hour is good
+    zc.catalog.interfaces.ISetIndex,
+)
+def DateTimeSetIndex(resolution=2):  # 2 == minute; note that hour is good
     # for timezone-aware per-day searches
     ix = NormalizationWrapper(SetIndex(), DateTimeNormalizer(resolution), True)
     interface.alsoProvides(ix, zc.catalog.interfaces.ISetIndex)

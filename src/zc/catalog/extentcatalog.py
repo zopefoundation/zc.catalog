@@ -18,15 +18,12 @@
 import sys
 import BTrees
 import persistent
-from zope import interface, component
+from zope import interface
 from zope.catalog import catalog
 from zope.intid.interfaces import IIntIds
 
 import zope.component
-from zope.component.interfaces import IFactory
-from BTrees.Interfaces import IMerge
 
-import zc.catalog
 from zc.catalog import interfaces
 
 
@@ -63,7 +60,8 @@ class Extent(persistent.Persistent):
 
     def union(self, other, self_weight=1, other_weight=1):
         return self.family.IF.weightedUnion(
-            self.set, other, self_weight, other_weight)[1]
+            self.set, other, self_weight, other_weight
+        )[1]
 
     def __and__(self, other):
         "extent & set"
@@ -73,7 +71,8 @@ class Extent(persistent.Persistent):
 
     def intersection(self, other, self_weight=1, other_weight=1):
         return self.family.IF.weightedIntersection(
-            self.set, other, self_weight, other_weight)[1]
+            self.set, other, self_weight, other_weight
+        )[1]
 
     def __sub__(self, other):
         "extent - set"
@@ -98,7 +97,7 @@ class Extent(persistent.Persistent):
     __bool__ = __nonzero__
 
     def __contains__(self, uid):
-        return self.set.has_key(uid)
+        return uid in self.set
 
     def remove(self, uid):
         self.set.remove(uid)
@@ -112,7 +111,6 @@ class Extent(persistent.Persistent):
 
 @interface.implementer(interfaces.IFilterExtent)
 class FilterExtent(Extent):
-
     def __init__(self, filter, family=None):
         super(FilterExtent, self).__init__(family=family)
         self.filter = filter
@@ -134,7 +132,6 @@ class NonPopulatingExtent(Extent):
     This simple, no-op implementation comes in handy surprisingly often
     for catalogs that handle a very contained domain within an application.
     """
-
 
     populated = False
 
@@ -158,11 +155,11 @@ class Catalog(catalog.Catalog):
 
         self.UIDSource = UIDSource
 
-        if extent.__parent__ is not None: # pragma: no cover
+        if extent.__parent__ is not None:  # pragma: no cover
             raise ValueError("extent's __parent__ must be None")
         super(Catalog, self).__init__(family=extent.family)
         self.extent = extent
-        extent.__parent__ = self # inform extent of catalog
+        extent.__parent__ = self  # inform extent of catalog
 
     def _getUIDSource(self):
         res = self.UIDSource

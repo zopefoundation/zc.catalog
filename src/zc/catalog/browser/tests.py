@@ -15,7 +15,6 @@
 
 """
 import doctest
-import unittest
 import transaction
 import zope.intid
 import zope.intid.interfaces
@@ -29,39 +28,38 @@ from zope.testbrowser.wsgi import TestBrowserLayer
 
 import zc.catalog.browser
 
-class _ZcCatalogLayer(TestBrowserLayer,
-                      BrowserLayer):
+
+class _ZcCatalogLayer(TestBrowserLayer, BrowserLayer):
     pass
+
 
 ZcCatalogLayer = _ZcCatalogLayer(zc.catalog.browser)
 
 
 @zope.component.adapter(IDatabaseOpenedWithRoot)
 def initializeIntIds(event):
-        _db, connection, _root, root_folder = (
-            zope.app.appsetup.bootstrap.getInformationFromEvent(event))
-        sm = root_folder.getSiteManager()
-        if 'test-int-ids' not in sm['default']:
-            intids = zope.intid.IntIds()
+    _db, connection, _root, root_folder = (
+        zope.app.appsetup.bootstrap.getInformationFromEvent(event))
+    sm = root_folder.getSiteManager()
+    if "test-int-ids" not in sm["default"]:
+        intids = zope.intid.IntIds()
 
-            sm["default"]["test-int-ids"] = intids
-            sm.registerUtility(
-                intids,
-                zope.intid.interfaces.IIntIds)
-            transaction.commit()
-        connection.close()
+        sm["default"]["test-int-ids"] = intids
+        sm.registerUtility(intids, zope.intid.interfaces.IIntIds)
+        transaction.commit()
+    connection.close()
+
 
 def test_suite():
     suite = doctest.DocFileSuite(
         "README.rst",
-        optionflags=doctest.ELLIPSIS|doctest.NORMALIZE_WHITESPACE)
+        optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,
+    )
     suite.layer = ZcCatalogLayer
     return suite
+
 
 class LoginLogout(object):
     # dummy to avoid dep on zope.app.security
     def __call__(self):
         return
-
-if __name__ == '__main__':
-    unittest.main(defaultTest="test_suite")

@@ -15,10 +15,11 @@
 
 """
 import re
+
 broken = None
 try:
     from zopyx.txng3.ext import stemmer
-except ImportError: # pragma: no cover
+except ImportError:  # pragma: no cover
     try:
         from zopyx.txng3 import stemmer
     except ImportError:
@@ -26,9 +27,11 @@ except ImportError: # pragma: no cover
             import txngstemmer as stemmer
         except ImportError:
             stemmer = None
+
             class Broken(object):
                 def stem(self, l):
                     return l
+
             broken = Broken()
 
 # as of this writing, trying to persist a txngstemmer.Stemmer makes the python
@@ -37,9 +40,9 @@ except ImportError: # pragma: no cover
 # 2010-03-09 While Stemmer still isn't pickleable, zopyx.txng3.ext 3.3.2 fixes
 # the crashes.
 
-class Stemmer(object):
 
-    def __init__(self, language='english'):
+class Stemmer(object):
+    def __init__(self, language="english"):
         self.language = language
 
     @property
@@ -48,7 +51,7 @@ class Stemmer(object):
             return broken
         return stemmer.Stemmer(self.language)
 
-    rxGlob = re.compile(r"[*?]") # See globToWordIds() in
+    rxGlob = re.compile(r"[*?]")  # See globToWordIds() in
     # zope/index/text/lexicon.py
 
     def process(self, lst):
@@ -56,8 +59,8 @@ class Stemmer(object):
         result = []
         for s in lst:
             try:
-                s = s.decode('utf-8') if isinstance(s, bytes) else s
-            except UnicodeDecodeError: # pragma: no cover
+                s = s.decode("utf-8") if isinstance(s, bytes) else s
+            except UnicodeDecodeError:  # pragma: no cover
                 pass
             else:
                 s = stemmer.stem((s,))[0]
@@ -71,8 +74,8 @@ class Stemmer(object):
         for s in lst:
             if not rxGlob.search(s):
                 try:
-                    s = s.decode('utf-8') if isinstance(s, bytes) else s
-                except UnicodeDecodeError: # pragma: no cover
+                    s = s.decode("utf-8") if isinstance(s, bytes) else s
+                except UnicodeDecodeError:  # pragma: no cover
                     pass
                 else:
                     s = stemmer.stem((s,))[0]

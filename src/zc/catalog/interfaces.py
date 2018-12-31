@@ -20,7 +20,6 @@ from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 import zope.index.interfaces
 import zope.catalog.interfaces
 from zc.catalog.i18n import _
-import BTrees.Interfaces
 
 
 class IExtent(interface.Interface):
@@ -30,7 +29,8 @@ class IExtent(interface.Interface):
 
     __parent__ = interface.Attribute(
         """The catalog for which this is an extent; must be None before it is
-        set to a catalog""")
+        set to a catalog"""
+    )
 
     def add(uid, obj):
         """add uid to extent; raise ValueError if it is not addable.
@@ -96,7 +96,8 @@ class IFilterExtent(IExtent):
     filter = interface.Attribute(
         """A (persistent) callable that is passed the extent, a docid, and the
         associated obj and should return a boolean True (is member of extent)
-        or False (is not member of extent).""")
+        or False (is not member of extent)."""
+    )
 
     def addable(uid, obj):
         """returns True or False, indicating whether the obj may be added to
@@ -109,9 +110,10 @@ class ISelfPopulatingExtent(IExtent):
     populated = schema.Bool(
         title=_("Populated"),
         description=_(
-            "Flag indicating whether self-population has been performed."),
+            "Flag indicating whether self-population has been performed."
+        ),
         readonly=True,
-        )
+    )
 
     def populate():
         """Populate the extent based on the current content of the database.
@@ -130,8 +132,7 @@ class IExtentCatalog(interface.Interface):
 
     Interface intended to be used with zope.catalog.interfaces.ICatalog"""
 
-    extent = interface.Attribute(
-        """An IExtent of the objects cataloged""")
+    extent = interface.Attribute("""An IExtent of the objects cataloged""")
 
 
 class IIndexValues(interface.Interface):
@@ -154,8 +155,9 @@ class IIndexValues(interface.Interface):
         Raises ValueError if no max.
         """
 
-    def values(min=None, max=None, excludemin=False, excludemax=False,
-               doc_id=None):
+    def values(
+        min=None, max=None, excludemin=False, excludemax=False, doc_id=None
+    ):
         """return an iterables of the values in the index.
 
         if doc_id is provided, returns the values only for that document id.
@@ -185,7 +187,6 @@ class IIndexValues(interface.Interface):
 
 
 class ISetIndex(interface.Interface):
-
     def apply(query):
         """Return None or an IFBTree Set of the doc ids that match the query.
 
@@ -217,7 +218,6 @@ class ISetIndex(interface.Interface):
 
 
 class IValueIndex(interface.Interface):
-
     def apply(query):
         """Return None or an IFBTree Set of the doc ids that match the query.
 
@@ -245,39 +245,46 @@ class IValueIndex(interface.Interface):
         """
 
 
-class ICatalogValueIndex(zope.catalog.interfaces.IAttributeIndex,
-                         zope.catalog.interfaces.ICatalogIndex):
+class ICatalogValueIndex(
+    zope.catalog.interfaces.IAttributeIndex,
+    zope.catalog.interfaces.ICatalogIndex,
+):
     """Interface-based catalog value index
     """
 
 
-class ICatalogSetIndex(zope.catalog.interfaces.IAttributeIndex,
-                       zope.catalog.interfaces.ICatalogIndex):
+class ICatalogSetIndex(
+    zope.catalog.interfaces.IAttributeIndex,
+    zope.catalog.interfaces.ICatalogIndex,
+):
     """Interface-based catalog set index
     """
 
 
-class INormalizationWrapper(zope.index.interfaces.IInjection,
-                            zope.index.interfaces.IIndexSearch,
-                            zope.index.interfaces.IStatistics,
-                            IIndexValues):
+class INormalizationWrapper(
+    zope.index.interfaces.IInjection,
+    zope.index.interfaces.IIndexSearch,
+    zope.index.interfaces.IStatistics,
+    IIndexValues,
+):
     """A wrapper for an index that uses a normalizer to normalize injection
     and querying."""
 
     index = interface.Attribute(
         """an index implementing IInjection, IIndexSearch, IStatistics, and
-        IIndexValues""")
+        IIndexValues"""
+    )
 
     normalizer = interface.Attribute("a normalizer, implementing INormalizer")
 
     collection_index = interface.Attribute(
         """boolean: whether indexed values should be treated as collections
         (each composite value normalized) or not (original value is
-        normalized)""")
+        normalized)"""
+    )
 
 
 class INormalizer(interface.Interface):
-
     def value(value):
         """normalize or check constraints for an input value; raise an error
         or return the value to be indexed."""
@@ -306,19 +313,23 @@ resolution_vocabulary = SimpleVocabulary([SimpleTerm(i, t, t) for i, t in enumer
 class IDateTimeNormalizer(INormalizer):
     resolution = schema.Choice(
         vocabulary=resolution_vocabulary,
-        title=_('Resolution'),
+        title=_("Resolution"),
         default=2,
-        required=True)
+        required=True,
+    )
 
 
-class ICallableWrapper(zope.index.interfaces.IInjection,
-                       zope.index.interfaces.IIndexSearch,
-                       zope.index.interfaces.IStatistics,
-                       IIndexValues):
+class ICallableWrapper(
+    zope.index.interfaces.IInjection,
+    zope.index.interfaces.IIndexSearch,
+    zope.index.interfaces.IStatistics,
+    IIndexValues,
+):
     """A wrapper for an index that uses a callable to convert injection."""
 
     index = interface.Attribute(
         """An index implementing IInjection, IIndexSearch, IStatistics, and
-        IIndexValues""")
+        IIndexValues"""
+    )
 
     converter = interface.Attribute("A callable converter")
