@@ -14,7 +14,7 @@ We create the state that the text needs here.
     >>> import zope.component
     >>> import zope.intid
     >>> import zope.component
-    >>> import zope.component.interfaces
+    >>> import zope.interface.interfaces
     >>> import zope.component.persistentregistry
     >>> from ZODB.MappingStorage import DB
     >>> import transaction
@@ -35,7 +35,7 @@ We create the state that the text needs here.
     ...             return site_manager
     ...     else:
     ...         try:
-    ...             return zope.component.interfaces.IComponentLookup(context)
+    ...             return zope.interface.interfaces.IComponentLookup(context)
     ...         except TypeError as error:
     ...             raise zope.component.ComponentLookupError(*error.args)
     ...
@@ -63,7 +63,7 @@ We create the state that the text needs here.
     ...
 
     >>> @zope.component.adapter(zope.interface.Interface)
-    ... @zope.interface.implementer(zope.component.interfaces.IComponentLookup)
+    ... @zope.interface.implementer(zope.interface.interfaces.IComponentLookup)
     ... def getComponentLookup(obj):
     ...     return obj._p_jar.root()['components']
     ...
