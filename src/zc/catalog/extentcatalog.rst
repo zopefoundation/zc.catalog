@@ -16,7 +16,7 @@ We create the state that the text needs here.
     >>> import zope.component
     >>> import zope.component.interfaces
     >>> import zope.component.persistentregistry
-    >>> from ZODB.tests.util import DB
+    >>> from ZODB.MappingStorage import DB
     >>> import transaction
 
     >>> zope.component.provideAdapter(
