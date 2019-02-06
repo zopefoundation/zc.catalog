@@ -184,6 +184,7 @@ def modTearDown(test):
 def test_suite():
     checker = renormalizing.RENormalizing((
         (re.compile(r"<class 'BTrees."), "<type 'BTrees."),
+        (re.compile(r"<module 'BTrees\._"), "<module 'BTrees."),
     ))
     tests = unittest.TestSuite((
         # 32 bits

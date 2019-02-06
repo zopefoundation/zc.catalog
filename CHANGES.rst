@@ -5,7 +5,8 @@
 2.0.2 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Require `beautifulsoup4 < 4.7` in tests for now as newer versions break the
+  tests.
 
 
 2.0.1 (2017-06-15)
