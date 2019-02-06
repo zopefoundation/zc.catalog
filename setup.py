@@ -27,7 +27,7 @@ stemmer_requires = [
 
 tests_require = [
     'ZODB',
-    'beautifulsoup4 < 4.7',
+    'beautifulsoup4',
     'zope.annotation',
     'zope.app.appsetup',
     'zope.app.basicskin',
