@@ -6,6 +6,12 @@ python:
     - 3.4
     - 3.5
     - 3.6
+matrix:
+     include:
+         - python: 3.6
+           name: "Flake8"
+           install:  pip install -U flake8
+           script: flake8 --doctests src setup.py
 install:
     - pip install -U pip setuptools
     - pip install -U coverage coveralls

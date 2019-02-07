@@ -20,7 +20,6 @@ from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 import zope.index.interfaces
 import zope.catalog.interfaces
 from zc.catalog.i18n import _
-import BTrees.Interfaces
 
 
 class IExtent(interface.Interface):
@@ -298,9 +297,11 @@ class INormalizer(interface.Interface):
         """normalize a query value for maximum of a range; return the value for
         query"""
 
-resolution_vocabulary = SimpleVocabulary([SimpleTerm(i, t, t) for i, t in enumerate(
-    (_('day'), _('hour'), _('minute'), _('second'), _('microsecond')))])
-    #  0         1          2            3            4
+
+resolution_vocabulary = SimpleVocabulary(
+    [SimpleTerm(i, t, t) for i, t in enumerate(
+        (_('day'), _('hour'), _('minute'), _('second'), _('microsecond')))])
+#          0         1          2            3            4
 
 
 class IDateTimeNormalizer(INormalizer):

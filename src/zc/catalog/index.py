@@ -14,15 +14,13 @@
 """indexes, as might be found in zope.index
 
 """
-import sys
 import datetime
 import pytz.reference
 import BTrees
 import persistent
 from BTrees import Length
-from BTrees.Interfaces import IMerge
 
-from zope import component, interface
+from zope import interface
 import zope.component.interfaces
 import zope.interface.common.idatetime
 import zope.index.interfaces
@@ -50,7 +48,7 @@ class FamilyProperty(object):
                 d["family"] = BTrees.family32
             elif iftype == "LF":
                 d["family"] = BTrees.family64
-            else: # pragma: no cover
+            else:  # pragma: no cover
                 raise ValueError("can't determine btree family based on"
                                  " btreemodule of %r" % (iftype,))
         else:
@@ -82,7 +80,6 @@ class FamilyProperty(object):
             del d["BTreeAPI"]
 
 
-
 @interface.implementer(
     zope.index.interfaces.IInjection,
     zope.index.interfaces.IIndexSearch,
@@ -90,7 +87,6 @@ class FamilyProperty(object):
     zc.catalog.interfaces.IIndexValues,
 )
 class AbstractIndex(persistent.Persistent):
-
 
     family = FamilyProperty()
 
@@ -146,15 +142,16 @@ class AbstractIndex(persistent.Persistent):
 
     def containsValue(self, value):
         try:
-            return bool(self.values_to_documents.has_key(value))
+            return bool(value in self.values_to_documents)
         except TypeError:
             return False
 
     def ids(self):
         return self.documents_to_values.keys()
 
+
 def parseQuery(query):
-    if not isinstance(query, dict): # pragma: no cover
+    if not isinstance(query, dict):  # pragma: no cover
         raise ValueError('may only pass a dict to apply')
 
     if len(query) > 1:
@@ -170,11 +167,10 @@ def parseQuery(query):
 @interface.implementer(zc.catalog.interfaces.IValueIndex)
 class ValueIndex(SortingIndexMixin, AbstractIndex):
 
-
     # attributes used by sorting mixin
-    _sorting_num_docs_attr = 'documentCount'        # Length object
-    _sorting_fwd_index_attr = 'values_to_documents' # forward BTree index
-    _sorting_rev_index_attr = 'documents_to_values' # reverse BTree index
+    _sorting_num_docs_attr = 'documentCount'         # Length object
+    _sorting_fwd_index_attr = 'values_to_documents'  # forward BTree index
+    _sorting_rev_index_attr = 'documents_to_values'  # reverse BTree index
 
     def _add_value(self, doc_id, added):
         values_to_documents = self.values_to_documents
@@ -216,7 +212,7 @@ class ValueIndex(SortingIndexMixin, AbstractIndex):
                 del values_to_documents[value]
                 self.wordCount.change(-1)
 
-    def apply(self, query): # any_of, any, between, none,
+    def apply(self, query):  # any_of, any, between, none,
         values_to_documents = self.values_to_documents
         query_type, query = parseQuery(query)
         if query_type is None:
@@ -319,7 +315,7 @@ class SetIndex(AbstractIndex):
                     del values_to_documents[v]
                     self.wordCount.change(-1)
 
-    def apply(self, query): # any_of, any, between, none, all_of
+    def apply(self, query):  # any_of, any, between, none, all_of
         values_to_documents = self.values_to_documents
         query_type, query = parseQuery(query)
         if query_type is None:
@@ -389,7 +385,7 @@ class NormalizationWrapper(persistent.Persistent):
         return self.index.wordCount()
 
     def clear(self):
-        """see zope.index.interfaces.IInjection.clear"""
+        """See zope.index.interfaces.IInjection.clear"""
         return self.index.clear()
 
     def __init__(self, index, normalizer, collection_index=False):
@@ -418,7 +414,7 @@ class NormalizationWrapper(persistent.Persistent):
         elif query_type == 'all_of':
             res = [self.normalizer.all(v, self.index) for v in query]
         elif query_type == 'between':
-            query = tuple(query) # collect iterators
+            query = tuple(query)  # collect iterators
             len_query = len(query)
             max_exclude = len_query >= 4 and bool(query[3])
             min_exclude = len_query >= 3 and bool(query[2])
@@ -447,8 +443,8 @@ class NormalizationWrapper(persistent.Persistent):
             min = self.normalizer.minimum(min, self.index)
         if max is not None:
             max = self.normalizer.maximum(max, self.index)
-        return self.index.values(min, max, excludemin, excludemax,
-                doc_id=doc_id)
+        return self.index.values(
+            min, max, excludemin, excludemax, doc_id=doc_id)
 
     def containsValue(self, value):
         return self.index.containsValue(value)
@@ -473,7 +469,7 @@ class CallableWrapper(persistent.Persistent):
         self.converter = converter
 
     def index_doc(self, docid, value):
-        "See zope.index.interfaces.IInjection"
+        """See zope.index.interfaces.IInjection."""
         self.index.index_doc(docid, self.converter(value))
 
     def __getattr__(self, name):
@@ -490,6 +486,7 @@ def set_resolution(value, resolution):
         value = datetime.datetime(*args)
     return value
 
+
 def get_request():
     i = zope.security.management.queryInteraction()
     if i is not None:
@@ -498,11 +495,13 @@ def get_request():
                 return p
     return None
 
+
 def get_tz(default=pytz.reference.Local):
     request = get_request()
     if request is None:
         return default
     return zope.interface.common.idatetime.ITZInfo(request, default)
+
 
 def add_tz(value):
     if type(value) is datetime.datetime:
@@ -512,12 +511,14 @@ def add_tz(value):
     else:
         raise ValueError(value)
 
+
 def day_end(value):
     return (
         datetime.datetime.combine(
             value, datetime.time(tzinfo=get_tz())) +
-        datetime.timedelta(days=1) - # separate for daylight savings
+        datetime.timedelta(days=1) -  # separate for daylight savings
         datetime.timedelta(microseconds=1))
+
 
 def day_begin(value):
     return datetime.datetime.combine(
@@ -565,20 +566,22 @@ class DateTimeNormalizer(persistent.Persistent):
                 return day_end(value)
         return add_tz(value)
 
+
 @interface.implementer(
     zope.interface.implementedBy(NormalizationWrapper),
     zope.index.interfaces.IIndexSort,
     zc.catalog.interfaces.IValueIndex)
-def DateTimeValueIndex(resolution=2): # 2 == minute; note that hour is good
+def DateTimeValueIndex(resolution=2):  # 2 == minute; note that hour is good
     # for timezone-aware per-day searches
     ix = NormalizationWrapper(ValueIndex(), DateTimeNormalizer(resolution))
     interface.alsoProvides(ix, zc.catalog.interfaces.IValueIndex)
     return ix
 
+
 @interface.implementer(
     zope.interface.implementedBy(NormalizationWrapper),
     zc.catalog.interfaces.ISetIndex)
-def DateTimeSetIndex(resolution=2): # 2 == minute; note that hour is good
+def DateTimeSetIndex(resolution=2):  # 2 == minute; note that hour is good
     # for timezone-aware per-day searches
     ix = NormalizationWrapper(SetIndex(), DateTimeNormalizer(resolution), True)
     interface.alsoProvides(ix, zc.catalog.interfaces.ISetIndex)

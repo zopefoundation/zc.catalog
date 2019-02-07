@@ -17,9 +17,11 @@
 import os
 from setuptools import setup, find_packages
 
+
 def read(*rnames):
     with open(os.path.join(os.path.dirname('.'), *rnames)) as f:
         return f.read()
+
 
 stemmer_requires = [
     'zopyx.txng3.ext >= 2.0.0',
@@ -82,7 +84,7 @@ setup(name='zc.catalog',
           read('src', 'zc', 'catalog', 'callablewrapper.rst')
           + '\n\n' +
           read('src', 'zc', 'catalog', 'browser', 'README.rst')
-          ),
+      ),
       keywords="zope3 i18n date time duration catalog index",
       classifiers=[
           'Development Status :: 5 - Production/Stable',
@@ -134,5 +136,4 @@ setup(name='zc.catalog',
           'zope.security >= 4.1.0',
       ],
       include_package_data=True,
-      zip_safe=False,
-)
+      zip_safe=False)

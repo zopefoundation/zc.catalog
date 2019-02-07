@@ -37,6 +37,7 @@ import BTrees.LOBTree
 import BTrees.OLBTree
 import BTrees.LFBTree
 
+
 class TestAbstractIndex(unittest.TestCase):
 
     def test_family_on_cls(self):
@@ -65,12 +66,14 @@ class TestAbstractIndex(unittest.TestCase):
         res = i.values(doc_id=1)
         self.assertEqual((), res)
 
+
 class TestValueIndex(unittest.TestCase):
 
     def test_empty_values(self):
         i = index.ValueIndex()
         res = i.values(doc_id=1)
         self.assertEqual((), res)
+
 
 class TestSetIndex(unittest.TestCase):
 
@@ -86,10 +89,12 @@ class TestSetIndex(unittest.TestCase):
         res = i.apply({'all_of': ()})
         self.assertEqual(len(res), 0)
 
+
 class TestNormalizationWrapper(unittest.TestCase):
 
     def test_pass_to_index(self):
         i = index.SetIndex()
+
         class Normaziler(object):
             @classmethod
             def value(cls, v):
@@ -104,6 +109,7 @@ class TestNormalizationWrapper(unittest.TestCase):
         self.assertEqual(i.wordCount(), n.wordCount())
 
         self.assertEqual(n.containsValue('foo'), i.containsValue('foo'))
+
 
 class TestExtent(unittest.TestCase):
 
@@ -130,6 +136,7 @@ class TestExtent(unittest.TestCase):
         i.__parent__ = None
         self.assertRaises(ComponentLookupError, c.updateIndex, i)
 
+
 class TestGlob(unittest.TestCase):
 
     def test_bad_parse(self):
@@ -137,6 +144,7 @@ class TestGlob(unittest.TestCase):
             pass
         res = globber.glob('', Lexicon())
         self.assertIsNone(res)
+
 
 class TestCatalogIndex(unittest.TestCase):
 
@@ -157,24 +165,30 @@ class TestBrokenStemmer(unittest.TestCase):
         self.assertIs(stemmer.broken, s.stemmer)
         self.assertEqual('word', s.stemmer.stem("word"))
 
+
 def setUp32bit(test):
     zope.component.testing.setUp(test)
     test.globs["btrees_family"] = BTrees.family32
+
 
 def modSetUp32bit(test):
     setUp32bit(test)
     module.setUp(test, 'zc.catalog.doctest_test')
 
+
 def setUp64bit(test):
     zope.component.testing.setUp(test)
     test.globs["btrees_family"] = BTrees.family64
+
 
 def modSetUp64bit(test):
     setUp64bit(test)
     module.setUp(test, 'zc.catalog.doctest_test')
 
+
 def tearDown(test):
     zope.component.testing.tearDown(test)
+
 
 def modTearDown(test):
     module.tearDown(test)
@@ -220,13 +234,10 @@ def test_suite():
             'legacy.rst',
             optionflags=doctest.ELLIPSIS,
             checker=checker),
-        ))
+    ))
 
-    if not stemmer.broken: # pragma: no cover
+    if not stemmer.broken:  # pragma: no cover
         tests.addTest(doctest.DocFileSuite('stemmer.rst'))
 
     tests.addTest(unittest.defaultTestLoader.loadTestsFromName(__name__))
     return tests
-
-if __name__ == '__main__':
-    unittest.main(defaultTest='test_suite')

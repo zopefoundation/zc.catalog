@@ -27,9 +27,13 @@ reconstitute["PHRASE"] = lambda nd: '"%s"' % (
     ' '.join((v + '*') for v in nd.getValue()),)
 reconstitute["GLOB"] = lambda nd: nd.getValue()
 
-expand = lambda nd: [reconstitute[n.nodeType()](n) for n in nd.getValue()]
 
-def glob(query, lexicon): # lexicon is index.lexicon
+def expand(nd):
+    return [reconstitute[n.nodeType()](n)
+            for n in nd.getValue()]
+
+
+def glob(query, lexicon):  # lexicon is index.lexicon
     try:
         tree = queryparser.QueryParser(lexicon).parseQuery(query)
     except parsetree.ParseError:
