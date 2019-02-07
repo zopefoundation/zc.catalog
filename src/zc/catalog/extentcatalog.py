@@ -18,15 +18,12 @@
 import sys
 import BTrees
 import persistent
-from zope import interface, component
+from zope import interface
 from zope.catalog import catalog
 from zope.intid.interfaces import IIntIds
 
 import zope.component
-from zope.component.interfaces import IFactory
-from BTrees.Interfaces import IMerge
 
-import zc.catalog
 from zc.catalog import interfaces
 
 
@@ -98,7 +95,7 @@ class Extent(persistent.Persistent):
     __bool__ = __nonzero__
 
     def __contains__(self, uid):
-        return self.set.has_key(uid)
+        return uid in self.set
 
     def remove(self, uid):
         self.set.remove(uid)
@@ -135,7 +132,6 @@ class NonPopulatingExtent(Extent):
     for catalogs that handle a very contained domain within an application.
     """
 
-
     populated = False
 
     def populate(self):
@@ -158,11 +154,11 @@ class Catalog(catalog.Catalog):
 
         self.UIDSource = UIDSource
 
-        if extent.__parent__ is not None: # pragma: no cover
+        if extent.__parent__ is not None:  # pragma: no cover
             raise ValueError("extent's __parent__ must be None")
         super(Catalog, self).__init__(family=extent.family)
         self.extent = extent
-        extent.__parent__ = self # inform extent of catalog
+        extent.__parent__ = self  # inform extent of catalog
 
     def _getUIDSource(self):
         res = self.UIDSource
