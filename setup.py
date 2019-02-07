@@ -27,6 +27,7 @@ stemmer_requires = ["zopyx.txng3.ext >= 2.0.0"]
 
 tests_require = [
     "ZODB",
+    "beautifulsoup4",
     "zope.annotation",
     "zope.app.appsetup",
     "zope.app.basicskin",
