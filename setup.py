@@ -58,7 +58,7 @@ tests_require = [
 ] + stemmer_requires
 
 setup(name='zc.catalog',
-      version='2.0.2.dev0',
+      version='2.1.dev0',
       author='Zope Corporation and Contributors',
       author_email='zope-dev@zope.org',
       description="Extensions to the Zope 3 Catalog",
@@ -98,6 +98,7 @@ setup(name='zc.catalog',
           'Programming Language :: Python :: 3.4',
           'Programming Language :: Python :: 3.5',
           'Programming Language :: Python :: 3.6',
+          'Programming Language :: Python :: 3.7',
           'Programming Language :: Python :: Implementation :: CPython',
           'Programming Language :: Python :: Implementation :: PyPy',
           'Natural Language :: English',

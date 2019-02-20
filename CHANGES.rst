@@ -2,11 +2,13 @@
  CHANGES
 =========
 
-2.0.2 (unreleased)
-==================
+2.1 (unreleased)
+================
 
 - Require `beautifulsoup4 < 4.7` in tests for now as newer versions break the
   tests.
+
+- Add support for Python 3.7.
 
 
 2.0.1 (2017-06-15)
