@@ -58,7 +58,7 @@ tests_require = [
 ] + stemmer_requires
 
 setup(name='zc.catalog',
-      version='2.1.dev0',
+      version='3.0.dev0',
       author='Zope Corporation and Contributors',
       author_email='zope-dev@zope.org',
       description="Extensions to the Zope 3 Catalog",
@@ -111,6 +111,7 @@ setup(name='zc.catalog',
       packages=find_packages('src'),
       package_dir={'': 'src'},
       namespace_packages=['zc'],
+      python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*',
       extras_require={
           'test': tests_require,
           'browser': [
