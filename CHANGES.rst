@@ -2,7 +2,7 @@
  CHANGES
 =========
 
-3.0 (unreleased)
+3.0 (2019-03-21)
 ================
 
 - Drop support for Python 3.4 as it reached its end of life.
