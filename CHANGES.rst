@@ -2,17 +2,19 @@
  CHANGES
 =========
 
-2.1 (unreleased)
+3.0 (unreleased)
 ================
 
-- Add support for Python 3.7.
+- Drop support for Python 3.4 as it reached its end of life.
+
+- Add support for Python 3.7 and 3.8a2.
 
 
 2.0.1 (2017-06-15)
 ==================
 
 - Add Python 3 compatibility for the ``zopyx.txng3.ext`` stemmer.
-  See https://github.com/zopefoundation/zc.catalog/issues/4.
+  See `#4 <https://github.com/zopefoundation/zc.catalog/issues/4>`_.
 
 
 2.0.0 (2017-05-09)
