@@ -28,8 +28,8 @@ except ImportError:  # pragma: no cover
             stemmer = None
 
             class Broken(object):
-                def stem(self, l):
-                    return l
+                def stem(self, l_):
+                    return l_
             broken = Broken()
 
 
