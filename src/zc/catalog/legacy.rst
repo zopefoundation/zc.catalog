@@ -108,7 +108,7 @@ anyway::
   >>> vi32.IOBTree
   <type 'BTrees.IOBTree.IOBTree'>
   >>> vi32.BTreeAPI
-  <module 'BTrees.IFBTree' ...>
+  <module 'BTrees.IFBTree'...
 
 Even though the instance dictionary has been cleaned up, the change
 flag hasn't been set.  This is handled this way to avoid turning a
@@ -147,7 +147,7 @@ The 64-bit variation provides equivalent behavior::
   >>> vi64.IOBTree
   <type 'BTrees.LOBTree.LOBTree'>
   >>> vi64.BTreeAPI
-  <module 'BTrees.LFBTree' ...>
+  <module 'BTrees.LFBTree'...
 
   >>> vi64._p_changed
   False
@@ -185,4 +185,4 @@ the changed flag will be set as well::
   >>> vi64.IOBTree
   <type 'BTrees.LOBTree.LOBTree'>
   >>> vi64.BTreeAPI
-  <module 'BTrees.LFBTree' ...>
+  <module 'BTrees.LFBTree'...
