@@ -32,7 +32,7 @@ import zc.catalog.interfaces
 from zc.catalog.i18n import _
 
 
-class FamilyProperty(object):
+class FamilyProperty:
 
     __name__ = "family"
 

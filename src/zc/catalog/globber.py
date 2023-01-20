@@ -20,13 +20,13 @@ from zope.index.text import queryparser
 
 
 reconstitute = {}
-reconstitute["NOT"] = lambda nd: "not %s" % (
-    reconstitute[nd.getValue().nodeType()](nd.getValue()),)
-reconstitute["AND"] = lambda nd: "(%s)" % (" and ".join(expand(nd)),)
-reconstitute["OR"] = lambda nd: "(%s)" % (" or ".join(expand(nd)),)
+reconstitute["NOT"] = lambda nd: "not {}".format(
+    reconstitute[nd.getValue().nodeType()](nd.getValue()))
+reconstitute["AND"] = lambda nd: "({})".format(" and ".join(expand(nd)))
+reconstitute["OR"] = lambda nd: "({})".format(" or ".join(expand(nd)))
 reconstitute["ATOM"] = lambda nd: '%s*' % (nd.getValue())
-reconstitute["PHRASE"] = lambda nd: '"%s"' % (
-    ' '.join((v + '*') for v in nd.getValue()),)
+reconstitute["PHRASE"] = lambda nd: '"{}"'.format(
+    ' '.join((v + '*') for v in nd.getValue()))
 reconstitute["GLOB"] = lambda nd: nd.getValue()
 
 

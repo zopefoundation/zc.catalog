@@ -59,7 +59,7 @@ def test_suite():
     return suite
 
 
-class LoginLogout(object):
+class LoginLogout:
     # dummy to avoid dep on zope.app.security
     def __call__(self):
         return

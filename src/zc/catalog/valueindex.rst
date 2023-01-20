@@ -117,8 +117,7 @@ defaults to False.  The results are not weighted.
     >>> list(index.apply({'between': ('b', 'd', True, True)}))
     [4, 6, 7, 9]
 
-Using an invalid (non-comparable on Python 3) argument to between produces
-nothing:
+Using an invalid (non-comparable) argument to between produces nothing:
 
     >>> list(index.apply({'between': (1, 5)}))
     []

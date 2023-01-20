@@ -36,7 +36,7 @@ expected, fairly empty.
     0
 
 The index supports indexing any value.  All values within a given index must
-sort consistently across Python versions. In practice, in Python 3
+sort consistently across Python versions. In practice
 this means that the values need to be homogeneous.
 
     >>> data = {1: ['a', '1'],
@@ -81,7 +81,7 @@ contain any of the values.  The results are weighted.
     >>> index.apply({'any_of': ('a', '3', '7')})              # doctest: +ELLIPSIS
     BTrees...FBucket([(1, 1.0), (2, 3.0), (5, 1.0), (6, 1.0), (9, 2.0)])
 
-Using an invalid (non-comparable on Python 3) argument is ignored:
+Using an invalid (non-comparable) argument is ignored:
 
     >>> list(index.apply({'any_of': (1,)}))
     []
@@ -148,7 +148,7 @@ defaults to False.  The results are weighted.
     >>> index.apply({'between': ('2', '6')})               # doctest: +ELLIPSIS
     BTrees...FBucket([(2, 2.0), (4, 1.0), (6, 2.0), (8, 1.0), (9, 4.0)])
 
-Using invalid (non-comparable on Python 3) arguments produces no results:
+Using invalid (non-comparable) arguments produces no results:
 
     >>> list(index.apply({'between': (1, 7)}))
     []

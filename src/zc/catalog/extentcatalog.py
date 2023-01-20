@@ -111,7 +111,7 @@ class Extent(persistent.Persistent):
 class FilterExtent(Extent):
 
     def __init__(self, filter, family=None):
-        super(FilterExtent, self).__init__(family=family)
+        super().__init__(family=family)
         self.filter = filter
 
     def add(self, uid, obj):
@@ -156,7 +156,7 @@ class Catalog(catalog.Catalog):
 
         if extent.__parent__ is not None:  # pragma: no cover
             raise ValueError("extent's __parent__ must be None")
-        super(Catalog, self).__init__(family=extent.family)
+        super().__init__(family=extent.family)
         self.extent = extent
         extent.__parent__ = self  # inform extent of catalog
 
@@ -168,7 +168,7 @@ class Catalog(catalog.Catalog):
 
     def clear(self):
         self.extent.clear()
-        super(Catalog, self).clear()
+        super().clear()
 
     def index_doc(self, docid, texts):
         """Register the data in indexes of this catalog.
@@ -178,15 +178,15 @@ class Catalog(catalog.Catalog):
         except ValueError:
             self.unindex_doc(docid)
         else:
-            super(Catalog, self).index_doc(docid, texts)
+            super().index_doc(docid, texts)
 
     def unindex_doc(self, docid):
         if docid in self.extent:
-            super(Catalog, self).unindex_doc(docid)
+            super().unindex_doc(docid)
             self.extent.remove(docid)
 
     def searchResults(self, **kwargs):
-        res = super(Catalog, self).searchResults(**kwargs)
+        res = super().searchResults(**kwargs)
         if res is not None:
             res.uidutil = self._getUIDSource()
         return res
@@ -194,7 +194,7 @@ class Catalog(catalog.Catalog):
     def updateIndex(self, index):
         if index.__parent__ is not self:
             # not an index in us.  Let the superclass handle it.
-            super(Catalog, self).updateIndex(index)
+            super().updateIndex(index)
         else:
             uidutil = self._getUIDSource()
 
