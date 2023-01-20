@@ -15,16 +15,14 @@
 
 """
 import doctest
+
 import transaction
+import zope.app.appsetup.bootstrap
 import zope.intid
 import zope.intid.interfaces
-
-
-from zope.processlifetime import IDatabaseOpenedWithRoot
-import zope.app.appsetup.bootstrap
 from zope.app.wsgi.testlayer import BrowserLayer
+from zope.processlifetime import IDatabaseOpenedWithRoot
 from zope.testbrowser.wsgi import TestBrowserLayer
-
 
 import zc.catalog.browser
 

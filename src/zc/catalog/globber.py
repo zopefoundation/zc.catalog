@@ -15,7 +15,9 @@
 
 
 """
-from zope.index.text import queryparser, parsetree
+from zope.index.text import parsetree
+from zope.index.text import queryparser
+
 
 reconstitute = {}
 reconstitute["NOT"] = lambda nd: "not %s" % (

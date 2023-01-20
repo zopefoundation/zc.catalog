@@ -15,10 +15,13 @@
 
 """
 
-from zope import interface, schema
-from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
-import zope.index.interfaces
 import zope.catalog.interfaces
+import zope.index.interfaces
+from zope import interface
+from zope import schema
+from zope.schema.vocabulary import SimpleTerm
+from zope.schema.vocabulary import SimpleVocabulary
+
 from zc.catalog.i18n import _
 
 

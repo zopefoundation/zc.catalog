@@ -10,8 +10,8 @@ zc.catalog
    :target: https://pypi.org/project/zc.catalog/
    :alt: Supported Python versions
 
-.. image:: https://travis-ci.com/zopefoundation/zc.catalog.svg?branch=master
-   :target: https://travis-ci.com/zopefoundation/zc.catalog
+.. image:: https://github.com/zopefoundation/zc.catalog/actions/workflows/tests.yml/badge.svg
+   :target: https://github.com/zopefoundation/zc.catalog/actions/workflows/tests.yml
    :alt: Build Status
 
 .. image:: https://coveralls.io/repos/github/zopefoundation/zc.catalog/badge.svg

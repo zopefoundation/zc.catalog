@@ -16,13 +16,13 @@
 """
 
 import sys
+
 import BTrees
 import persistent
+import zope.component
 from zope import interface
 from zope.catalog import catalog
 from zope.intid.interfaces import IIntIds
-
-import zope.component
 
 from zc.catalog import interfaces
 

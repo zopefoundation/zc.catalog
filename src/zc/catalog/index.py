@@ -15,18 +15,19 @@
 
 """
 import datetime
-import pytz.reference
+
 import BTrees
 import persistent
-from BTrees import Length
-
-from zope import interface
+import pytz.reference
 import zope.component.interfaces
-import zope.interface.common.idatetime
 import zope.index.interfaces
-from zope.index.field.sorting import SortingIndexMixin
+import zope.interface.common.idatetime
 import zope.security.management
+from BTrees import Length
+from zope import interface
+from zope.index.field.sorting import SortingIndexMixin
 from zope.publisher.interfaces import IRequest
+
 import zc.catalog.interfaces
 from zc.catalog.i18n import _
 

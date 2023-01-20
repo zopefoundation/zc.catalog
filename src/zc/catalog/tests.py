@@ -14,28 +14,27 @@
 """catalog package test runner
 
 """
+import doctest
 import re
 import unittest
-import doctest
-from zope.testing import module
-import zope.component.testing
+
+import BTrees.Interfaces
+import BTrees.LFBTree
+import BTrees.LOBTree
+import BTrees.OLBTree
 import zope.component.factory
 import zope.component.interfaces
-
+import zope.component.testing
+from zope.testing import module
 from zope.testing import renormalizing
 
 import zc.catalog
-from zc.catalog import index
+import zc.catalog.interfaces
+from zc.catalog import catalogindex
 from zc.catalog import extentcatalog
 from zc.catalog import globber
-from zc.catalog import catalogindex
+from zc.catalog import index
 from zc.catalog import stemmer
-import zc.catalog.interfaces
-
-import BTrees.Interfaces
-import BTrees.LOBTree
-import BTrees.OLBTree
-import BTrees.LFBTree
 
 
 class TestAbstractIndex(unittest.TestCase):
