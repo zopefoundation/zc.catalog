@@ -16,9 +16,10 @@
 """
 import datetime
 
+import pytz.reference
+
 import BTrees
 import persistent
-import pytz.reference
 import zope.component.interfaces
 import zope.index.interfaces
 import zope.interface.common.idatetime
