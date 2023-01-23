@@ -15,6 +15,8 @@
 
 """
 import re
+
+
 broken = None
 try:
     from zopyx.txng3.ext import stemmer
@@ -27,7 +29,7 @@ except ImportError:  # pragma: no cover
         except ImportError:
             stemmer = None
 
-            class Broken(object):
+            class Broken:
                 def stem(self, l_):
                     return l_
             broken = Broken()
@@ -39,7 +41,7 @@ except ImportError:  # pragma: no cover
 # 2010-03-09 While Stemmer still isn't pickleable, zopyx.txng3.ext 3.3.2 fixes
 # the crashes.
 
-class Stemmer(object):
+class Stemmer:
 
     def __init__(self, language='english'):
         self.language = language

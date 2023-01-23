@@ -14,28 +14,27 @@
 """catalog package test runner
 
 """
+import doctest
 import re
 import unittest
-import doctest
-from zope.testing import module
-import zope.component.testing
+
+import BTrees.Interfaces
+import BTrees.LFBTree
+import BTrees.LOBTree
+import BTrees.OLBTree
 import zope.component.factory
 import zope.component.interfaces
-
+import zope.component.testing
+from zope.testing import module
 from zope.testing import renormalizing
 
 import zc.catalog
-from zc.catalog import index
+import zc.catalog.interfaces
+from zc.catalog import catalogindex
 from zc.catalog import extentcatalog
 from zc.catalog import globber
-from zc.catalog import catalogindex
+from zc.catalog import index
 from zc.catalog import stemmer
-import zc.catalog.interfaces
-
-import BTrees.Interfaces
-import BTrees.LOBTree
-import BTrees.OLBTree
-import BTrees.LFBTree
 
 
 class TestAbstractIndex(unittest.TestCase):
@@ -53,9 +52,9 @@ class TestAbstractIndex(unittest.TestCase):
         self.assertNotIn('BTreeAPI', i.__dict__)
 
     def test_family(self):
-        class Family(object):
-            class OO(object):
-                class BTree(object):
+        class Family:
+            class OO:
+                class BTree:
                     pass
             IO = OO
         i = index.AbstractIndex(family=Family)
@@ -95,7 +94,7 @@ class TestNormalizationWrapper(unittest.TestCase):
     def test_pass_to_index(self):
         i = index.SetIndex()
 
-        class Normaziler(object):
+        class Normaziler:
             @classmethod
             def value(cls, v):
                 return v
@@ -140,7 +139,7 @@ class TestExtent(unittest.TestCase):
 class TestGlob(unittest.TestCase):
 
     def test_bad_parse(self):
-        class Lexicon(object):
+        class Lexicon:
             pass
         res = globber.glob('', Lexicon())
         self.assertIsNone(res)

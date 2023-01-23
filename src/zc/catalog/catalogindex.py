@@ -13,11 +13,10 @@
 ##############################################################################
 """Indexes appropriate for zope.catalog
 """
-import zope.interface
-
 import zope.catalog.attribute
 import zope.container.contained
 import zope.index.interfaces
+import zope.interface
 
 import zc.catalog.index
 import zc.catalog.interfaces
