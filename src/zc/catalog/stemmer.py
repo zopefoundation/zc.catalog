@@ -20,13 +20,13 @@ import re
 broken = None
 try:
     from zopyx.txng3.ext import stemmer
-except ImportError:  # pragma: no cover
+except ModuleNotFoundError:  # pragma: no cover
     try:
         from zopyx.txng3 import stemmer
-    except ImportError:
+    except ModuleNotFoundError:
         try:
             import txngstemmer as stemmer
-        except ImportError:
+        except ModuleNotFoundError:
             stemmer = None
 
             class Broken:
