@@ -482,8 +482,8 @@ def set_resolution(value, resolution):
     resolution += 2
     if resolution < 6:
         args = []
-        args.extend(value.timetuple()[:resolution+1])
-        args.extend([0]*(6-resolution))
+        args.extend(value.timetuple()[:resolution + 1])
+        args.extend([0] * (6 - resolution))
         args.append(value.tzinfo)
         value = datetime.datetime(*args)
     return value

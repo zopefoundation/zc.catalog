@@ -113,7 +113,7 @@ class ISelfPopulatingExtent(IExtent):
         description=_(
             "Flag indicating whether self-population has been performed."),
         readonly=True,
-        )
+    )
 
     def populate():
         """Populate the extent based on the current content of the database.
