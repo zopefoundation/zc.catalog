@@ -61,8 +61,8 @@ tests_require = [
 
 setup(name='zc.catalog',
       version='4.1.dev0',
-      author='Zope Corporation and Contributors',
-      author_email='zope-dev@zope.org',
+      author='Zope Foundation and Contributors',
+      author_email='zope-dev@zope.dev',
       description="Extensions to the Zope 3 Catalog",
       long_description=(
           read('README.rst')
@@ -107,7 +107,7 @@ setup(name='zc.catalog',
           'Topic :: Internet :: WWW/HTTP',
           'Framework :: Zope :: 3',
       ],
-      url='http://github.com/zopefoundation/zc.catalog',
+      url='https://github.com/zopefoundation/zc.catalog',
       license='ZPL 2.1',
       packages=find_packages('src'),
       package_dir={'': 'src'},
