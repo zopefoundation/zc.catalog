@@ -35,8 +35,6 @@ tests_require = [
     'zope.annotation',
     'zope.app.appsetup',
     'zope.app.basicskin',
-    'zope.app.catalog',
-    'zope.app.catalog',
     'zope.app.component',
     'zope.app.container',
     'zope.app.form',
