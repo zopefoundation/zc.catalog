@@ -16,7 +16,6 @@
 """
 import os
 
-from setuptools import find_packages
 from setuptools import setup
 
 
@@ -56,7 +55,7 @@ tests_require = [
     'zope.securitypolicy',
     'zope.testbrowser >= 5.2',
     'zope.testing',
-    'zope.testrunner',
+    'zope.testrunner >= 6.4',
 ] + stemmer_requires
 
 setup(name='zc.catalog',
@@ -109,9 +108,6 @@ setup(name='zc.catalog',
       ],
       url='https://github.com/zopefoundation/zc.catalog',
       license='ZPL-2.1',
-      packages=find_packages('src'),
-      package_dir={'': 'src'},
-      namespace_packages=['zc'],
       python_requires='>=3.9',
       extras_require={
           'test': tests_require,
