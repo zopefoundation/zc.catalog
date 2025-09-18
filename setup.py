@@ -59,7 +59,7 @@ tests_require = [
 ] + stemmer_requires
 
 setup(name='zc.catalog',
-      version='5.0.dev0',
+      version='5.0',
       author='Zope Foundation and Contributors',
       author_email='zope-dev@zope.dev',
       description="Extensions to the Zope 3 Catalog",
