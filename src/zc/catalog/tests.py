@@ -162,7 +162,7 @@ class TestBrokenStemmer(unittest.TestCase):
     def test_broken(self):
         s = stemmer.Stemmer()
         self.assertIs(stemmer.broken, s.stemmer)
-        self.assertEqual('word', s.stemmer.stem("word"))
+        self.assertEqual('word', s.stemmer.stemWord("word"))
 
 
 def setUp32bit(test):

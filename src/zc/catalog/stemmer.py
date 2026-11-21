@@ -11,7 +11,7 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""A stemmer based on the textindexng stemmer, itself based on snowball.
+"""A stemmer based on snowballstemmer.
 
 """
 import re
@@ -19,27 +19,15 @@ import re
 
 broken = None
 try:
-    from zopyx.txng3.ext import stemmer
+    import snowballstemmer
 except ModuleNotFoundError:  # pragma: no cover
-    try:
-        from zopyx.txng3 import stemmer
-    except ModuleNotFoundError:
-        try:
-            import txngstemmer as stemmer
-        except ModuleNotFoundError:
-            stemmer = None
+    snowballstemmer = None
 
-            class Broken:
-                def stem(self, l_):
-                    return l_
-            broken = Broken()
+    class Broken:
+        def stemWord(self, word):
+            return word
+    broken = Broken()
 
-
-# as of this writing, trying to persist a txngstemmer.Stemmer makes the python
-# process end, only printing a "Bus error" message before quitting.  Don't do
-# that. July 16 2005
-# 2010-03-09 While Stemmer still isn't pickleable, zopyx.txng3.ext 3.3.2 fixes
-# the crashes.
 
 class Stemmer:
 
@@ -48,9 +36,9 @@ class Stemmer:
 
     @property
     def stemmer(self):
-        if stemmer is None:
+        if snowballstemmer is None:
             return broken
-        return stemmer.Stemmer(self.language)
+        return snowballstemmer.stemmer(self.language)
 
     rxGlob = re.compile(r"[*?]")  # See globToWordIds() in
     # zope/index/text/lexicon.py
@@ -64,7 +52,7 @@ class Stemmer:
             except UnicodeDecodeError:  # pragma: no cover
                 pass
             else:
-                s = stemmer.stem((s,))[0]
+                s = stemmer.stemWord(s)
             result.append(s)
         return result
 
@@ -79,6 +67,6 @@ class Stemmer:
                 except UnicodeDecodeError:  # pragma: no cover
                     pass
                 else:
-                    s = stemmer.stem((s,))[0]
+                    s = stemmer.stemWord(s)
             result.append(s)
         return result

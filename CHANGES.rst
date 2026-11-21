@@ -9,6 +9,10 @@
 
 * Drop support for Python 3.10, 3.9.
 
+* Use ``snowballstemmer`` instead of the unmaintained ``zopyx.txng3.ext`` in
+  ``zc.catalog.stemmer``.  Stems can differ, so re-index text indexes which
+  use the stemmer.
+
 
 5.0 (2025-09-18)
 ================
