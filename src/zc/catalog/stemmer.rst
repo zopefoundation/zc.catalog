@@ -2,32 +2,19 @@
 Stemmer
 =======
 
-The stemmer uses Andreas Jung's stemmer code, which is a Python wrapper of
-M. F. Porter's Snowball project (http://snowball.tartarus.org/index.php).
+The stemmer uses the `snowballstemmer`_ package, which provides the stemming
+algorithms of M. F. Porter's Snowball project (https://snowballstem.org/).
 It is designed to be used as part of a pipeline in a zope/index/text/
-lexicon, after a splitter.  This enables getting the relevance ranking
-of the zope/index/text code with the splitting functionality of TextIndexNG 3.x.
+lexicon, after a splitter.
 
-It requires that the TextIndexNG extensions--specifically txngstemmer--have
-been compiled and installed in your Python installation.  Inclusion of the
-textindexng package is not necessary.
-
-As of this writing (Jan 3, 2007), installing the necessary extensions can be
-done with the following steps:
-
-- `svn co https://svn.sourceforge.net/svnroot/textindexng/extension_modules/trunk ext_mod`
-- `cd ext_mod`
-- (using the python you use for Zope) `python setup.py install`
-
-Another approach is to simply install TextIndexNG (see
-http://opensource.zopyx.com/software/textindexng3)
+It requires that ``snowballstemmer`` is installed, e. g. by installing
+``zc.catalog[stemmer]``.  If it is missing, words are not stemmed at all.
 
 The stemmer must be instantiated with the language for which stemming is
-desired.  It defaults to 'english'.  For what it is worth, other languages
-supported as of this writing, using the strings that the stemmer expects,
-include the following: 'danish', 'dutch', 'english', 'finnish', 'french',
-'german', 'italian', 'norwegian', 'portuguese', 'russian', 'spanish', and
-'swedish'.
+desired.  It defaults to 'english'.  ``snowballstemmer.algorithms()`` returns
+the names of the supported languages.
+
+.. _snowballstemmer: https://pypi.org/project/snowballstemmer/
 
 For instance, let's build an index with an english stemmer.
 

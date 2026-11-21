@@ -25,7 +25,7 @@ def read(*rnames):
 
 
 stemmer_requires = [
-    'zopyx.txng3.ext >= 2.0.0',
+    'snowballstemmer',
 ]
 
 tests_require = [
