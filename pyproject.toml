@@ -7,6 +7,105 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "zc.catalog"
+version = "6.0.dev0"
+description = "Extensions to the Zope 3 Catalog"
+license = "ZPL-2.1"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Topic :: Internet :: WWW/HTTP",
+    "Framework :: Zope :: 3",
+]
+dynamic = ["readme"]
+requires-python = ">=3.11"
+authors = [
+    {name = "Zope Foundation and contributors",email = "zope-dev@zope.dev"},
+]
+maintainers = [
+    {name = "Plone Foundation and contributors",email = "zope-dev@zope.dev"},
+]
+dependencies = [
+    "BTrees >= 4.4.1",
+    "persistent",
+    "pytz",
+    "zope.catalog >= 4.2.1",
+    "zope.component >= 4.3.0",
+    "zope.container >= 4.1.0",
+    "zope.i18nmessageid >= 4.1.0",
+    "zope.index >= 4.3.0",
+    "zope.interface >= 4.4.0",
+    "zope.intid >= 4.2.0",
+    "zope.publisher >= 3.12",
+    "zope.schema >= 4.4.2",
+    "zope.security >= 4.1.0",
+]
+keywords = [
+    "zope3",
+    "i18n",
+    "date",
+    "time",
+    "duration",
+    "catalog",
+    "index",
+]
+
+[project.optional-dependencies]
+test = [
+    "ZODB",
+    "beautifulsoup4",
+    "zope.annotation",
+    "zope.app.appsetup",
+    "zope.app.basicskin",
+    "zope.app.catalog",
+    "zope.app.catalog",
+    "zope.app.component",
+    "zope.app.container",
+    "zope.app.form",
+    "zope.app.publisher >= 4.0",
+    "zope.app.rotterdam",
+    "zope.app.schema >= 4.0",
+    "zope.app.wsgi",
+    "zope.browsermenu",
+    "zope.browserpage",
+    "zope.browserresource",
+    "zope.dottedname",
+    "zope.keyreference",
+    "zope.login",
+    "zope.password",
+    "zope.principalannotation",
+    "zope.principalregistry",
+    "zope.securitypolicy",
+    "zope.testbrowser >= 5.2",
+    "zope.testing",
+    "zope.testrunner >= 6.4",
+    "snowballstemmer",
+]
+browser = [
+    "zope.app.form",
+    "zope.browsermenu",
+]
+stemmer = ["snowballstemmer"]
+
+[project.urls]
+Source = "https://github.com/zopefoundation/zc.catalog"
+Issues = "https://github.com/zopefoundation/zc.catalog/issues"
+Changelog = "https://raw.githubusercontent.com/zopefoundation/zc.catalog/master/CHANGES.rst"
+
+
 [tool.coverage.run]
 branch = true
 source = ["zc.catalog"]
@@ -29,3 +128,11 @@ exclude_lines = [
 
 [tool.coverage.html]
 directory = "parts/htmlcov"
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.rst", "CHANGES.rst"]}
+
+[tool.zest-releaser]
+create-wheel = false
+extra-message = ""
+upload-pypi = false
