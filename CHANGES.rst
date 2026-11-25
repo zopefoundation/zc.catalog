@@ -2,7 +2,7 @@
  CHANGES
 =========
 
-6.0 (unreleased)
+6.0 (2026-11-25)
 ================
 
 Backwards incompatible changes
