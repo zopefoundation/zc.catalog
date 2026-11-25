@@ -5,15 +5,21 @@
 6.0 (unreleased)
 ================
 
-* Move package metadata from setup.py to pyproject.toml.
-
-* Add support for Python 3.14, 3.15.
-
-* Drop support for Python 3.10, 3.9.
+Backwards incompatible changes
+------------------------------
 
 * Use ``snowballstemmer`` instead of the unmaintained ``zopyx.txng3.ext`` in
   ``zc.catalog.stemmer``.  Stems can differ, so re-index text indexes which
   use the stemmer.
+
+* Drop support for Python 3.10, 3.9.
+
+Other changes
+-------------
+
+* Move package metadata from setup.py to pyproject.toml.
+
+* Add support for Python 3.14, 3.15.
 
 
 5.0 (2025-09-18)
